@@ -16,6 +16,7 @@ public interface UserDao {
     void updateIcon(UserInfo userInfo);
     void update(UserInfo userInfo);
     UserInfo selectOne(UserInfo userInfo);
+    UserInfo selectOneWithChannel(UserInfo userInfo);
     UserInfo selectOneById(UserInfo userInfo);
     UserInfo selectUserAndChannels(UserInfo userInfo);
 }

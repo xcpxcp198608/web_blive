@@ -58,9 +58,11 @@ public class User {
     }
 
     @PostMapping("/update")
-    public @ResponseBody ResultInfo updatePassword(HttpServletRequest request,
-                                     @ModelAttribute UserInfo userInfo){
-        return userService.update(userInfo);
+    public String updatePassword(HttpServletRequest request,
+                                     @ModelAttribute UserInfo userInfo, Model model){
+        ResultInfo resultInfo = userService.update(userInfo);
+        model.addAttribute("message", resultInfo.getMessage());
+        return "notice";
     }
 
     @PostMapping("/signout")

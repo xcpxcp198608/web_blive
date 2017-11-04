@@ -35,7 +35,9 @@
 </head>
 
 <body>
-
+    <div id="header">
+        <a href="/blive" style="cursor: pointer"><h2>BLIVE</h2></a>
+    </div>
     <div id="content">
         <rapid:block name="content" />
     </div>

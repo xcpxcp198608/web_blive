@@ -113,7 +113,7 @@ public class EmailMaster {
 		stringBuilder.append("<br/>");
 		stringBuilder.append("Legacy Direct"+"<br/>");
 		stringBuilder.append("You have requested to reset your password.  " +
-				"Please click the link below to finalize the process."+"<br/><br/>");
+				"Please click the link below to finalize the process. the link is avisiable in 10 minutes"+"<br/><br/>");
 		stringBuilder.append("<a href='" + basePath + "/blive/user/go/"+token+"'>" +
 				"RESET PASSWORD</a>"+"<br/><br/>");
 		stringBuilder.append("Legacy Direct"+"<br/>");

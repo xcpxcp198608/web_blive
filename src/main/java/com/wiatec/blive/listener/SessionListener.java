@@ -1,5 +1,7 @@
 package com.wiatec.blive.listener;
 
+import com.wiatec.blive.xutils.LoggerUtil;
+
 import javax.servlet.http.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,17 +13,20 @@ public class SessionListener implements HttpSessionListener,HttpSessionAttribute
 
     public static Map<String ,HttpSession> sessionMap = new HashMap<>();
     public static Map<String ,HttpSession> userSessionMap = new HashMap<>();
+    public static Map<String ,HttpSession> idSessionMap = new HashMap<>();
     public static final String KEY = "key";
-    public static final String KEY_USER_NAME = "userName";
+    public static final String KEY_USER_NAME = "username";
 
     @Override
     public void sessionCreated(HttpSessionEvent httpSessionEvent) {
         System.out.println(httpSessionEvent.getSession().getId()+" created");
+        idSessionMap.put(httpSessionEvent.getSession().getId(), httpSessionEvent.getSession());
     }
 
     @Override
     public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
         System.out.println(httpSessionEvent.getSession().getId()+" destroyed");
+        idSessionMap.remove(httpSessionEvent.getSession().getId());
     }
 
     @Override
@@ -74,7 +79,7 @@ public class SessionListener implements HttpSessionListener,HttpSessionAttribute
         if(KEY_USER_NAME.equals(httpSessionBindingEvent.getName())){
             String userName = (String) httpSessionBindingEvent.getValue();
             userSessionMap.remove(userName);
-            userSessionMap.put(userName, httpSessionBindingEvent.getSession());
+            userSessionMap.remove(httpSessionBindingEvent.getSession().getId());
         }
     }
 
@@ -84,5 +89,13 @@ public class SessionListener implements HttpSessionListener,HttpSessionAttribute
 
     public static HttpSession getUserSession (String userName){
         return userSessionMap.get(userName);
+    }
+
+    public static HttpSession getIdSession (String sessionId){
+        return idSessionMap.get(sessionId);
+    }
+
+    public static HttpSession setIdSession (HttpSession session){
+        return idSessionMap.put(session.getId(), session);
     }
 }
