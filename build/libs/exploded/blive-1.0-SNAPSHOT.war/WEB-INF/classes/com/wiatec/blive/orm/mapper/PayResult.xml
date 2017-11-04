@@ -1,0 +1,67 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiatec.blive.orm.dao.PayResultDao">
+    <resultMap type="com.wiatec.blive.orm.pojo.PayResultInfo" id="payResultInfo">
+        <id column="id" property="id"/>
+        <result column="payerId" property="payerId"/>
+        <result column="publisherId" property="publisherId"/>
+        <result column="channelName" property="channelName"/>
+        <result column="auth" property="auth"/>
+        <result column="paymentId" property="paymentId"/>
+        <result column="state" property="state"/>
+        <result column="cart" property="cart"/>
+        <result column="paymentMethod" property="paymentMethod"/>
+        <result column="paymentStatus" property="paymentStatus"/>
+        <result column="email" property="email"/>
+        <result column="firstName" property="firstName"/>
+        <result column="lastName" property="lastName"/>
+        <result column="payPalPayerId" property="payPalPayerId"/>
+        <result column="phone" property="phone"/>
+        <result column="countryCode" property="countryCode"/>
+        <result column="price" property="price"/>
+        <result column="currency" property="currency"/>
+        <result column="description" property="description"/>
+        <result column="transactionFee" property="transactionFee"/>
+        <result column="createTime" property="createTime"/>
+        <result column="updateTime" property="updateTime"/>
+        <result column="time" property="time"/>
+    </resultMap>
+
+    <sql id="select">SELECT id, payerId, publisherId, channelName, auth, paymentId, state, cart,
+                         paymentMethod, paymentStatus, email, firstName, lastName,
+                         payPalPayerId, phone, countryCode, price, currency, description,
+                         transactionFee, createTime, updateTime, time FROM paypal_result</sql>
+
+    <insert id="insertOne" parameterType="com.wiatec.blive.orm.pojo.PayResultInfo">
+        INSERT INTO paypal_result (payerId, publisherId, channelName, auth, paymentId, state, cart,
+                                   paymentMethod, paymentStatus, email, firstName, lastName,
+                                   payPalPayerId, phone, countryCode, price, currency, description,
+                                   transactionFee, createTime, updateTime)
+        VALUES (#{payerId}, #{publisherId}, #{channelName}, #{auth}, #{paymentId}, #{state}, #{cart}, #{paymentMethod},
+                                #{paymentStatus}, #{email}, #{firstName}, #{lastName},
+                                #{payPalPayerId}, #{phone}, #{countryCode}, #{price}, #{currency},
+                #{description}, #{transactionFee}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="countOne" parameterType="String" resultType="int">
+        SELECT count(*) FROM paypal_result WHERE paymentId = #{_parameter}
+    </select>
+
+    <select id="selectOne" parameterType="String" resultMap="payResultInfo">
+        <include refid="select"/> WHERE paymentId = #{_parameter}
+    </select>
+
+    <update id="updateOne" parameterType="com.wiatec.blive.orm.pojo.PayResultInfo">
+        UPDATE paypal_result
+        SET payerId=#{payerId}, publisherId=#{publisherId}, channelName=#{channelName},
+            auth=#{auth}, state=#{state}, cart=#{cart}, paymentMethod=#{paymentMethod},
+            paymentStatus=#{paymentStatus}, email=#{email}, firstName=#{firstName},
+            lastName=#{lastName}, payPalPayerId=#{payPalPayerId}, phone=#{phone},
+            countryCode=#{countryCode}, price=#{price}, transactionFee=#{transactionFee},
+            currency=#{currency}, description=#{description},  createTime=#{createTime},
+            updateTime=#{updateTime}
+        WHERE paymentId=#{paymentId}
+    </update>
+
+</mapper>

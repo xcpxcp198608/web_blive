@@ -1,0 +1,106 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiatec.blive.orm.dao.UserDao">
+    <resultMap type="com.wiatec.blive.orm.pojo.UserInfo" id="userInfo">
+        <id column="userId" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="icon" property="icon"/>
+        <result column="status" property="status"/>
+        <result column="isPublisher" property="publisher"/>
+        <result column="registerTime" property="registerTime"/>
+        <association property="channelInfo" javaType="com.wiatec.blive.orm.pojo.ChannelInfo">
+            <id column="channelId" property="id"/>
+            <result column="title" property="title"/>
+            <result column="message" property="message"/>
+            <result column="preview" property="preview"/>
+            <result column="url" property="url"/>
+            <result column="playUrl" property="playUrl"/>
+            <result column="category" property="category"/>
+            <result column="available" property="available"/>
+            <result column="type" property="type"/>
+            <result column="price" property="price"/>
+            <result column="startTime" property="startTime"/>
+            <result column="userId" property="userId"/>
+        </association>
+    </resultMap>
+
+    <sql id="select">SELECT id userId, username, password, email, phone, icon, status, registerTime, isPublisher FROM auth_user</sql>
+
+    <select id="selectOne" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultMap="userInfo">
+      <include refid="select"/>
+        WHERE username=#{username}
+    </select>
+
+    <select id="selectOneById" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultMap="userInfo">
+        SELECT id userId, username, email, phone, icon, status, registerTime, isPublisher FROM auth_user
+        WHERE auth_user.id=#{id}
+    </select>
+
+    <insert id="insertOne" parameterType="com.wiatec.blive.orm.pojo.UserInfo">
+        INSERT INTO auth_user (username, password, email, phone, icon)
+        VALUES (#{username}, #{password}, #{email}, #{phone}, '1')
+    </insert>
+
+    <select id="countUsername" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
+        SELECT COUNT(*) FROM auth_user
+        WHERE username=#{username}
+    </select>
+
+    <select id="countEmail" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
+        SELECT COUNT(*) FROM auth_user
+        WHERE email=#{email}
+    </select>
+
+    <select id="countPhone" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
+        SELECT COUNT(*) FROM auth_user
+        WHERE phone=#{phone}
+    </select>
+
+    <select id="validateStatus" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
+        SELECT status FROM auth_user WHERE username=#{username}
+    </select>
+
+    <select id="validateUserNameAndEmail" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
+        SELECT COUNT(*)  FROM auth_user WHERE username=#{username} AND email=#{email}
+    </select>
+
+    <select id="countOne" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
+        SELECT COUNT(*) FROM auth_user
+        WHERE username=#{username} AND password=#{password}
+    </select>
+
+    <!-- 关联查询时如果column有重名的需要起别名，否则查询结果只有一条 -->
+    <select id="selectUserAndChannels" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultMap="userInfo">
+        SELECT auth_user.id userId, auth_user.username, auth_user.email, auth_user.phone,
+            auth_user.icon, auth_user.status, auth_user.registerTime, auth_user.isPublisher,
+            live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url, live_channel.playUrl,
+            live_channel.preview, live_channel.category, live_channel.available, live_channel.type,
+            live_channel.price, live_channel.startTime, live_channel.userId
+        FROM auth_user, live_channel
+        WHERE auth_user.id=#{id}
+        AND auth_user.id = live_channel.userId
+    </select>
+
+    <update id="updateStatus" parameterType="com.wiatec.blive.orm.pojo.UserInfo">
+        UPDATE auth_user
+        SET status=1
+        WHERE username=#{username}
+    </update>
+
+    <update id="updateIcon" parameterType="com.wiatec.blive.orm.pojo.UserInfo">
+        UPDATE auth_user
+        SET icon=#{icon}
+        WHERE id=#{id}
+    </update>
+
+    <update id="update" parameterType="com.wiatec.blive.orm.pojo.UserInfo">
+        UPDATE auth_user
+        SET password=#{password}
+        WHERE username=#{username}
+    </update>
+
+</mapper>
