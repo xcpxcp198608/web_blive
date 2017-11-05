@@ -49,7 +49,7 @@ $(function () {
             },
             success: function (response) {
                 console.log(response);
-                jLoading.css('display', 'none');
+                // jLoading.css('display', 'none');
                 if(response.code == 200){
                     window.open(baseUrl +"/users/details", "_self")
                 }else{

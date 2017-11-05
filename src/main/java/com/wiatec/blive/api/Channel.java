@@ -37,7 +37,6 @@ public class Channel {
 
     @PutMapping("/title")
     public @ResponseBody ResultInfo<ChannelInfo> updateChannelTitle(@RequestBody ChannelInfo channelInfo){
-        System.out.println(channelInfo);
         return channelService.updateChannelTitle(channelInfo);
     }
 

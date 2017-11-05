@@ -25,7 +25,7 @@
           href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
           crossorigin="anonymous">
-    <script type="application/javascript" language="JavaScript" src="Resource/js/jquery-3.2.1.min.js"></script>
+    <script type="application/javascript" language="JavaScript" src="Resource/js/jquery-3.2.1.js"></script>
     <script type="application/javascript" language="JavaScript" src="Resource/js/common.js"></script>
     <script type="application/javascript" language="JavaScript" src="Resource/js/base.js"></script>
     <link rel="stylesheet" type="text/css" href="Resource/css/base.css">

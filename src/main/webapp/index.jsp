@@ -45,7 +45,7 @@
     .aa:hover {color: #1d4ebb}
 
   </style>
-  <script type="application/javascript" src="Resource/js/jquery-3.2.1.min.js"></script>
+  <script type="application/javascript" src="Resource/js/jquery-3.2.1.js"></script>
   <script type="application/javascript" src="Resource/js/index.js"></script>
 </head>
 

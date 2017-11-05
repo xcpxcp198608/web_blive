@@ -62,6 +62,7 @@ public class ChannelService {
                 channelDao.updateChannelTitle(channelInfo);
                 resultInfo.setCode(ResultInfo.CODE_OK);
                 resultInfo.setStatus(ResultInfo.STATUS_OK);
+                resultInfo.setT(channelDao.selectOne(channelInfo));
                 resultInfo.setMessage("update successfully");
             }else{
                 resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
