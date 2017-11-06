@@ -84,12 +84,13 @@ public class ChannelService {
         try{
             if(activate == 1){
                 channelDao.updateChannelAvailable(new ChannelInfo(userId));
+                resultInfo.setMessage("activate successfully");
             }else {
                 channelDao.updateChannelUnavailable(new ChannelInfo(userId));
+                resultInfo.setMessage("deactivate successfully");
             }
             resultInfo.setCode(ResultInfo.CODE_OK);
             resultInfo.setStatus(ResultInfo.STATUS_OK);
-            resultInfo.setMessage("deactivate successfully");
             return resultInfo;
         }catch (Exception e){
             resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
