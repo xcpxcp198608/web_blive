@@ -12,6 +12,7 @@ public interface ChannelDao {
     void insertChannel(ChannelInfo channelInfo);
     void updateChannel(ChannelInfo channelInfo);
     void updateChannelTitle(ChannelInfo channelInfo);
+    void updateChannelPrice(ChannelInfo channelInfo);
     void updateChannelAvailable(ChannelInfo channelInfo);
     void updateChannelUnavailable(ChannelInfo channelInfo);
     void updatePreview(ChannelInfo channelInfo);

@@ -67,13 +67,37 @@ public class ChannelService {
             }else{
                 resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
                 resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-                resultInfo.setMessage("signin erro ,please signin again");
+                resultInfo.setMessage("signin error ,please signin again");
             }
             return resultInfo;
         }catch (Exception e){
             resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
             resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
-            resultInfo.setMessage("channel server error");
+            resultInfo.setMessage("update error");
+            return resultInfo;
+        }
+    }
+
+    @Transactional
+    public ResultInfo<ChannelInfo> updateChannelPrice(ChannelInfo channelInfo){
+        ResultInfo<ChannelInfo> resultInfo = new ResultInfo<>();
+        try{
+            if(channelDao.countUserId(channelInfo) == 1){
+                channelDao.updateChannelPrice(channelInfo);
+                resultInfo.setCode(ResultInfo.CODE_OK);
+                resultInfo.setStatus(ResultInfo.STATUS_OK);
+                resultInfo.setT(channelDao.selectOne(channelInfo));
+                resultInfo.setMessage("update successfully");
+            }else{
+                resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
+                resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
+                resultInfo.setMessage("signin error ,please signin again");
+            }
+            return resultInfo;
+        }catch (Exception e){
+            resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
+            resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
+            resultInfo.setMessage("update error");
             return resultInfo;
         }
     }

@@ -3,7 +3,7 @@ package com.wiatec.blive.orm.pojo;
 public class PayResultInfo {
 
     private int id;
-    private int payerId;
+    private String payerName;
     private int publisherId;
     private String channelName;
     private String auth;
@@ -26,6 +26,14 @@ public class PayResultInfo {
     private String updateTime;
     private String time;
 
+    public PayResultInfo() {
+    }
+
+    public PayResultInfo(String payerName, int publisherId) {
+        this.payerName = payerName;
+        this.publisherId = publisherId;
+    }
+
     public int getId() {
         return id;
     }
@@ -34,12 +42,12 @@ public class PayResultInfo {
         this.id = id;
     }
 
-    public int getPayerId() {
-        return payerId;
+    public String getPayerName() {
+        return payerName;
     }
 
-    public void setPayerId(int payerId) {
-        this.payerId = payerId;
+    public void setPayerName(String payerName) {
+        this.payerName = payerName;
     }
 
     public int getPublisherId() {
@@ -214,7 +222,7 @@ public class PayResultInfo {
     public String toString() {
         return "PayResultInfo{" +
                 "id=" + id +
-                ", payerId=" + payerId +
+                ", payerName='" + payerName + '\'' +
                 ", publisherId=" + publisherId +
                 ", channelName='" + channelName + '\'' +
                 ", auth='" + auth + '\'' +

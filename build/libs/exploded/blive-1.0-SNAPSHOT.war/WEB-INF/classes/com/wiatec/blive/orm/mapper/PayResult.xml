@@ -4,7 +4,7 @@
 <mapper namespace="com.wiatec.blive.orm.dao.PayResultDao">
     <resultMap type="com.wiatec.blive.orm.pojo.PayResultInfo" id="payResultInfo">
         <id column="id" property="id"/>
-        <result column="payerId" property="payerId"/>
+        <result column="payerName" property="payerName"/>
         <result column="publisherId" property="publisherId"/>
         <result column="channelName" property="channelName"/>
         <result column="auth" property="auth"/>
@@ -25,20 +25,20 @@
         <result column="transactionFee" property="transactionFee"/>
         <result column="createTime" property="createTime"/>
         <result column="updateTime" property="updateTime"/>
-        <result column="time" property="time"/>
+        <result column="time1" property="time"/>
     </resultMap>
 
-    <sql id="select">SELECT id, payerId, publisherId, channelName, auth, paymentId, state, cart,
+    <sql id="select">SELECT id, payerName, publisherId, channelName, auth, paymentId, state, cart,
                          paymentMethod, paymentStatus, email, firstName, lastName,
                          payPalPayerId, phone, countryCode, price, currency, description,
-                         transactionFee, createTime, updateTime, time FROM paypal_result</sql>
+                         transactionFee, createTime, updateTime, time time1 FROM paypal_result</sql>
 
     <insert id="insertOne" parameterType="com.wiatec.blive.orm.pojo.PayResultInfo">
-        INSERT INTO paypal_result (payerId, publisherId, channelName, auth, paymentId, state, cart,
+        INSERT INTO paypal_result (payerName, publisherId, channelName, auth, paymentId, state, cart,
                                    paymentMethod, paymentStatus, email, firstName, lastName,
                                    payPalPayerId, phone, countryCode, price, currency, description,
                                    transactionFee, createTime, updateTime)
-        VALUES (#{payerId}, #{publisherId}, #{channelName}, #{auth}, #{paymentId}, #{state}, #{cart}, #{paymentMethod},
+        VALUES (#{payerName}, #{publisherId}, #{channelName}, #{auth}, #{paymentId}, #{state}, #{cart}, #{paymentMethod},
                                 #{paymentStatus}, #{email}, #{firstName}, #{lastName},
                                 #{payPalPayerId}, #{phone}, #{countryCode}, #{price}, #{currency},
                 #{description}, #{transactionFee}, #{createTime}, #{updateTime})
@@ -52,9 +52,15 @@
         <include refid="select"/> WHERE paymentId = #{_parameter}
     </select>
 
+    <select id="selectOneByPayer" parameterType="com.wiatec.blive.orm.pojo.PayResultInfo" resultMap="payResultInfo">
+        <include refid="select"/>
+        WHERE payerName = #{payerName} AND publisherId=#{publisherId}
+        ORDER BY time DESC
+    </select>
+
     <update id="updateOne" parameterType="com.wiatec.blive.orm.pojo.PayResultInfo">
         UPDATE paypal_result
-        SET payerId=#{payerId}, publisherId=#{publisherId}, channelName=#{channelName},
+        SET payerName=#{payerName}, publisherId=#{publisherId}, channelName=#{channelName},
             auth=#{auth}, state=#{state}, cart=#{cart}, paymentMethod=#{paymentMethod},
             paymentStatus=#{paymentStatus}, email=#{email}, firstName=#{firstName},
             lastName=#{lastName}, payPalPayerId=#{payPalPayerId}, phone=#{phone},

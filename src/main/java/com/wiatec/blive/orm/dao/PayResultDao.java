@@ -13,6 +13,9 @@ public interface PayResultDao {
      */
     int countOne(String paymentId);
     PayResultInfo selectOne(String paymentId);
+    List<PayResultInfo> selectOneByPayer(PayResultInfo payResultInfo);
+
+
 
     /**
      * insert pay full info from paypal verify RESTFUL api

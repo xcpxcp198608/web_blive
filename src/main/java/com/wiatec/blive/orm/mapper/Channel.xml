@@ -27,7 +27,7 @@
         </association>
     </resultMap>
 
-    <sql id="select">SELECT id channelId, title, message, url, playUrl, preview, category, available, type, startTime, userId FROM live_channel</sql>
+    <sql id="select">SELECT id channelId, title, message, url, playUrl, preview, category, available, type, price, startTime, userId FROM live_channel</sql>
 
     <select id="selectAllAvailable" resultMap="channelInfo">
         SELECT live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url, live_channel.playUrl,
@@ -64,6 +64,12 @@
     <update id="updateChannelTitle" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
         UPDATE live_channel
         SET title=#{title}, message=#{message}
+        WHERE userId=#{userId}
+    </update>
+
+    <update id="updateChannelPrice" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+        UPDATE live_channel
+        SET price=#{price}
         WHERE userId=#{userId}
     </update>
 

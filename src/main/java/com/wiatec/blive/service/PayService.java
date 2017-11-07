@@ -4,6 +4,9 @@ import com.wiatec.blive.entity.ResultInfo;
 import com.wiatec.blive.instance.Application;
 import com.wiatec.blive.orm.dao.PayResultDao;
 import com.wiatec.blive.orm.pojo.PayResultInfo;
+import com.wiatec.blive.xutils.LoggerUtil;
+import com.wiatec.blive.xutils.TextUtil;
+import com.wiatec.blive.xutils.TimeUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -15,32 +18,40 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 
 @Service
 public class PayService {
 
 //    private static final String PAYPAL_VERIFY_URL = "https://api.sandbox.paypal.com/v1/payments/payment/";
     private static final String PAYPAL_VERIFY_URL = "https://api.paypal.com/v1/payments/payment/";
+    private static final long EXPIRES = 86400000;
 
     @Resource
     private PayResultDao payResultDao;
 
-    public ResultInfo<PayResultInfo> verify(int payerId, int publisherId, String paymentId){
-        if(payResultDao.countOne(paymentId) == 1){
-            ResultInfo<PayResultInfo> resultInfo = new ResultInfo<>();
-            PayResultInfo payResultInfo = payResultDao.selectOne(paymentId);
-            if("approved".equals(payResultInfo.getState())){
-                resultInfo.setCode(ResultInfo.CODE_OK);
-                resultInfo.setStatus(ResultInfo.STATUS_OK);
-                resultInfo.setMessage("pay successfully");
-                resultInfo.setT(payResultInfo);
+    public ResultInfo<PayResultInfo> verify(String payerName, int publisherId, String paymentId){
+        ResultInfo<PayResultInfo> resultInfo = new ResultInfo<>();
+        if(TextUtil.isEmpty(paymentId)){
+            List<PayResultInfo> payResultInfos = payResultDao.selectOneByPayer(new PayResultInfo(payerName, publisherId));
+            if(payResultInfos == null || payResultInfos.size() <= 0) {
+                resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
+                resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
+                resultInfo.setMessage("no pay");
                 return resultInfo;
             }
+            PayResultInfo payResultInfo = payResultInfos.get(0);
+            LoggerUtil.d(payResultInfo);
+            return handleResult(payResultInfo);
         }
-        return realVerify(PAYPAL_VERIFY_URL + paymentId, payerId,  publisherId);
+        if (payResultDao.countOne(paymentId) == 1) {
+            PayResultInfo payResultInfo = payResultDao.selectOne(paymentId);
+            return handleResult(payResultInfo);
+        }
+        return realVerify(PAYPAL_VERIFY_URL + paymentId, payerName,  publisherId);
     }
 
-    private ResultInfo<PayResultInfo> realVerify(String url, int payerId, int publisherId){
+    private ResultInfo<PayResultInfo> realVerify(String url, String payerName, int publisherId){
         InputStream inputStream = null;
         BufferedReader bufferedReader = null;
         StringBuilder builder = new StringBuilder();
@@ -60,7 +71,7 @@ public class PayService {
             JSONObject jsonObject = new JSONObject(result);
             System.out.println(jsonObject);
             PayResultInfo payResultInfo = new PayResultInfo();
-            payResultInfo.setPayerId(payerId);
+            payResultInfo.setPayerName(payerName);
             payResultInfo.setPublisherId(publisherId);
             payResultInfo.setChannelName("");
             payResultInfo.setPaymentId(jsonObject.getString("id"));
@@ -87,8 +98,14 @@ public class PayService {
             payResultInfo.setCurrency(amount.getString("currency"));
             JSONObject transaction_fee = sale.getJSONObject("transaction_fee");
             payResultInfo.setTransactionFee(Float.parseFloat(transaction_fee.getString("value")));
-            payResultInfo.setCreateTime(sale.getString("create_time"));
-            payResultInfo.setUpdateTime(sale.getString("update_time"));
+            String createTime = sale.getString("create_time");
+            createTime = createTime.replace("T", " ");
+            createTime = createTime.replace("Z", "");
+            payResultInfo.setCreateTime(createTime);
+            String updateTime = sale.getString("update_time");
+            updateTime = updateTime.replace("T", " ");
+            updateTime = updateTime.replace("Z", "");
+            payResultInfo.setUpdateTime(updateTime);
             if("approved".equals(payResultInfo.getState())){
                 if(payResultDao.countOne(payResultInfo.getPaymentId()) == 1){
                     payResultDao.updateOne(payResultInfo);
@@ -125,5 +142,28 @@ public class PayService {
             }
 
         }
+    }
+
+    private ResultInfo<PayResultInfo> handleResult(PayResultInfo payResultInfo){
+        ResultInfo<PayResultInfo> resultInfo = new ResultInfo<>();
+        if(!"approved".equals(payResultInfo.getState())){
+            resultInfo.setCode(ResultInfo.CODE_INVALID);
+            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
+            resultInfo.setMessage("pay state no approved");
+            return resultInfo;
+        }
+        long time = TimeUtil.getUnixFromStr(payResultInfo.getTime());
+        LoggerUtil.d(time);
+        if(time + EXPIRES < System.currentTimeMillis()){
+            resultInfo.setCode(ResultInfo.CODE_INVALID);
+            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
+            resultInfo.setMessage("pay state out expires");
+            return resultInfo;
+        }
+        resultInfo.setCode(ResultInfo.CODE_OK);
+        resultInfo.setStatus(ResultInfo.STATUS_OK);
+        resultInfo.setMessage("pay successfully");
+        resultInfo.setT(payResultInfo);
+        return resultInfo;
     }
 }

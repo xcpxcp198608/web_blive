@@ -40,6 +40,11 @@ public class Channel {
         return channelService.updateChannelTitle(channelInfo);
     }
 
+    @PutMapping("/price")
+    public @ResponseBody ResultInfo<ChannelInfo> updateChannelPrice(@RequestBody ChannelInfo channelInfo){
+        return channelService.updateChannelPrice(channelInfo);
+    }
+
     @PutMapping("/status/{activate}/{userId}")
     public @ResponseBody ResultInfo<ChannelInfo> updateChannelUnavailable(@PathVariable int activate,
                                                                           @PathVariable int userId){

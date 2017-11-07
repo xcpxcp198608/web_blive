@@ -18,11 +18,18 @@ public class Pay {
     @Resource
     private PayService payService;
 
-    @PostMapping(value = "/verify/{payerId}/{publisherId}/{paymentId}")
+    @PostMapping(value = "/verify/{payerName}/{publisherId}/{paymentId}")
     @ResponseBody
-    public ResultInfo<PayResultInfo> verify(@PathVariable("payerId") int payerId,
+    public ResultInfo<PayResultInfo> verify(@PathVariable("payerName") String payerName,
                                             @PathVariable("publisherId") int publisherId,
                                             @PathVariable("paymentId") String paymentId){
-        return payService.verify(payerId, publisherId, paymentId);
+        return payService.verify(payerName, publisherId, paymentId);
+    }
+
+    @PostMapping(value = "/verify/{payerName}/{publisherId}")
+    @ResponseBody
+    public ResultInfo<PayResultInfo> verify1(@PathVariable("payerName") String payerName,
+                                            @PathVariable("publisherId") int publisherId){
+        return payService.verify(payerName, publisherId, "");
     }
 }
