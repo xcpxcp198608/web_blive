@@ -39,6 +39,29 @@
                 });
             }
 
+            $('#price').blur(function () {
+               var price = $(this).val();
+               if(price.length <= 0){
+                   return;
+               }
+                $.ajax({
+                    type: "PUT",
+                    url: baseUrl + "/channel/price",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({"userId": ${userInfo.id}, "price": price}),
+                    dataType: "json",
+                    beforeSend: function () {
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        showNotice(response.message);
+                    },
+                    error: function () {
+                        showNotice('update failure')
+                    }
+                });
+            });
+
             function showNotice(message){
                 $('#notice_message').html(message);
                 $('#notice').css('display', 'block');
@@ -129,10 +152,18 @@
                                value="${userInfo.channelInfo.title}"/>
                     </td>
                 </tr>
-                <tr><td>content</td>
+                <tr>
+                    <td>content</td>
                     <td>
                         <input type="text" class="form-control" id="message"
                                value="${userInfo.channelInfo.message}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>price</td>
+                    <td>
+                        <input type="number" class="form-control" id="price"
+                               value="${userInfo.channelInfo.price}"/>
                     </td>
                 </tr>
                 <tr>
@@ -160,8 +191,8 @@
     </div>
 
     <div id="notice" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1001; display: none">
-        <div style="width:50%; margin: 530px auto">
-            <h4 id="notice_message" style="font-size: 20px; width: 100%; text-align: center;"></h4>
+        <div style="width:50%; margin: 570px auto">
+            <h4 id="notice_message" style="color: red ;font-size: 20px; width: 100%; text-align: center;"></h4>
         </div>
     </div>
 </rapid:override>

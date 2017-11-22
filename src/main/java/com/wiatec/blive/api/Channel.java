@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.List;
 
+import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
+
 @Controller
 @RequestMapping(value = "/channel")
 public class Channel {
@@ -63,7 +65,7 @@ public class Channel {
             if(!file.isEmpty()){
                 String path = request.getSession().getServletContext().getRealPath("/Resource/channel_preview/");
                 FileUtils.copyInputStreamToFile(file.getInputStream(), new File( path,  file.getOriginalFilename()));
-                String preview = "http://blive.protv.company:8804/web/Resource/channel_preview/" + file.getOriginalFilename();
+                String preview = BASE_RESOURCE_URL + "channel_preview/" + file.getOriginalFilename();
                 return channelService.updatePreview(new ChannelInfo(preview, userId));
             }
         }catch (Exception e){

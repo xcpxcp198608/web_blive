@@ -37,7 +37,7 @@ public class PayService {
             if(payResultInfos == null || payResultInfos.size() <= 0) {
                 resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
                 resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-                resultInfo.setMessage("no pay");
+                resultInfo.setMessage("This is a pay program, please follow the instructions to make payment.");
                 return resultInfo;
             }
             PayResultInfo payResultInfo = payResultInfos.get(0);

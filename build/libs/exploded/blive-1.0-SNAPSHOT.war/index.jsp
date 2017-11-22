@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <link rel="shortcut icon" href="Resource/img/btv.ico">
   <style type="text/css">
-    #div_sign_in {margin: 200px auto auto;  width: 400px; height: 320px; background-color: #12263c;
+    #div_sign_in {margin: 200px auto auto;  width: 400px; height: 350px; background-color: #12263c;
       box-shadow: 0 0 8px #1d4ebb;}
     #div_sign_in_1 {width: 300px; height: 250px; margin: 25px auto auto}
     h3 {width: 100%; text-align: center; align-content: center}
@@ -54,7 +54,7 @@
   <div id="div_sign_in">
     <div id="div_sign_in_1">
       <br/>
-      <h3 style="color: whitesmoke">BLIVE</h3>
+      <h3 style="color: whitesmoke">BLIVE ON BVISION</h3>
       <br/>
       <div>
       <div class="input-group">
@@ -79,6 +79,10 @@
         <a style="display: block; float: right;" id="a_reset" class="aa">Forgot password?</a>
       </div>
       <br/>
+      <div style="color: #b9b9b9; font-size: 12px">
+        By signing up the account, you agree to the term of service
+        <a href="http://blive.bvision.live:8804/consent.pdf" target="_blank">(consent)</a>
+      </div>
       <div style="clear: both"><span id="error_message_sign_in"></span></div>
     </div>
   </div>

@@ -13,6 +13,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 
+import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
+
 @Controller
 @RequestMapping(value = "/user")
 public class User {
@@ -72,8 +74,7 @@ public class User {
     }
 
     @PostMapping("/upload/{userId}")
-    public @ResponseBody ResultInfo<UserInfo> uploadIcon(@RequestParam MultipartFile file,
-                                    @PathVariable int userId,
+    public @ResponseBody ResultInfo<UserInfo> uploadIcon(@RequestParam MultipartFile file, @PathVariable int userId,
                                     HttpServletRequest request){
         ResultInfo<UserInfo> resultInfo = new ResultInfo<>();
         resultInfo.setCode(ResultInfo.CODE_INVALID);
@@ -83,7 +84,7 @@ public class User {
             if(!file.isEmpty()){
                 String path = request.getSession().getServletContext().getRealPath("/Resource/icon/");
                 FileUtils.copyInputStreamToFile(file.getInputStream(), new File( path,  file.getOriginalFilename()));
-                String icon = "http://blive.protv.company:8804/web/Resource/icon/" + file.getOriginalFilename();
+                String icon = BASE_RESOURCE_URL + "icon/" + file.getOriginalFilename();
                 return userService.updateIcon(new UserInfo(userId, icon));
             }
         }catch (Exception e){
