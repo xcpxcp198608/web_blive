@@ -1,8 +1,10 @@
-package com.wiatec.blive.xutils;
+package com.wiatec.blive.common.utils;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import java.util.concurrent.*;
 
 /**
  * Created by xuchengpeng on 12/06/2017.

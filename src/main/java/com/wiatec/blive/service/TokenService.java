@@ -1,9 +1,9 @@
 package com.wiatec.blive.service;
 
+import com.wiatec.blive.common.utils.TimeUtil;
 import com.wiatec.blive.entity.ResultInfo;
 import com.wiatec.blive.orm.dao.TokenDao;
 import com.wiatec.blive.orm.pojo.TokenInfo;
-import com.wiatec.blive.xutils.TimeUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

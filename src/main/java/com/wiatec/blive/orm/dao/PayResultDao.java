@@ -2,9 +2,11 @@ package com.wiatec.blive.orm.dao;
 
 import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.PayResultInfo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface PayResultDao {
 
     /**

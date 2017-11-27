@@ -40,7 +40,7 @@
         ORDER BY live_channel.startTime DESC
     </select>
 
-    <select id="selectOne" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo" resultMap="channelInfo">
+    <select id="selectOneByUserId" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo" resultMap="channelInfo">
       <include refid="select"/>
         WHERE live_channel.userId=#{userId}
     </select>

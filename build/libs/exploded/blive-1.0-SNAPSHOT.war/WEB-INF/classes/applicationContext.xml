@@ -14,7 +14,7 @@
             http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/tool http://www.springframework.org/schema/tool/spring-tool.xsd">
 
     <!-- 配置spring 全局applicationContext -->
-    <bean name="applicationContext" class="com.wiatec.blive.xutils.ApplicationContextHelper"/>
+    <bean name="applicationContext" class="com.wiatec.blive.common.utils.ApplicationContextHelper"/>
 
     <!-- 启用注解支持 -->
     <context:annotation-config/>
@@ -76,21 +76,6 @@
 
     <!-- 启用对事务注解的支持 -->
     <tx:annotation-driven transaction-manager="transactionManager"/>
-
-    <!-- 事务管理 通知 -->
-    <tx:advice id="txAdvice" transaction-manager="transactionManager">
-        <tx:attributes>
-            <!-- 对insert,update,delete 开头的方法进行事务管理,只要有异常就回滚 -->
-            <tx:method name="insert*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
-            <tx:method name="update*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
-            <tx:method name="delete*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
-            <!-- select,count开头的方法,开启只读,提高数据库访问性能 -->
-            <tx:method name="select*" read-only="true"/>
-            <tx:method name="count*" read-only="true"/>
-            <!-- 对其他方法 使用默认的事务管理 -->
-            <tx:method name="*"/>
-        </tx:attributes>
-    </tx:advice>
 
     <task:annotation-driven/>
 </beans>

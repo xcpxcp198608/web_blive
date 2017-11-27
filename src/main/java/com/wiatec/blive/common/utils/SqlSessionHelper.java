@@ -1,4 +1,4 @@
-package com.wiatec.blive.xutils;
+package com.wiatec.blive.common.utils;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;

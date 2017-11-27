@@ -6,7 +6,7 @@ import com.wiatec.blive.orm.dao.TokenDao;
 import com.wiatec.blive.orm.dao.UserDao;
 import com.wiatec.blive.orm.pojo.TokenInfo;
 import com.wiatec.blive.orm.pojo.UserInfo;
-import com.wiatec.blive.xutils.*;
+import com.wiatec.blive.common.utils.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -156,7 +156,6 @@ public class UserService {
     public String go(String token){
         String t = AESUtil.decrypt(token, AESUtil.KEY);
         long time = Long.parseLong(t.substring(0, 13));
-        LoggerUtil.d(time);
         if(time + 600000 < System.currentTimeMillis()){
             throw new RuntimeException("link operation timeout");
         }

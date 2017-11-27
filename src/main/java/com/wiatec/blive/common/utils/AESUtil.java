@@ -1,4 +1,4 @@
-package com.wiatec.blive.xutils;
+package com.wiatec.blive.common.utils;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;

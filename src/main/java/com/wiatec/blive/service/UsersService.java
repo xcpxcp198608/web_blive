@@ -1,5 +1,7 @@
 package com.wiatec.blive.service;
 
+import com.wiatec.blive.common.utils.TextUtil;
+import com.wiatec.blive.common.utils.TokenUtil;
 import com.wiatec.blive.entity.ResultInfo;
 import com.wiatec.blive.listener.SessionListener;
 import com.wiatec.blive.orm.dao.ChannelDao;
@@ -8,7 +10,6 @@ import com.wiatec.blive.orm.dao.UserDao;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.TokenInfo;
 import com.wiatec.blive.orm.pojo.UserInfo;
-import com.wiatec.blive.xutils.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -57,7 +58,6 @@ public class UsersService {
                     return resultInfo;
                 }
                 UserInfo userInfo1 = userDao.selectOne(userInfo);
-                LoggerUtil.d(userInfo1);
                 TokenInfo tokenInfo = new TokenInfo();
                 tokenInfo.setToken(TokenUtil.create(userInfo.getUsername(),
                         System.currentTimeMillis() + "") +
@@ -86,7 +86,6 @@ public class UsersService {
             return resultInfo;
         }catch (Exception e){
             e.printStackTrace();
-            LoggerUtil.d(e.getMessage());
             resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
             resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
             resultInfo.setMessage("Signin error");
@@ -112,7 +111,6 @@ public class UsersService {
             }
             String result =  builder.toString();
             JSONObject jsonObject = new JSONObject(result);
-            LoggerUtil.d(jsonObject);
             rtmpUrl = jsonObject.getJSONObject("data").getString("push_full_url");
             playUrl = jsonObject.getJSONObject("data").getString("play_url");
         } catch (IOException e) {

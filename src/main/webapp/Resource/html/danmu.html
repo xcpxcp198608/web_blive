@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <title>Title</title>
+    <script src="jquery-3.2.1.js"></script>
+    <script src="http://cdn-hangzhou.goeasy.io/goeasy.js"></script>
+    <style>
+        .message{ font-size: 30px; position: absolute}
+    </style>
+    <script>
+        $(function () {
+//            showDanMu("9")
+        });
+
+        function showDanMu(channel) {
+            var appkey = "BC-6a9b6c468c894389881bc1df7d90cddb";
+            var currentPosition = 1;
+            var goEasy = new GoEasy({
+                appkey: appkey
+            });
+            goEasy.subscribe({
+                channel: channel,
+                onSuccess: function () {
+                    console.log("onSuccess")
+                },
+                onFailed: function (error) {
+                    console.log(error.content)
+                },
+                onMessage: function (message) {
+                    console.log(message.content);
+                    var sp = createElement(message);
+                    $('#div'+currentPosition).append(sp);
+                    setStartPosition(sp);
+                    var elementWidth = sp.outerWidth();
+                    console.log(elementWidth);
+                    moveToLeft(sp, elementWidth);
+                    currentPosition ++;
+                    if(currentPosition > 5){
+                        currentPosition = 1
+                    }
+                }
+            });
+        }
+
+        function createElement(message) {
+            var color = ['#ff7baf', '#88d6ff', '#80ff9b', '#2831ff', '#ff873f', '#deff7c', '#21f8ff', '#cc78ff'];
+            var sp = $('<span>',{'class':'message'});
+            sp.css('color', color[1 + Math.round(Math.random() * 6)]);
+            sp.html(message.content);
+            return sp
+        }
+
+        function setStartPosition(sp) {
+            var screenWidth = $(window).width();
+            console.log(screenWidth);
+            sp.css("left", screenWidth)
+        }
+
+        function moveToLeft(sp, elementWidth) {
+            var jMessage = sp;
+            clearInterval(jMessage.timer);
+            jMessage.timer = setInterval(function () {
+                var speed = 8;
+                var currentValue = parseInt(sp.css('left'));
+                console.log(currentValue);
+                if (currentValue < -elementWidth ) {
+                    clearInterval(jMessage.timer);
+                    sp.css("left", -elementWidth-150);
+                    sp.remove();
+                    delete(sp);
+                }else{
+                    sp.css("left", currentValue - speed)
+                }
+            }, 30);
+        }
+    </script>
+
+</head>
+<body style="background-color: transparent">
+    <div style="position: relative">
+
+        <div style="height: 30px" id="div1"></div>
+        <div style="height: 30px" id="div2"></div>
+        <div style="height: 30px" id="div3"></div>
+        <div style="height: 30px" id="div4"></div>
+        <div style="height: 30px" id="div5"></div>
+    </div>
+
+</body>
+</html>

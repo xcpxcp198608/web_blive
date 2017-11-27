@@ -1,13 +1,15 @@
 package com.wiatec.blive.orm.dao;
 
 import com.wiatec.blive.orm.pojo.ChannelInfo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface ChannelDao {
 
     List<ChannelInfo> selectAllAvailable();
-    ChannelInfo selectOne(ChannelInfo channelInfo);
+    ChannelInfo selectOneByUserId(ChannelInfo channelInfo);
     int countUserId(ChannelInfo channelInfo);
     void insertChannel(ChannelInfo channelInfo);
     void updateChannel(ChannelInfo channelInfo);

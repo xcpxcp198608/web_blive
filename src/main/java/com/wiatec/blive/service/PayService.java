@@ -1,12 +1,11 @@
 package com.wiatec.blive.service;
 
+import com.wiatec.blive.common.utils.TextUtil;
+import com.wiatec.blive.common.utils.TimeUtil;
 import com.wiatec.blive.entity.ResultInfo;
 import com.wiatec.blive.instance.Application;
 import com.wiatec.blive.orm.dao.PayResultDao;
 import com.wiatec.blive.orm.pojo.PayResultInfo;
-import com.wiatec.blive.xutils.LoggerUtil;
-import com.wiatec.blive.xutils.TextUtil;
-import com.wiatec.blive.xutils.TimeUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -41,7 +40,6 @@ public class PayService {
                 return resultInfo;
             }
             PayResultInfo payResultInfo = payResultInfos.get(0);
-            LoggerUtil.d(payResultInfo);
             return handleResult(payResultInfo);
         }
         if (payResultDao.countOne(paymentId) == 1) {
@@ -153,7 +151,6 @@ public class PayService {
             return resultInfo;
         }
         long time = TimeUtil.getUnixFromStr(payResultInfo.getTime());
-        LoggerUtil.d(time);
         if(time + EXPIRES < System.currentTimeMillis()){
             resultInfo.setCode(ResultInfo.CODE_INVALID);
             resultInfo.setStatus(ResultInfo.STATUS_INVALID);

@@ -1,17 +1,18 @@
 package com.wiatec.blive.task;
 
 import com.wiatec.blive.instance.Application;
-import com.wiatec.blive.xutils.LoggerUtil;
 import okhttp3.*;
 import org.json.JSONObject;
-import sun.net.www.http.HttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.json.JsonObject;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class PayPalAccessToken implements Runnable {
+
+    private Logger logger = LoggerFactory.getLogger(PayPalAccessToken.class);
 
 //    private final String URL = "https://api.sandbox.paypal.com/v1/oauth2/token";
     private final String URL = "https://api.paypal.com/v1/oauth2/token";
@@ -37,7 +38,7 @@ public class PayPalAccessToken implements Runnable {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                LoggerUtil.d(e.getMessage());
+                logger.debug(e.getMessage());
                 getAccessToken();
             }
 
@@ -48,21 +49,21 @@ public class PayPalAccessToken implements Runnable {
                     String accessToken = jsonObject.getString("access_token");
                     int expires = jsonObject.getInt("expires_in");
                     Application.getInstance().setPayAccessToken(accessToken);
-                    LoggerUtil.d(accessToken);
-                    LoggerUtil.d(expires);
+                    logger.debug(accessToken);
+                    logger.debug(expires+"");
                     if(expires < 1000){
                         Timer timer = new Timer();
                         timer.schedule(new TimerTask() {
                             @Override
                             public void run() {
-                                LoggerUtil.d("time task run");
+                                logger.debug("time task run");
                                 getAccessToken();
                             }
                         }, expires*1000);
                     }
 
                 }catch (Exception e){
-                    LoggerUtil.d(e.getMessage());
+                    logger.debug(e.getMessage());
                 }
             }
         });

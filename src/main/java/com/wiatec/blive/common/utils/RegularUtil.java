@@ -1,4 +1,4 @@
-package com.wiatec.blive.xutils;
+package com.wiatec.blive.common.utils;
 
 import java.util.regex.Pattern;
 

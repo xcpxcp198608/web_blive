@@ -1,7 +1,9 @@
 package com.wiatec.blive.orm.dao;
 
 import com.wiatec.blive.orm.pojo.UserInfo;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface UserDao {
 
     int countUsername(UserInfo userInfo);

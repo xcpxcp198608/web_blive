@@ -1,11 +1,11 @@
 package com.wiatec.blive.service;
 
+import com.wiatec.blive.common.utils.TextUtil;
 import com.wiatec.blive.entity.ResultInfo;
 import com.wiatec.blive.orm.dao.ChannelDao;
 import com.wiatec.blive.orm.dao.UserDao;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.UserInfo;
-import com.wiatec.blive.xutils.TextUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +28,7 @@ public class ChannelService {
 
     @Transactional
     public ChannelInfo selectOne(ChannelInfo channelInfo){
-        return channelDao.selectOne(channelInfo);
+        return channelDao.selectOneByUserId(channelInfo);
     }
 
     @Transactional
@@ -43,7 +43,7 @@ public class ChannelService {
             }
             resultInfo.setCode(ResultInfo.CODE_OK);
             resultInfo.setStatus(ResultInfo.STATUS_OK);
-            resultInfo.setT(channelDao.selectOne(channelInfo));
+            resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
             resultInfo.setMessage("update successfully");
             return resultInfo;
         }catch (Exception e){
@@ -62,7 +62,7 @@ public class ChannelService {
                 channelDao.updateChannelTitle(channelInfo);
                 resultInfo.setCode(ResultInfo.CODE_OK);
                 resultInfo.setStatus(ResultInfo.STATUS_OK);
-                resultInfo.setT(channelDao.selectOne(channelInfo));
+                resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
                 resultInfo.setMessage("update successfully");
             }else{
                 resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
@@ -86,7 +86,7 @@ public class ChannelService {
                 channelDao.updateChannelPrice(channelInfo);
                 resultInfo.setCode(ResultInfo.CODE_OK);
                 resultInfo.setStatus(ResultInfo.STATUS_OK);
-                resultInfo.setT(channelDao.selectOne(channelInfo));
+                resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
                 resultInfo.setMessage("update successfully");
             }else{
                 resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
@@ -115,6 +115,7 @@ public class ChannelService {
             }
             resultInfo.setCode(ResultInfo.CODE_OK);
             resultInfo.setStatus(ResultInfo.STATUS_OK);
+            resultInfo.setT(channelDao.selectOneByUserId(new ChannelInfo(userId)));
             return resultInfo;
         }catch (Exception e){
             resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
@@ -137,7 +138,7 @@ public class ChannelService {
         resultInfo.setCode(ResultInfo.CODE_OK);
         resultInfo.setStatus(ResultInfo.STATUS_OK);
         resultInfo.setMessage("upload successfully");
-        resultInfo.setT(channelDao.selectOne(channelInfo));
+        resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
         return resultInfo;
     }
 }

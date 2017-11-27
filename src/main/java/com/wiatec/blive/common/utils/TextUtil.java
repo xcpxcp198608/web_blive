@@ -1,4 +1,4 @@
-package com.wiatec.blive.xutils;
+package com.wiatec.blive.common.utils;
 
 /**
  * Created by xuchengpeng on 07/06/2017.
