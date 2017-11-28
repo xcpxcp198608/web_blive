@@ -29,16 +29,13 @@
     <script type="application/javascript" language="JavaScript" src="Resource/js/jquery-3.2.1.js"></script>
     <script type="application/javascript" language="JavaScript" src="Resource/js/common.js"></script>
     <script type="application/javascript" language="JavaScript" src="Resource/js/base.js"></script>
-    <link rel="stylesheet" type="text/css" href="Resource/css/base.css">
+    <link rel="stylesheet" type="text/css" href="Resource/css/base1.css">
     <link rel="shortcut icon" href="Resource/img/btv.ico">
     <rapid:block name="css_js" />
 
 </head>
 
 <body>
-    <div id="header">
-        <a href="/blive" style="cursor: pointer"><h2>BLIVE</h2></a>
-    </div>
     <div id="content">
         <rapid:block name="content" />
     </div>

@@ -18,9 +18,9 @@ public class WebUser {
     @Resource
     private UsersService usersService;
 
-    @PostMapping(value = "/signin")
+    @GetMapping(value = "/signin")
     @ResponseBody
-    public ResultInfo signIn(HttpServletRequest request, HttpServletResponse response, @RequestBody UserInfo userInfo){
+    public ResultInfo signIn(HttpServletRequest request, HttpServletResponse response, UserInfo userInfo){
         return usersService.signIn(request, response, userInfo);
     }
 

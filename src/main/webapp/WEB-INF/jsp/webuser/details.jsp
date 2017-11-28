@@ -2,14 +2,13 @@
 <%@taglib uri="http://www.rapid-framework.org.cn/rapid" prefix="rapid" %>
 <rapid:override name="title">Details</rapid:override>
 <rapid:override name="css_js">
-    <link rel="stylesheet" href="Resource/css/details.css">
     <style>
         .message{ font-size: 30px; position: absolute}
     </style>
-    <script src="http://cdn-hangzhou.goeasy.io/goeasy.js"></script>
+    <script src="https://cdn-hangzhou.goeasy.io/goeasy.js"></script>
     <script>
         $(function(){
-            var baseUrl = "http://"+location.host+"/blive";
+            var baseUrl = "https://"+location.host+"/blive";
 
             var video = document.getElementById("video");
 
@@ -68,11 +67,8 @@
             }
 
             function setStartPosition(sp) {
-                var right = $('#dDetails').offset().left;
-                var startPosition = right - 100;
-                console.log(startPosition);
-                sp.css("left", startPosition)
-
+                var right = $(window).width();
+                sp.css("left", right)
             }
 
             function moveToLeft(sp, elementWidth) {
@@ -217,90 +213,83 @@
                         showNotice('update failure')
                     }
                 })
-            })
+            });
+
+            var isSettingDisplay = false;
+            $('#dArrow').click(function () {
+                if(isSettingDisplay){
+                    $(this).animate({right:'0'},500);
+                    $('#dSettings').animate({right:'-200px'},500);
+                    $('#dArrow > img').attr('src', 'Resource/img/arrow_left.png');
+                    isSettingDisplay = false;
+                }else{
+
+                    $(this).animate({right:'200px'},500);
+                    $('#dSettings').animate({right:'0px'},500);
+                    $('#dArrow > img').attr('src', 'Resource/img/arrow_right.png');
+                    isSettingDisplay = true;
+                }
+            });
+
+
 
         })
     </script>
 </rapid:override>
 <rapid:override name="content">
-    <div id="dFlex">
-        <div id="dCamera">
-            <div>
-                <video id="video" autoplay="" style='width:100%; height:600px;'></video>
-            </div>
-            <div id="dComment">
-                <div style="height: 30px" id="div1"></div>
-                <div style="height: 30px" id="div2"></div>
-                <div style="height: 30px" id="div3"></div>
-                <div style="height: 30px" id="div4"></div>
-                <div style="height: 30px" id="div5"></div>
-            </div>
-            <br/>
-            <div style="margin: auto">
-                <button id="btStart" class="btn btn-primary">Start</button>
-            </div>
-        </div>
 
+    <div id="dCamera" style="background-image: url(Resource/img/bg.jpg)">
+        <div>
+            <video id="video" autoplay="" style='width:100%; height:100%;'></video>
+        </div>
+        <div id="dComment" style="width: 100%; height: 150px; position: absolute; top: 0; left: 0">
+            <div style="height: 30px" id="div1"></div>
+            <div style="height: 30px" id="div2"></div>
+            <div style="height: 30px" id="div3"></div>
+            <div style="height: 30px" id="div4"></div>
+            <div style="height: 30px" id="div5"></div>
+        </div>
+    </div>
+
+
+    <div style="width: 100%; position: absolute; left: 92%; bottom: 30px;">
+        <button id="btStart" class="btn btn-primary" style="margin: auto">Start</button>
+    </div>
+
+    <div style="width: 100%; position: absolute; left: 20%; bottom: 10px; color: white">
+        URL:&nbsp;${userInfo.channelInfo.url.substring(0, 40)}
+        &nbsp; &nbsp; &nbsp; &nbsp;
+        KEY:&nbsp;${userInfo.channelInfo.url.substring(40)}
+    </div>
+
+    <div id="dArrow" style="position: absolute; top: 150px; right: 0; width: 20px; height: 40px;
+        background-color: #9f3b13; cursor: pointer">
+        <img src="Resource/img/arrow_left.png" style="width: 20px; height: 40px">
+    </div>
+
+    <div id="dSettings" style="position: absolute; top: 150px; right: -200px; width: 200px; height: 450px; background-color: rgba(72,72,72,0.3);
+        display: block">
         <div id="dDetails">
-            <table class="table table-hover table-striped">
-                <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Value</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr><td>username</td><td>${userInfo.username}</td></tr>
-                <tr><td>email</td><td>${userInfo.email}</td></tr>
-                <tr><td>url</td><td>${userInfo.channelInfo.url.substring(0, 40)}</td></tr>
-                <tr><td>key</td><td>${userInfo.channelInfo.url.substring(40)}</td></tr>
-                <tr><td>title</td>
-                    <td>
-                        <input type="text" class="form-control" id="title"
-                               value="${userInfo.channelInfo.title}"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>content</td>
-                    <td>
-                        <input type="text" class="form-control" id="message"
-                               value="${userInfo.channelInfo.message}"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>price</td>
-                    <td>
-                        <input type="number" class="form-control" id="price"
-                               value="${userInfo.channelInfo.price}"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>cover</td>
-                    <td>
-                        <img id="imgPreview" style="width: 300px; max-height: 200px; min-height: 200px"
+            <span style="font-size: 15px; color: whitesmoke">Title</span>
+            <input type="text" class="form-control" id="title" value="${userInfo.channelInfo.title}"/>
+            <span style="font-size: 15px; color: whitesmoke">Content</span>
+            <textarea class="form-control" rows="4" id="message" value="${userInfo.channelInfo.message}"></textarea>
+            <span style="font-size: 15px; color: whitesmoke">price</span>
+            <input type="number" class="form-control" id="price" value="${userInfo.channelInfo.price}"/>
+            <span style="font-size: 15px; color: whitesmoke">cover</span>
+            <img id="imgPreview" style="width: 200px; max-height: 100px; min-height: 100px"
                              src="${userInfo.channelInfo.preview}"
                              onerror="this.src='Resource/img/img_error_preview.jpg'"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>change</td>
-                    <td>
-                        <form id="img_form" method="post" enctype="multipart/form-data">
-                            <input type="file" id="file" name="file" accept="image/png, image/jpeg"/>
-                        </form>
-                        <br/>
-                        <button class="btn btn-default" id="upload">Upload</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-
+            <form id="img_form" method="post" enctype="multipart/form-data">
+                <input type="file" id="file" name="file" accept="image/png, image/jpeg"/>
+            </form>
+            <br/>
+            <button class="btn btn-default" id="upload">Upload</button>
         </div>
-
     </div>
 
     <div id="notice" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1001;
-    background-color: rgba(0,0,0,0.3); display: none">
+        background-color: rgba(0,0,0,0.3); display: none">
         <div style="display: flex; display: -webkit-flex; flex-direction:row; justify-content:center; align-items: center">
             <h4 id="notice_message" style="color: red ;font-size: 20px; width: 100%; text-align: center; margin-top: 240px"></h4>
         </div>
@@ -308,4 +297,4 @@
 
 </rapid:override>
 
-<%@ include file="../base.jsp"%>
+<%@ include file="../base1.jsp"%>

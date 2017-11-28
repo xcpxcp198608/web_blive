@@ -1,27 +1,27 @@
 $(function () {
 
-    var baseUrl = "http://"+location.host+"/blive";
+    var baseUrl = "https://"+location.host+"/blive";
     var jLoading = $('#loading');
 
     $('#a_sign_up').click(function(){
         $('#div_sign_in').css('display', 'none');
-        $('#div_sign_up').css('display', 'block')
+        $('#div_sign_up').css('display', 'block');
     });
 
     $('#close_sign_up').click(function(){
-        $('#div_sign_up').css('display', 'none')
+        $('#div_sign_up').css('display', 'none');
         $('#div_sign_in').css('display', 'block');
     });
 
 
     $('#a_reset').click(function(){
         $('#div_sign_in').css('display', 'none');
-        $('#div_reset').css('display', 'block')
+        $('#div_reset').css('display', 'block');
     });
 
     $('#close_reset').click(function(){
         $('#div_reset').css('display', 'none');
-        $('#div_sign_in').css('display', 'block')
+        $('#div_sign_in').css('display', 'block');
     });
 
     $('#btSignIn').click(function(){
@@ -39,30 +39,42 @@ $(function () {
         jErrorMessage.html(' ');
         jErrorMessage.css('display', 'none');
         $.ajax({
-            type: "POST",
+            type: "GET",
             url: baseUrl + "/users/signin",
-            contentType:"application/json; charset=utf-8",
-            data: JSON.stringify({"username": username, "password": password}),
+            data: {"username": username, "password": password},
             dataType: "json",
+            // jsonp:'callback',
+            // jsonpCallback:"successCallback",
             beforeSend:function () {
                 jLoading.css('display', 'block');
             },
             success: function (response) {
-                console.log(response);
-                if(response.code == 200){
+                var data = eval(response);
+                if(data.code === 200){
                     window.open(baseUrl +"/users/details", "_self")
                 }else{
                     jLoading.css('display', 'none');
-                    jErrorMessage.html(response.message);
+                    jErrorMessage.html(data.message);
                     jErrorMessage.css('display', 'block');
                 }
             },
-            error:function () {
+            error:function (error) {
                 jLoading.css('display', 'none');
-                console.log("ajax error")
+                console.log(error);
             }
         })
     });
+
+    function successCallback(callback) {
+        var jErrorMessage = $('#error_message_sign_in');
+        if(callback.code === 200){
+            window.open(baseUrl +"/users/details", "_self")
+        }else{
+            jLoading.css('display', 'none');
+            jErrorMessage.html(callback.message);
+            jErrorMessage.css('display', 'block');
+        }
+    }
 
     $('#btSignUp').click(function(){
         var jErrorMessage = $('#error_message_sign_up');
