@@ -42,6 +42,16 @@ public class Channel {
         return channelService.updateChannelTitle(channelInfo);
     }
 
+    @PutMapping("/title1")
+    public @ResponseBody ResultInfo<ChannelInfo> updateChannelTitle1(@RequestBody ChannelInfo channelInfo){
+        return channelService.updateChannelTitle1(channelInfo);
+    }
+
+    @PutMapping("/message")
+    public @ResponseBody ResultInfo<ChannelInfo> updateChannelMessage(@RequestBody ChannelInfo channelInfo){
+        return channelService.updateChannelMessage(channelInfo);
+    }
+
     @PutMapping("/price")
     public @ResponseBody ResultInfo<ChannelInfo> updateChannelPrice(@RequestBody ChannelInfo channelInfo){
         return channelService.updateChannelPrice(channelInfo);

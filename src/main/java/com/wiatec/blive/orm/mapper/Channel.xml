@@ -67,6 +67,18 @@
         WHERE userId=#{userId}
     </update>
 
+    <update id="updateChannelTitle1" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+        UPDATE live_channel
+        SET title=#{title}
+        WHERE userId=#{userId}
+    </update>
+
+    <update id="updateChannelMessage" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+        UPDATE live_channel
+        SET message=#{message}
+        WHERE userId=#{userId}
+    </update>
+
     <update id="updateChannelPrice" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
         UPDATE live_channel
         SET price=#{price}

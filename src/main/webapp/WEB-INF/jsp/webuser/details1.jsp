@@ -98,10 +98,6 @@
                 }else if ('Stop' === currentHtm){
                     activate = 0
                 }
-                startOrStop(activate)
-            });
-
-            function startOrStop(activate) {
                 $.ajax({
                     type:'PUT',
                     url: baseUrl + "/channel/status/" + activate + "/" + ${userInfo.id},
@@ -122,7 +118,7 @@
                         showNotice('failure')
                     }
                 })
-            }
+            });
 
             $('#title').blur(function(){
                 update()
@@ -236,6 +232,7 @@
                     isSettingDisplay = true;
                 }
             });
+
 
         })
     </script>

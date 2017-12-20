@@ -52,94 +52,95 @@
 
 <body style="background-color: #ababab">
 
-  <div id="div_sign_in">
-    <div id="div_sign_in_1">
-      <br/>
-      <h3 style="color: whitesmoke">BLIVE ON BVISION</h3>
-      <br/>
-      <div>
-      <div class="input-group">
-        <span class="input-group-addon" id="basic-addon1">
-          <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-        </span>
-        <input type="text" id="sign_in_username" class="form-control" placeholder="Username" aria-describedby="basic-addon1" name="username">
-      </div>
-      <br/>
-      <div class="input-group">
-        <span class="input-group-addon" id="basic-addon2">
-          <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-        </span>
-        <input type="password" id="sign_in_password" class="form-control" placeholder="Password" aria-describedby="basic-addon2" name="password">
-      </div>
-      <br/>
-      <button id="btSignIn" type="submit" class="btn btn-primary">SignIn</button>
-      </div>
-      <br/>
-      <div>
-        <a style="display: block; float: left;" id="a_sign_up" class="aa">SignUp</a>
-        <a style="display: block; float: right;" id="a_reset" class="aa">Forgot password?</a>
-      </div>
-      <br/>
-      <div style="color: #b9b9b9; font-size: 12px">
-        By signing up the account, you agree to the term of service
-        <a href="http://blive.bvision.live:8804/consent.pdf" target="_blank">(consent)</a>
-      </div>
-      <div style="clear: both"><span id="error_message_sign_in"></span></div>
-    </div>
-  </div>
-
-  <div id="div_sign_up">
-    <span class="glyphicon glyphicon-remove" aria-hidden="true" id="close_sign_up"
-          style="float: right; color: whitesmoke; margin: 10px; font-size: 20px; cursor: pointer"></span>
-    <div id="div_sign_up_1">
-      <br/>
-      <h3 style="color: whitesmoke">SignUp</h3>
-      <br/>
-      <div>
+  <div style="width: 100%; height: 100%; background-image: url(Resource/img/lights.jpg); position: absolute; left: 0; top: 0">
+    <div id="div_sign_in">
+      <div id="div_sign_in_1">
+        <br/>
+        <h3 style="color: whitesmoke">BLIVE ON BVISION</h3>
+        <br/>
+        <div>
         <div class="input-group">
-          <span class="input-group-addon" id="basic-addon3">
+          <span class="input-group-addon" id="basic-addon1">
             <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
           </span>
-          <input id="sign_up_username" type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon3" name="username">
+          <input type="text" id="sign_in_username" class="form-control" placeholder="Username" aria-describedby="basic-addon1" name="username">
         </div>
         <br/>
         <div class="input-group">
-          <span class="input-group-addon" id="basic-addon4">
+          <span class="input-group-addon" id="basic-addon2">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
           </span>
-          <input id="sign_up_password" type="password" class="form-control" placeholder="Password" aria-describedby="basic-addon4" name="password">
+          <input type="password" id="sign_in_password" class="form-control" placeholder="Password" aria-describedby="basic-addon2" name="password">
         </div>
         <br/>
-        <div class="input-group">
-          <span class="input-group-addon" id="basic-addon5">
-            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-          </span>
-          <input id="sign_up_password1" type="password" class="form-control" placeholder="Password" aria-describedby="basic-addon5" name="password1">
+        <button id="btSignIn" type="submit" class="btn btn-primary">SignIn</button>
         </div>
         <br/>
-        <div class="input-group">
-          <span class="input-group-addon" id="basic-addon6">
-            <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
-          </span>
-          <input id="sign_up_email" type="email" class="form-control" placeholder="Email" aria-describedby="basic-addon6" name="email">
+        <div>
+          <a style="display: block; float: left;" id="a_sign_up" class="aa">SignUp</a>
+          <a style="display: block; float: right;" id="a_reset" class="aa">Forgot password?</a>
         </div>
         <br/>
-        <div class="input-group">
-          <span class="input-group-addon" id="basic-addon7">
-            <span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
-          </span>
-          <input id="sign_up_phone" type="number" class="form-control" placeholder="Cell phone" aria-describedby="basic-addon7" name="phone">
+        <div style="color: #b9b9b9; font-size: 12px">
+          By signing up the account, you agree to the term of service
+          <a href="http://blive.bvision.live:8804/consent.pdf" target="_blank">(consent)</a>
         </div>
-        <br/>
-        <button id="btSignUp" class="btn btn-primary">SignUp</button>
+        <div style="clear: both"><span id="error_message_sign_in"></span></div>
       </div>
-      <br/>
-      <span id="error_message_sign_up"></span>
     </div>
-  </div>
+
+    <div id="div_sign_up">
+      <span class="glyphicon glyphicon-remove" aria-hidden="true" id="close_sign_up"
+            style="float: right; color: whitesmoke; margin: 10px; font-size: 20px; cursor: pointer"></span>
+      <div id="div_sign_up_1">
+        <br/>
+        <h3 style="color: whitesmoke">SignUp</h3>
+        <br/>
+        <div>
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon3">
+              <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+            </span>
+            <input id="sign_up_username" type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon3" name="username">
+          </div>
+          <br/>
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon4">
+              <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+            </span>
+            <input id="sign_up_password" type="password" class="form-control" placeholder="Password" aria-describedby="basic-addon4" name="password">
+          </div>
+          <br/>
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon5">
+              <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+            </span>
+            <input id="sign_up_password1" type="password" class="form-control" placeholder="Password" aria-describedby="basic-addon5" name="password1">
+          </div>
+          <br/>
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon6">
+              <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
+            </span>
+            <input id="sign_up_email" type="email" class="form-control" placeholder="Email" aria-describedby="basic-addon6" name="email">
+          </div>
+          <br/>
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon7">
+              <span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
+            </span>
+            <input id="sign_up_phone" type="number" class="form-control" placeholder="Cell phone" aria-describedby="basic-addon7" name="phone">
+          </div>
+          <br/>
+          <button id="btSignUp" class="btn btn-primary">SignUp</button>
+        </div>
+        <br/>
+        <span id="error_message_sign_up"></span>
+      </div>
+    </div>
 
 
-  <div id="div_reset">
+    <div id="div_reset">
     <span class="glyphicon glyphicon-remove" aria-hidden="true" id="close_reset"
           style="float: right; color: whitesmoke; margin: 10px; font-size: 20px; cursor: pointer"></span>
     <div id="div_reset_1">
@@ -167,7 +168,7 @@
       <div style="clear: both"><span id="error_message_reset"></span></div>
     </div>
   </div>
-
+  </div>
   <div id="loading" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   background-color: rgba(0,0,0,0.3); z-index: 1000; display: none">
     <div style="width: 25%; margin: 350px auto">

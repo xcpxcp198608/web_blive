@@ -10,8 +10,9 @@ import com.wiatec.blive.orm.dao.UserDao;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.TokenInfo;
 import com.wiatec.blive.orm.pojo.UserInfo;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,12 +25,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
 @Service
-public class UsersService {
+public class WebUserService {
+
+    private Logger logger = LoggerFactory.getLogger(WebUserService.class);
 
     @Resource
     private UserDao userDao;
@@ -85,7 +87,7 @@ public class UsersService {
             }
             return resultInfo;
         }catch (Exception e){
-            e.printStackTrace();
+            logger.debug(e.getMessage());
             resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
             resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
             resultInfo.setMessage("Signin error");
@@ -94,7 +96,9 @@ public class UsersService {
     }
 
     private void setRtmpAddress(UserInfo userInfo) {
-        String url = "http://apildlive.protv.company/v1/ldlive_get_url.do?username="+userInfo.getUsername()+"&token=36d4284ce8e188eb75bda72cb1de28c7";
+//        String base = "http://apildlive.protv.company/v1/blive_get_url.do";
+        String base = "http://apilive.bvision.live/v1/blive_get_url.do";
+        String url = base + "?username="+userInfo.getUsername()+"&token=36d4284ce8e188eb75bda72cb1de28c7";
         String rtmpUrl = "1";
         String playUrl = "1";
         InputStream inputStream = null;
@@ -110,27 +114,26 @@ public class UsersService {
                 builder.append(line);
             }
             String result =  builder.toString();
+            System.out.println(result);
             JSONObject jsonObject = new JSONObject(result);
             rtmpUrl = jsonObject.getJSONObject("data").getString("push_full_url");
             playUrl = jsonObject.getJSONObject("data").getString("play_url");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }catch (JSONException e) {
-            e.printStackTrace();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
         }finally {
             try {
                 if(bufferedReader != null) {
                     bufferedReader.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.debug(e.getMessage());
             }
             try {
                 if(inputStream != null){
                     inputStream.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.debug(e.getMessage());
             }
         }
         ChannelInfo channelInfo = new ChannelInfo();
@@ -141,7 +144,7 @@ public class UsersService {
         if(channelDao.countUserId(channelInfo) == 1){
             channelDao.updateChannel(channelInfo);
         }else{
-            channelInfo.setTitle(userDao.selectOneById(new UserInfo(channelInfo.getUserId())).getUsername());
+//            channelInfo.setTitle(userDao.selectOneById(new UserInfo(channelInfo.getUserId())).getUsername());
             channelDao.insertChannel(channelInfo);
         }
     }

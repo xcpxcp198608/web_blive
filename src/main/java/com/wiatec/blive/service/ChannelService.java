@@ -79,6 +79,55 @@ public class ChannelService {
     }
 
     @Transactional
+    public ResultInfo<ChannelInfo> updateChannelTitle1(ChannelInfo channelInfo){
+        ResultInfo<ChannelInfo> resultInfo = new ResultInfo<>();
+        try{
+            if(channelDao.countUserId(channelInfo) == 1){
+                channelDao.updateChannelTitle1(channelInfo);
+                resultInfo.setCode(ResultInfo.CODE_OK);
+                resultInfo.setStatus(ResultInfo.STATUS_OK);
+                resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
+                resultInfo.setMessage("Successfully");
+            }else{
+                resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
+                resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
+                resultInfo.setMessage("signin error ,please signin again");
+            }
+            return resultInfo;
+        }catch (Exception e){
+            resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
+            resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
+            resultInfo.setMessage("update error");
+            return resultInfo;
+        }
+    }
+
+
+    @Transactional
+    public ResultInfo<ChannelInfo> updateChannelMessage(ChannelInfo channelInfo){
+        ResultInfo<ChannelInfo> resultInfo = new ResultInfo<>();
+        try{
+            if(channelDao.countUserId(channelInfo) == 1){
+                channelDao.updateChannelMessage(channelInfo);
+                resultInfo.setCode(ResultInfo.CODE_OK);
+                resultInfo.setStatus(ResultInfo.STATUS_OK);
+                resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
+                resultInfo.setMessage("Successfully");
+            }else{
+                resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
+                resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
+                resultInfo.setMessage("signin error, please signin again");
+            }
+            return resultInfo;
+        }catch (Exception e){
+            resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
+            resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
+            resultInfo.setMessage("update error");
+            return resultInfo;
+        }
+    }
+
+    @Transactional
     public ResultInfo<ChannelInfo> updateChannelPrice(ChannelInfo channelInfo){
         ResultInfo<ChannelInfo> resultInfo = new ResultInfo<>();
         try{
