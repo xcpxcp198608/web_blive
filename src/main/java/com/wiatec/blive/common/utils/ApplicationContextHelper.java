@@ -7,7 +7,9 @@ import org.springframework.context.ApplicationContextAware;
 import java.util.concurrent.*;
 
 /**
- * Created by xuchengpeng on 12/06/2017.
+ *
+ * @author xuchengpeng
+ * @date 12/06/2017
  */
 public class ApplicationContextHelper implements ApplicationContextAware{
 

@@ -1,11 +1,16 @@
 package com.wiatec.blive.orm.pojo;
 
+/**
+ * @author patrick
+ */
 public class ChannelInfo {
 
     private int id;
     private String title;
     private String message;
     private String url;
+    private String rtmpUrl;
+    private String rtmpKey;
     private String playUrl;
     private String preview;
     private String category;
@@ -61,6 +66,22 @@ public class ChannelInfo {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getRtmpUrl() {
+        return rtmpUrl;
+    }
+
+    public void setRtmpUrl(String rtmpUrl) {
+        this.rtmpUrl = rtmpUrl;
+    }
+
+    public String getRtmpKey() {
+        return rtmpKey;
+    }
+
+    public void setRtmpKey(String rtmpKey) {
+        this.rtmpKey = rtmpKey;
     }
 
     public String getPlayUrl() {
@@ -142,6 +163,8 @@ public class ChannelInfo {
                 ", title='" + title + '\'' +
                 ", message='" + message + '\'' +
                 ", url='" + url + '\'' +
+                ", rtmpUrl='" + rtmpUrl + '\'' +
+                ", rtmpKey='" + rtmpKey + '\'' +
                 ", playUrl='" + playUrl + '\'' +
                 ", preview='" + preview + '\'' +
                 ", category='" + category + '\'' +

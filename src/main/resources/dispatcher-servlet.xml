@@ -26,7 +26,12 @@
         <mvc:interceptor>
             <mvc:mapping path="/**"/>
             <mvc:mapping path="/**"/>
-            <bean class="com.wiatec.blive.intercepter.HttpsResponse"/>
+            <bean class="com.wiatec.blive.interceptor.HttpsResponse"/>
+        </mvc:interceptor>
+        
+        <mvc:interceptor>
+            <mvc:mapping path="/users/**"/>
+            <bean class="com.wiatec.blive.interceptor.WebUserInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
 

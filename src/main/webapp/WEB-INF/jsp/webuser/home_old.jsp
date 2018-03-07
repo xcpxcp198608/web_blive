@@ -1,6 +1,6 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8" %>
 <%@taglib uri="http://www.rapid-framework.org.cn/rapid" prefix="rapid" %>
-<rapid:override name="title">Details</rapid:override>
+<rapid:override name="title">Home</rapid:override>
 <rapid:override name="css_js">
     <style>
         .message{ font-size: 30px; position: absolute}
@@ -308,4 +308,4 @@
 
 </rapid:override>
 
-<%@ include file="../base1.jsp"%>
+<%@ include file="base.jsp"%>

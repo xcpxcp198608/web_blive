@@ -5,6 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * @author patrick
+ */
 public class TimeUtil {
 
     public static long getUnixFromStr(String time){

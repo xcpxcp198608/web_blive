@@ -1,5 +1,8 @@
 package com.wiatec.blive.orm.pojo;
 
+/**
+ * @author patrick
+ */
 public class UserInfo {
 
     private int id;

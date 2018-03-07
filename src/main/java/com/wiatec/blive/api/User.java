@@ -1,6 +1,7 @@
 package com.wiatec.blive.api;
 
-import com.wiatec.blive.entity.ResultInfo;
+import com.wiatec.blive.common.result.ResultInfo;
+import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.pojo.UserInfo;
 import com.wiatec.blive.service.UserService;
 import org.apache.commons.io.FileUtils;
@@ -12,9 +13,13 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
 
 import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
 
+/**
+ * @author patrick
+ */
 @Controller
 @RequestMapping(value = "/user")
 public class User {
@@ -23,8 +28,8 @@ public class User {
     private UserService userService;
 
     @PostMapping("/signup")
-    public @ResponseBody ResultInfo<UserInfo> signUp(HttpServletRequest request,
-                                           @RequestBody UserInfo userInfo){
+    @ResponseBody
+    public ResultInfo<UserInfo> signUp(HttpServletRequest request, UserInfo userInfo){
         return userService.signUp(request, userInfo);
     }
 
@@ -35,66 +40,60 @@ public class User {
     }
 
     @PostMapping("/signin")
-    public @ResponseBody ResultInfo signIn(@RequestBody UserInfo userInfo){
+    @ResponseBody
+    public ResultInfo signIn(UserInfo userInfo){
         return userService.signIn(userInfo);
     }
 
     @PostMapping("/validate")
-    public @ResponseBody ResultInfo validate(@RequestBody UserInfo userInfo){
+    @ResponseBody
+    public ResultInfo validate(UserInfo userInfo){
         return userService.validate(userInfo);
     }
 
     @PostMapping("/reset")
-    public @ResponseBody ResultInfo resetPassword(HttpServletRequest request,
-                                    @RequestBody UserInfo userInfo){
+    @ResponseBody
+    public ResultInfo resetPassword(HttpServletRequest request, UserInfo userInfo){
+        System.out.println(userInfo);
         return userService.reset(request, userInfo);
     }
 
     @RequestMapping(value = "/go/{token}")
-    public String updatePassword(HttpServletRequest request,
-                                 Model model,
-                                 @PathVariable String token){
+    public String goUpdatePage(Model model, @PathVariable String token){
         String username =  userService.go(token);
         model.addAttribute("username", username);
         return "go";
     }
 
     @PostMapping("/update")
-    public String updatePassword(HttpServletRequest request,
-                                     @ModelAttribute UserInfo userInfo, Model model){
+    public String updatePassword(UserInfo userInfo, Model model){
         ResultInfo resultInfo = userService.update(userInfo);
         model.addAttribute("message", resultInfo.getMessage());
         return "notice";
     }
 
     @PostMapping("/signout")
-    public @ResponseBody ResultInfo signOut(HttpServletRequest request,
-                                            @RequestBody UserInfo userInfo){
-        return userService.signOut(request, userInfo);
+    @ResponseBody
+    public ResultInfo signOut(UserInfo userInfo){
+        return userService.signOut(userInfo);
     }
 
     @PostMapping("/upload/{userId}")
-    public @ResponseBody ResultInfo<UserInfo> uploadIcon(@RequestParam MultipartFile file, @PathVariable int userId,
-                                    HttpServletRequest request){
-        ResultInfo<UserInfo> resultInfo = new ResultInfo<>();
-        resultInfo.setCode(ResultInfo.CODE_INVALID);
-        resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-        resultInfo.setMessage("upload failure");
-        try{
-            if(!file.isEmpty()){
-                String path = request.getSession().getServletContext().getRealPath("/Resource/icon/");
-                FileUtils.copyInputStreamToFile(file.getInputStream(), new File( path,  file.getOriginalFilename()));
-                String icon = BASE_RESOURCE_URL + "icon/" + file.getOriginalFilename();
-                return userService.updateIcon(new UserInfo(userId, icon));
-            }
-        }catch (Exception e){
-            return resultInfo;
+    @ResponseBody
+    public ResultInfo<UserInfo> uploadIcon(@RequestParam MultipartFile file, @PathVariable int userId,
+                                    HttpServletRequest request) throws IOException {
+        if(file.isEmpty()){
+            throw new XException("icon error");
         }
-        return resultInfo;
+        String path = request.getSession().getServletContext().getRealPath("/Resource/icon/");
+        FileUtils.copyInputStreamToFile(file.getInputStream(), new File( path,  file.getOriginalFilename()));
+        String icon = BASE_RESOURCE_URL + "icon/" + file.getOriginalFilename();
+        return userService.updateIcon(new UserInfo(userId, icon));
     }
 
     @PostMapping("/{userId}")
-    public @ResponseBody UserInfo get(@PathVariable int userId){
+    @ResponseBody
+    public UserInfo get(@PathVariable int userId){
         return userService.selectOne(new UserInfo(userId));
     }
 

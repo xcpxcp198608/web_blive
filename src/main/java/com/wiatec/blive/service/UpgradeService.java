@@ -7,13 +7,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
+/**
+ * @author patrick
+ */
 @Service
 public class UpgradeService {
 
     @Resource
     private UpgradeDao upgradeDao;
 
-    @Transactional
     public UpgradeInfo selectOne(){
         return upgradeDao.selectOne();
     }

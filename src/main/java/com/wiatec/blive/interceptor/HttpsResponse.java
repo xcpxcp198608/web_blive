@@ -1,4 +1,4 @@
-package com.wiatec.blive.intercepter;
+package com.wiatec.blive.interceptor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +8,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * @author patrick
+ */
 public class HttpsResponse implements HandlerInterceptor {
 
     private Logger logger = LoggerFactory.getLogger(HttpsResponse.class);

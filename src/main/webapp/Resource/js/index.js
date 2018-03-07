@@ -43,15 +43,13 @@ $(function () {
             url: baseUrl + "/users/signin",
             data: {"username": username, "password": password},
             dataType: "json",
-            // jsonp:'callback',
-            // jsonpCallback:"successCallback",
             beforeSend:function () {
                 jLoading.css('display', 'block');
             },
             success: function (response) {
                 var data = eval(response);
                 if(data.code === 200){
-                    window.open(baseUrl +"/users/details", "_self")
+                    window.open(baseUrl +"/users/home", "_self")
                 }else{
                     jLoading.css('display', 'none');
                     jErrorMessage.html(data.message);
@@ -65,16 +63,6 @@ $(function () {
         })
     });
 
-    function successCallback(callback) {
-        var jErrorMessage = $('#error_message_sign_in');
-        if(callback.code === 200){
-            window.open(baseUrl +"/users/details", "_self")
-        }else{
-            jLoading.css('display', 'none');
-            jErrorMessage.html(callback.message);
-            jErrorMessage.css('display', 'block');
-        }
-    }
 
     $('#btSignUp').click(function(){
         var jErrorMessage = $('#error_message_sign_up');
@@ -112,8 +100,7 @@ $(function () {
         $.ajax({
             type: "POST",
             url: baseUrl + "/user/signup",
-            contentType:"application/json; charset=utf-8",
-            data: JSON.stringify({"username": username, "password": password, "email": email, "phone": phone}),
+            data: {"username": username, "password": password, "email": email, "phone": phone},
             dataType: "json",
             beforeSend:function () {
                 jLoading.css('display', 'block');
@@ -147,11 +134,11 @@ $(function () {
         var jErrorMessage = $('#error_message_reset');
         var username = $('#reset_username').val();
         var email = $('#reset_email').val();
-        if(username.length <= 0){
+        if(!username || username.length <= 0){
             jErrorMessage.html('username input error');
             return
         }
-        if(email.length <= 0){
+        if(!email || email.length <= 0){
             jErrorMessage.html('email input error');
             return
         }
@@ -160,8 +147,7 @@ $(function () {
         $.ajax({
             type: "POST",
             url: baseUrl + "/user/reset",
-            contentType:"application/json; charset=utf-8",
-            data: JSON.stringify({"username": username, "email": email}),
+            data: {"username": username, "email": email},
             dataType: "json",
             beforeSend:function () {
                 jLoading.css('display', 'block');

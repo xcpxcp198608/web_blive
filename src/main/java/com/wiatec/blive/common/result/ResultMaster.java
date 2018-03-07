@@ -2,10 +2,21 @@ package com.wiatec.blive.common.result;
 
 import java.util.List;
 
+/**
+ * @author patrick
+ */
 public class ResultMaster {
 
     public static ResultInfo success () {
-        return success(null);
+        return success(EnumResult.SUCCESS.getMessage());
+    }
+
+
+    public static <T> ResultInfo<T> success (String message) {
+        ResultInfo<T> resultInfo = new ResultInfo<>();
+        resultInfo.setCode(EnumResult.SUCCESS.getCode());
+        resultInfo.setMessage(message);
+        return resultInfo;
     }
 
     public static <T> ResultInfo<T> success (T t) {

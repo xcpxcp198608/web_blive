@@ -1,6 +1,6 @@
 package com.wiatec.blive.web;
 
-import com.wiatec.blive.entity.ResultInfo;
+import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.orm.pojo.UserInfo;
 import com.wiatec.blive.service.WebUserService;
 import org.springframework.stereotype.Controller;
@@ -11,6 +11,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * @author patrick
+ */
 @Controller
 @RequestMapping(value = "/users")
 public class WebUser {
@@ -20,14 +23,14 @@ public class WebUser {
 
     @GetMapping(value = "/signin")
     @ResponseBody
-    public ResultInfo signIn(HttpServletRequest request, HttpServletResponse response, UserInfo userInfo){
-        return webUserService.signIn(request, response, userInfo);
+    public ResultInfo signIn(HttpServletRequest request, UserInfo userInfo){
+        return webUserService.signIn(request, userInfo);
     }
 
-    @GetMapping(value = "/details")
+    @GetMapping(value = "/home")
     public String details(HttpServletRequest request, Model model){
-        UserInfo userInfo = webUserService.details(request);
+        UserInfo userInfo = webUserService.getUserInfo(request);
         model.addAttribute("userInfo", userInfo);
-        return "webuser/details";
+        return "webuser/home";
     }
 }

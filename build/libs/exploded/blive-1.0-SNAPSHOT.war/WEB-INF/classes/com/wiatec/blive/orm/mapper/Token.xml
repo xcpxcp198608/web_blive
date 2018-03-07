@@ -22,7 +22,11 @@
 
     <sql id="select">SELECT id, token, createTime, userId FROM auth_token</sql>
 
-    <select id="selectOne" parameterType="com.wiatec.blive.orm.pojo.TokenInfo" resultMap="tokenInfo">
+    <select id="selectOneByToken" resultMap="tokenInfo">
+        <include refid="select"/> WHERE token = #{token}
+    </select>
+
+    <select id="selectOneByUserId" resultMap="tokenInfo">
         SELECT auth_token.id tokenId, auth_token.token, auth_token.createTime, auth_token.userId,
             auth_user.id authUserId, auth_user.username, auth_user.password, auth_user.email,
             auth_user.phone, auth_user.icon, auth_user.registerTime, auth_user.status, auth_user.isPublisher
@@ -31,16 +35,17 @@
         AND auth_token.userId = auth_user.id
     </select>
 
-    <select id="countOne" parameterType="com.wiatec.blive.orm.pojo.TokenInfo" resultType="int">
-        SELECT COUNT(*) FROM auth_token WHERE token=#{token}
+    <select id="countOneByToken" resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_token WHERE token=#{token}
     </select>
 
-    <select id="countUserId" parameterType="com.wiatec.blive.orm.pojo.TokenInfo" resultType="int">
-        SELECT COUNT(*) FROM auth_token WHERE userId=#{userId}
+    <select id="countByUserId" parameterType="com.wiatec.blive.orm.pojo.TokenInfo"
+            resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_token WHERE userId=#{userId}
     </select>
 
     <insert id="insertOne" parameterType="com.wiatec.blive.orm.pojo.TokenInfo">
-        INSERT INTO auth_token (token, userId)
+        INSERT IGNORE INTO auth_token (token, userId)
         VALUES (#{token}, #{userId})
     </insert>
 

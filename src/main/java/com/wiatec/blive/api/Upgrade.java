@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 
+/**
+ * @author patrick
+ */
 @Controller
 @RequestMapping(value = "/upgrade")
 public class Upgrade {
@@ -16,7 +19,8 @@ public class Upgrade {
     private UpgradeService upgradeService;
 
     @RequestMapping(value = "/")
-    public @ResponseBody UpgradeInfo get(){
+    @ResponseBody
+    public UpgradeInfo get(){
         return upgradeService.selectOne();
     }
 

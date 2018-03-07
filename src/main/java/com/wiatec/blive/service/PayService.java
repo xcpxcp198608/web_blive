@@ -1,8 +1,10 @@
 package com.wiatec.blive.service;
 
+import com.wiatec.blive.common.result.ResultInfo;
+import com.wiatec.blive.common.result.ResultMaster;
+import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.common.utils.TextUtil;
 import com.wiatec.blive.common.utils.TimeUtil;
-import com.wiatec.blive.entity.ResultInfo;
 import com.wiatec.blive.instance.Application;
 import com.wiatec.blive.orm.dao.PayResultDao;
 import com.wiatec.blive.orm.pojo.PayResultInfo;
@@ -19,27 +21,38 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
+/**
+ * @author patrick
+ */
 @Service
 public class PayService {
 
-//    private static final String PAYPAL_VERIFY_URL = "https://api.sandbox.paypal.com/v1/payments/payment/";
+    private static final String PAYPAL_VERIFY_URL_SANDBOX = "https://api.sandbox.paypal.com/v1/payments/payment/";
     private static final String PAYPAL_VERIFY_URL = "https://api.paypal.com/v1/payments/payment/";
     private static final long EXPIRES = 86400000;
 
     @Resource
     private PayResultDao payResultDao;
 
+    /**
+     * 验证观看者是否已付款给播放者
+     * 1. 若paymentId为空，则数据库中查询之前支付结果中是否有观看者付给播放者的支付信息
+     * 2. 若之前有支付信息获取最后一条支付信息，检查支付结果是否approved并在观看有效期内
+     * 3. 若paymentId不为空，则根据paymentId在数据库中查询交易记录是否存在并检查支付结果是否approved并在观看有效期内
+     * 4. 若数据中不存在paymentId的交易记录，则去paypal服务器验证交易并将验证结果存入本地数据库
+     * @param payerName    观看者username
+     * @param publisherId  播放者id
+     * @param paymentId    payment id
+     * @return ResultInfo
+     */
     public ResultInfo<PayResultInfo> verify(String payerName, int publisherId, String paymentId){
-        ResultInfo<PayResultInfo> resultInfo = new ResultInfo<>();
         if(TextUtil.isEmpty(paymentId)){
-            List<PayResultInfo> payResultInfos = payResultDao.selectOneByPayer(new PayResultInfo(payerName, publisherId));
-            if(payResultInfos == null || payResultInfos.size() <= 0) {
-                resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-                resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-                resultInfo.setMessage("This is a pay program, please follow the instructions to make payment.");
-                return resultInfo;
+            List<PayResultInfo> payResultInfoList = payResultDao
+                    .selectOneByPayer(new PayResultInfo(payerName, publisherId));
+            if(payResultInfoList == null || payResultInfoList.size() <= 0) {
+                throw new XException("This is a pay program, please follow the instructions to make payment.");
             }
-            PayResultInfo payResultInfo = payResultInfos.get(0);
+            PayResultInfo payResultInfo = payResultInfoList.get(0);
             return handleResult(payResultInfo);
         }
         if (payResultDao.countOne(paymentId) == 1) {
@@ -49,11 +62,17 @@ public class PayService {
         return realVerify(PAYPAL_VERIFY_URL + paymentId, payerName,  publisherId);
     }
 
+    /**
+     * 通过paymentId去paypal服务器接口验证交易结果
+     * @param url paypal服务器接口 + paymentId
+     * @param payerName payerName
+     * @param publisherId publisherId
+     * @return ResultInfo
+     */
     private ResultInfo<PayResultInfo> realVerify(String url, String payerName, int publisherId){
         InputStream inputStream = null;
         BufferedReader bufferedReader = null;
         StringBuilder builder = new StringBuilder();
-        ResultInfo<PayResultInfo> resultInfo = new ResultInfo<>();
         try {
             URL url1 = new URL(url);
             URLConnection urlConnection = url1.openConnection();
@@ -104,29 +123,17 @@ public class PayService {
             updateTime = updateTime.replace("T", " ");
             updateTime = updateTime.replace("Z", "");
             payResultInfo.setUpdateTime(updateTime);
-            if("approved".equals(payResultInfo.getState())){
-                if(payResultDao.countOne(payResultInfo.getPaymentId()) == 1){
-                    payResultDao.updateOne(payResultInfo);
-                }else{
-                    payResultDao.insertOne(payResultInfo);
-                }
-                resultInfo.setCode(ResultInfo.CODE_OK);
-                resultInfo.setStatus(ResultInfo.STATUS_OK);
-                resultInfo.setMessage("pay successfully");
-                resultInfo.setT(payResultInfo);
-                return resultInfo;
-            }else{
-                resultInfo.setCode(ResultInfo.CODE_INVALID);
-                resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-                resultInfo.setMessage("pay state no approved");
-                return resultInfo;
+            if(!"approved".equals(payResultInfo.getState())) {
+                throw new XException("pay state no approved");
             }
+            if(payResultDao.countOne(payResultInfo.getPaymentId()) == 1){
+                payResultDao.updateOne(payResultInfo);
+            }else{
+                payResultDao.insertOne(payResultInfo);
+            }
+            return ResultMaster.success(payResultInfo);
         } catch (IOException e) {
-            e.printStackTrace();
-            resultInfo.setCode(ResultInfo.CODE_INVALID);
-            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-            resultInfo.setMessage("payment id error");
-            return resultInfo;
+            throw new XException("pay result validate error");
         }finally {
             try {
                 if(bufferedReader != null) {
@@ -142,25 +149,19 @@ public class PayService {
         }
     }
 
+    /**
+     * 检查支付结果是否通过并且是否在有效期内
+     * @param payResultInfo PayResultInfo
+     * @return ResultInfo
+     */
     private ResultInfo<PayResultInfo> handleResult(PayResultInfo payResultInfo){
-        ResultInfo<PayResultInfo> resultInfo = new ResultInfo<>();
         if(!"approved".equals(payResultInfo.getState())){
-            resultInfo.setCode(ResultInfo.CODE_INVALID);
-            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-            resultInfo.setMessage("pay state no approved");
-            return resultInfo;
+            throw new XException("pay state no approved");
         }
         long time = TimeUtil.getUnixFromStr(payResultInfo.getTime());
         if(time + EXPIRES < System.currentTimeMillis()){
-            resultInfo.setCode(ResultInfo.CODE_INVALID);
-            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-            resultInfo.setMessage("pay state out expires");
-            return resultInfo;
+            throw new XException("pay state expires");
         }
-        resultInfo.setCode(ResultInfo.CODE_OK);
-        resultInfo.setStatus(ResultInfo.STATUS_OK);
-        resultInfo.setMessage("pay successfully");
-        resultInfo.setT(payResultInfo);
-        return resultInfo;
+        return ResultMaster.success(payResultInfo);
     }
 }

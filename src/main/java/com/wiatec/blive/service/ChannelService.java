@@ -1,17 +1,19 @@
 package com.wiatec.blive.service;
 
-import com.wiatec.blive.common.utils.TextUtil;
-import com.wiatec.blive.entity.ResultInfo;
+import com.wiatec.blive.common.result.ResultInfo;
+import com.wiatec.blive.common.result.ResultMaster;
+import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.dao.ChannelDao;
 import com.wiatec.blive.orm.dao.UserDao;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
-import com.wiatec.blive.orm.pojo.UserInfo;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
 
+/**
+ * @author patrick
+ */
 @Service
 public class ChannelService {
 
@@ -21,173 +23,135 @@ public class ChannelService {
     @Resource
     private UserDao userDao;
 
-    @Transactional
+    /**
+     * select channels that in living
+     * @return list of ChannelInfo
+     */
     public List<ChannelInfo> selectAllAvailable(){
         return channelDao.selectAllAvailable();
     }
 
-    @Transactional
-    public ChannelInfo selectOne(ChannelInfo channelInfo){
-        return channelDao.selectOneByUserId(channelInfo);
+    /**
+     * search channel info by the keyword in title
+     * @param key keyword
+     * @return list of ChannelInfo
+     */
+    public List<ChannelInfo> searchByLikeTitle(String key){
+        return channelDao.searchByLikeTitle(key);
     }
 
-    @Transactional
-    public ResultInfo<ChannelInfo> updateChannel(ChannelInfo channelInfo){
-        ResultInfo<ChannelInfo> resultInfo = new ResultInfo<>();
-        try{
-            if(channelDao.countUserId(channelInfo) == 1){
-                channelDao.updateChannel(channelInfo);
-            }else{
-                channelInfo.setTitle(userDao.selectOneById(new UserInfo(channelInfo.getUserId())).getUsername());
-                channelDao.insertChannel(channelInfo);
-            }
-            resultInfo.setCode(ResultInfo.CODE_OK);
-            resultInfo.setStatus(ResultInfo.STATUS_OK);
-            resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
-            resultInfo.setMessage("update successfully");
-            return resultInfo;
-        }catch (Exception e){
-            resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
-            resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
-            resultInfo.setMessage("channel server error");
-            return resultInfo;
+    /**
+     * select channel info by user id
+     * @param userId user id
+     * @return ChannelInfo
+     */
+    public ChannelInfo selectOne(int userId){
+        return channelDao.selectOneByUserId(userId);
+    }
+
+    /**
+     * update channel url info
+     * @param channelInfo ChannelInfo
+     * @return ResultInfo
+     */
+    public ResultInfo<ChannelInfo> updateChannelUrl(ChannelInfo channelInfo){
+        if(channelDao.countByUserId(channelInfo) == 1){
+            channelDao.updateChannel(channelInfo);
+        }else{
+            channelInfo.setTitle(userDao.selectOneById(channelInfo.getUserId()).getUsername());
+            channelDao.insertChannel(channelInfo);
         }
+        return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 
-    @Transactional
+    /**
+     * update channel title and message
+     * @param channelInfo  ChannelInfo
+     * @return  ResultInfo
+     */
+    public ResultInfo<ChannelInfo> updateChannelTitleAndMessage(ChannelInfo channelInfo){
+        if(channelDao.countByUserId(channelInfo) != 1){
+            throw new XException("user channel does not exists");
+        }
+        channelDao.updateChannelTitleAndMessage(channelInfo);
+        return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
+    }
+
+    /**
+     * update channel title
+     * @param channelInfo ChannelInfo
+     * @return ResultInfo
+     */
     public ResultInfo<ChannelInfo> updateChannelTitle(ChannelInfo channelInfo){
-        ResultInfo<ChannelInfo> resultInfo = new ResultInfo<>();
-        try{
-            if(channelDao.countUserId(channelInfo) == 1){
-                channelDao.updateChannelTitle(channelInfo);
-                resultInfo.setCode(ResultInfo.CODE_OK);
-                resultInfo.setStatus(ResultInfo.STATUS_OK);
-                resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
-                resultInfo.setMessage("update successfully");
-            }else{
-                resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-                resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-                resultInfo.setMessage("signin error ,please signin again");
-            }
-            return resultInfo;
-        }catch (Exception e){
-            resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
-            resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
-            resultInfo.setMessage("update error");
-            return resultInfo;
+        if(channelDao.countByUserId(channelInfo) != 1){
+            throw new XException("user channel does not exists");
         }
+        channelDao.updateChannelTitle(channelInfo);
+        return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 
-    @Transactional
-    public ResultInfo<ChannelInfo> updateChannelTitle1(ChannelInfo channelInfo){
-        ResultInfo<ChannelInfo> resultInfo = new ResultInfo<>();
-        try{
-            if(channelDao.countUserId(channelInfo) == 1){
-                channelDao.updateChannelTitle1(channelInfo);
-                resultInfo.setCode(ResultInfo.CODE_OK);
-                resultInfo.setStatus(ResultInfo.STATUS_OK);
-                resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
-                resultInfo.setMessage("Successfully");
-            }else{
-                resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-                resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-                resultInfo.setMessage("signin error ,please signin again");
-            }
-            return resultInfo;
-        }catch (Exception e){
-            resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
-            resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
-            resultInfo.setMessage("update error");
-            return resultInfo;
-        }
-    }
-
-
-    @Transactional
+    /**
+     * update channel message
+     * @param channelInfo ChannelInfo
+     * @return ResultInfo
+     */
     public ResultInfo<ChannelInfo> updateChannelMessage(ChannelInfo channelInfo){
-        ResultInfo<ChannelInfo> resultInfo = new ResultInfo<>();
-        try{
-            if(channelDao.countUserId(channelInfo) == 1){
-                channelDao.updateChannelMessage(channelInfo);
-                resultInfo.setCode(ResultInfo.CODE_OK);
-                resultInfo.setStatus(ResultInfo.STATUS_OK);
-                resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
-                resultInfo.setMessage("Successfully");
-            }else{
-                resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-                resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-                resultInfo.setMessage("signin error, please signin again");
-            }
-            return resultInfo;
-        }catch (Exception e){
-            resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
-            resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
-            resultInfo.setMessage("update error");
-            return resultInfo;
+        if(channelDao.countByUserId(channelInfo) != 1){
+            throw new XException("user channel does not exists");
         }
+        channelDao.updateChannelMessage(channelInfo);
+        return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 
-    @Transactional
+    /**
+     * update channel price
+     * @param channelInfo ChannelInfo
+     * @return ResultInfo
+     */
     public ResultInfo<ChannelInfo> updateChannelPrice(ChannelInfo channelInfo){
-        ResultInfo<ChannelInfo> resultInfo = new ResultInfo<>();
-        try{
-            if(channelDao.countUserId(channelInfo) == 1){
-                channelDao.updateChannelPrice(channelInfo);
-                resultInfo.setCode(ResultInfo.CODE_OK);
-                resultInfo.setStatus(ResultInfo.STATUS_OK);
-                resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
-                resultInfo.setMessage("update successfully");
-            }else{
-                resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-                resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-                resultInfo.setMessage("signin error ,please signin again");
-            }
-            return resultInfo;
-        }catch (Exception e){
-            resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
-            resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
-            resultInfo.setMessage("update error");
-            return resultInfo;
+        if(channelDao.countByUserId(channelInfo) != 1){
+            throw new XException("user channel does not exists");
         }
+        channelDao.updateChannelPrice(channelInfo);
+        return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 
-    @Transactional
+
+    /**
+     * update channel all setting: title, message, price
+     * @param channelInfo ChannelInfo
+     * @return ResultInfo
+     */
+    public ResultInfo<ChannelInfo> updateChannelAllSetting(ChannelInfo channelInfo){
+        if(channelDao.countByUserId(channelInfo) != 1){
+            throw new XException("user channel does not exists");
+        }
+        channelDao.updateChannelAllSetting(channelInfo);
+        return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
+    }
+
+    /**
+     * update channel status
+     * @param activate 1 -> activate, 0 -> deactivate
+     * @param userId user id
+     * @return ResultInfo
+     */
     public ResultInfo<ChannelInfo> updateChannelStatus(int activate, int userId){
-        ResultInfo<ChannelInfo> resultInfo = new ResultInfo<>();
-        try{
-            if(activate == 1){
-                channelDao.updateChannelAvailable(new ChannelInfo(userId));
-                resultInfo.setMessage("activate successfully");
-            }else {
-                channelDao.updateChannelUnavailable(new ChannelInfo(userId));
-                resultInfo.setMessage("deactivate successfully");
-            }
-            resultInfo.setCode(ResultInfo.CODE_OK);
-            resultInfo.setStatus(ResultInfo.STATUS_OK);
-            resultInfo.setT(channelDao.selectOneByUserId(new ChannelInfo(userId)));
-            return resultInfo;
-        }catch (Exception e){
-            resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
-            resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
-            resultInfo.setMessage("channel server error");
-            return resultInfo;
+        if(activate == 1){
+            channelDao.updateChannelAvailable(userId);
+        }else {
+            channelDao.updateChannelUnavailable(userId);
         }
+        return ResultMaster.success(channelDao.selectOneByUserId(userId));
     }
 
-    @Transactional
+    /**
+     * update channel preview image
+     * @param channelInfo ChannelInfo
+     * @return ResultInfo
+     */
     public ResultInfo<ChannelInfo> updatePreview(ChannelInfo channelInfo){
-        ResultInfo<ChannelInfo> resultInfo = new ResultInfo<>();
-        if(channelInfo.getUserId() <=0 || TextUtil.isEmpty(channelInfo.getPreview())){
-            resultInfo.setCode(ResultInfo.CODE_INVALID);
-            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-            resultInfo.setMessage("missing upload parameters");
-            return resultInfo;
-        }
         channelDao.updatePreview(channelInfo);
-        resultInfo.setCode(ResultInfo.CODE_OK);
-        resultInfo.setStatus(ResultInfo.STATUS_OK);
-        resultInfo.setMessage("upload successfully");
-        resultInfo.setT(channelDao.selectOneByUserId(channelInfo));
-        return resultInfo;
+        return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 }

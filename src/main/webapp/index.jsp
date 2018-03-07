@@ -23,9 +23,9 @@
   <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <link rel="shortcut icon" href="Resource/img/btv.ico">
   <style type="text/css">
-    #div_sign_in {margin: 200px auto auto;  width: 400px; height: 350px; background-color: #12263c;
+    #div_sign_in {margin: 200px auto auto;  width: 400px; height: 360px; background-color: #12263c;
       box-shadow: 0 0 8px #1d4ebb;}
-    #div_sign_in_1 {width: 300px; height: 250px; margin: 25px auto auto}
+    #div_sign_in_1 {width: 300px; height: 260px; margin: 25px auto auto}
     h3 {width: 100%; text-align: center; align-content: center}
     #error_message_sign_in {color: red; font-size: 16px}
     #btSignIn {width: 100%}
@@ -53,6 +53,7 @@
 <body style="background-color: #ababab">
 
   <div style="width: 100%; height: 100%; background-image: url(Resource/img/lights.jpg); position: absolute; left: 0; top: 0">
+
     <div id="div_sign_in">
       <div id="div_sign_in_1">
         <br/>
@@ -85,7 +86,12 @@
           By signing up the account, you agree to the term of service
           <a href="http://blive.bvision.live:8804/consent.pdf" target="_blank">(consent)</a>
         </div>
-        <div style="clear: both"><span id="error_message_sign_in"></span></div>
+        <div>
+          <a href="Resource/html/help.html" style="color: yellow; display: block; float: right" target="_blank">Help?</a>
+        </div>
+        <div style="clear: both">
+          <span id="error_message_sign_in"></span>
+        </div>
       </div>
     </div>
 

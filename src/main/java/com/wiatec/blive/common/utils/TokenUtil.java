@@ -6,10 +6,11 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * token util
+ * @author patrick
  */
 public class TokenUtil {
 
-    public static String create(String s1, String s2){
+    public static String create16(String s1, String s2){
         try {
             long time = System.currentTimeMillis();
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
@@ -41,6 +42,6 @@ public class TokenUtil {
     }
 
     public static String createKey(int i){
-        return TokenUtil.create(i+"", "www.wiatec.com");
+        return TokenUtil.create16(i+"", "www.wiatec.com");
     }
 }

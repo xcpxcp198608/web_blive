@@ -1,12 +1,19 @@
 package com.wiatec.blive.service;
 
-import com.wiatec.blive.entity.ResultInfo;
+import com.wiatec.blive.common.result.EnumResult;
+import com.wiatec.blive.common.result.ResultInfo;
+import com.wiatec.blive.common.result.ResultMaster;
+import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.listener.SessionListener;
+import com.wiatec.blive.orm.dao.ChannelDao;
 import com.wiatec.blive.orm.dao.TokenDao;
 import com.wiatec.blive.orm.dao.UserDao;
+import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.TokenInfo;
 import com.wiatec.blive.orm.pojo.UserInfo;
 import com.wiatec.blive.common.utils.*;
+import com.wiatec.blive.rtmp.RtmpInfo;
+import com.wiatec.blive.rtmp.RtmpMaster;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,228 +21,204 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+/**
+ * @author patrick
+ */
 @Service
 public class UserService {
 
+    private final int TIME_TOKEN_EXPIRES = 600000;
+
     @Resource
     private UserDao userDao;
-
+    @Resource
+    private ChannelDao channelDao;
     @Resource
     private TokenDao tokenDao;
 
-    @Transactional
+    /**
+     * user sign up
+     * @param request   HttpServletRequest
+     * @param userInfo  UserInfo
+     * @return ResultInfo
+     */
+    @Transactional(rollbackFor = Exception.class)
     public ResultInfo<UserInfo> signUp(HttpServletRequest request, UserInfo userInfo){
-        ResultInfo<UserInfo> resultInfo = new ResultInfo<>();
-        if(userDao.countUsername(userInfo) == 1){
-            resultInfo.setCode(ResultInfo.CODE_INVALID);
-            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-            resultInfo.setMessage("duplicate username");
-            return resultInfo;
+        if(userDao.countByUsername(userInfo.getUsername()) == 1){
+            throw new XException(EnumResult.ERROR_USERNAME_EXISTS);
         }
-        if(userDao.countEmail(userInfo) == 1){
-            resultInfo.setCode(ResultInfo.CODE_INVALID);
-            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-            resultInfo.setMessage("duplicate email");
-            return resultInfo;
+        if(userDao.countByEmail(userInfo) == 1) {
+            throw new XException(EnumResult.ERROR_EMAIL_EXISTS);
         }
-        if(userDao.countPhone(userInfo) == 1){
-            resultInfo.setCode(ResultInfo.CODE_INVALID);
-            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-            resultInfo.setMessage("duplicate phone");
-            return resultInfo;
-        }
+        // insert user information
         userDao.insertOne(userInfo);
-        String token = AESUtil.encrypt(System.currentTimeMillis() + userInfo.getUsername(), AESUtil.KEY);
+        UserInfo userInfo1 = userDao.selectOneByUsername(userInfo.getUsername());
+        // get rtmp information and set in table channel
+        RtmpInfo rtmpInfo = new RtmpMaster().getRtmpInfo(userInfo1.getUsername());
+        if(rtmpInfo == null){
+            throw new XException("rtmp server error");
+        }
+        ChannelInfo channelInfo = new ChannelInfo();
+        channelInfo.setTitle(userInfo1.getUsername());
+        channelInfo.setUserId(userInfo1.getId());
+        channelInfo.setUrl(rtmpInfo.getPush_full_url());
+        channelInfo.setRtmpUrl(rtmpInfo.getPush_url());
+        channelInfo.setRtmpKey(rtmpInfo.getPush_key());
+        channelInfo.setPlayUrl(rtmpInfo.getPlay_url());
+        if(channelDao.insertChannel(channelInfo) != 1){
+            throw new XException("channel setting error");
+        }
+        // send validate email
+        String token = AESUtil.encrypt(System.currentTimeMillis() + userInfo1.getUsername(), AESUtil.KEY);
         EmailMaster emailMaster = new EmailMaster();
         String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
         emailMaster.setEmailContent(basePath, userInfo.getUsername(), token);
-        emailMaster.send(userInfo.getEmail());
-        resultInfo.setCode(ResultInfo.CODE_OK);
-        resultInfo.setStatus(ResultInfo.STATUS_CREATED);
-        resultInfo.setMessage("Signup successfully, check email and activate your account");
-        resultInfo.setT(userInfo);
-        return resultInfo;
+        emailMaster.send(userInfo1.getEmail());
+        return ResultMaster.success(userInfo1);
     }
 
-    @Transactional
+    /**
+     * user activate by email link
+     * @param token token from system create in sign up
+     * @return activate result message
+     */
     public String activate(String token){
         String t = AESUtil.decrypt(token, AESUtil.KEY);
         String username = t.substring(13, t.length());
-        if(!(userDao.countUsername(new UserInfo(username)) == 1)){
+        if(!(userDao.countByUsername(username) == 1)){
             return "user not exists";
         }
-        try {
-            userDao.updateStatus(new UserInfo(username));
-        }catch (Exception e){
+        if(userDao.updateStatusByUsername(username) != 1){
             return "activate failure";
         }
         return "activate successfully";
     }
 
-    @Transactional
+    /**
+     * user sign in
+     * @param userInfo UserInfo
+     * @return ResultInfo
+     */
     public ResultInfo signIn(UserInfo userInfo){
-        ResultInfo<TokenInfo> resultInfo = new ResultInfo<>();
-        try {
-            if (!(userDao.countUsername(userInfo) == 1)) {
-                resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-                resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-                resultInfo.setMessage("user not exists!");
-                return resultInfo;
-            }
-            if (userDao.countOne(userInfo) == 1) {
-                if(userDao.validateStatus(userInfo) != 1){
-                    resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-                    resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-                    resultInfo.setMessage("email not activate");
-                    return resultInfo;
-                }
-                UserInfo userInfo1 = userDao.selectOne(userInfo);
-                TokenInfo tokenInfo = new TokenInfo();
-                tokenInfo.setToken(TokenUtil.create(userInfo.getUsername(),
-                        System.currentTimeMillis() + "") +
-                        TokenUtil.create(userInfo.getUsername(),
-                        System.currentTimeMillis() + ""));
-                tokenInfo.setUserId(userInfo1.getId());
-                if(tokenDao.countUserId(tokenInfo)==1){
-                    tokenDao.updateOne(tokenInfo);
-                }else {
-                    tokenDao.insertOne(tokenInfo);
-                }
-                tokenInfo = tokenDao.selectOne(tokenInfo);
-                resultInfo.setCode(ResultInfo.CODE_OK);
-                resultInfo.setStatus(ResultInfo.STATUS_OK);
-                resultInfo.setMessage("Signin successfully");
-                resultInfo.setT(tokenInfo);
-            } else {
-                resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-                resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-                resultInfo.setMessage("username and password not match");
-            }
-            return resultInfo;
-        }catch (Exception e){
-            resultInfo.setCode(ResultInfo.CODE_SERVER_ERROR);
-            resultInfo.setStatus(ResultInfo.STATUS_SERVER_ERROR);
-            resultInfo.setMessage("Signin error");
-            return resultInfo;
+        if (userDao.countByUsername(userInfo.getUsername()) != 1) {
+            throw new XException(EnumResult.ERROR_USERNAME_NOT_EXISTS);
         }
+        if (userDao.countOne(userInfo) != 1) {
+            throw new XException(EnumResult.ERROR_USERNAME_PASSWORD_NO_MATCH);
+        }
+        if(userDao.validateStatus(userInfo) != 1){
+            throw new XException(EnumResult.ERROR_EMAIL_NO_ACTIVATE);
+        }
+        UserInfo userInfo1 = userDao.selectOne(userInfo);
+        TokenInfo tokenInfo = new TokenInfo();
+        tokenInfo.setToken(TokenUtil.create32(userInfo.getUsername(), System.currentTimeMillis() + "") +
+                TokenUtil.create32(userInfo.getUsername(), System.currentTimeMillis() + ""));
+        tokenInfo.setUserId(userInfo1.getId());
+        int i = tokenDao.countByUserId(tokenInfo) == 1 ?
+                tokenDao.updateOne(tokenInfo) :
+                tokenDao.insertOne(tokenInfo);
+        tokenInfo = tokenDao.selectOneByUserId(userInfo1.getId());
+        return ResultMaster.success(tokenInfo);
     }
 
-    @Transactional
+    /**
+     * request reset user password from user
+     * @param request HttpServletRequest
+     * @param userInfo UserInfo
+     * @return ResultInfo
+     */
     public ResultInfo reset(HttpServletRequest request, UserInfo userInfo){
-        ResultInfo resultInfo = new ResultInfo();
-        if(!(userDao.countUsername(userInfo) == 1)){
-            resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-            resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-            resultInfo.setMessage("user not exists");
-            return resultInfo;
+        if(userDao.countByUsername(userInfo.getUsername()) != 1){
+            throw new XException(EnumResult.ERROR_USERNAME_NOT_EXISTS);
         }
-        if(!(userDao.countEmail(userInfo) == 1)){
-            resultInfo.setCode(ResultInfo.CODE_INVALID);
-            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-            resultInfo.setMessage("email not exists");
-            return resultInfo;
+        if(userDao.countByEmail(userInfo) != 1){
+            throw new XException(EnumResult.ERROR_EMAIL_NOT_EXISTS);
         }
-        if(!(userDao.validateUserNameAndEmail(userInfo) == 1)){
-            resultInfo.setCode(ResultInfo.CODE_INVALID);
-            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-            resultInfo.setMessage("username and email not match");
-            return resultInfo;
+        if(userDao.validateUserNameAndEmail(userInfo) != 1){
+            throw new XException("username and email not match");
         }
         String token = AESUtil.encrypt(System.currentTimeMillis() + userInfo.getUsername(), AESUtil.KEY);
         EmailMaster emailMaster = new EmailMaster();
         String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
         emailMaster.setResetPasswordContent(basePath, userInfo.getUsername(), token);
         emailMaster.send(userInfo.getEmail());
-        resultInfo.setCode(ResultInfo.CODE_OK);
-        resultInfo.setStatus(ResultInfo.STATUS_CREATED);
-        resultInfo.setMessage("request successfully, check email and reset your password");
-        return resultInfo;
+        return ResultMaster.success("request successfully, check email and reset your password");
     }
 
-    @Transactional
+    /**
+     * validate token and return username
+     * @param token token
+     * @return username
+     */
     public String go(String token){
         String t = AESUtil.decrypt(token, AESUtil.KEY);
         long time = Long.parseLong(t.substring(0, 13));
-        if(time + 600000 < System.currentTimeMillis()){
-            throw new RuntimeException("link operation timeout");
+        if(time + TIME_TOKEN_EXPIRES < System.currentTimeMillis()){
+            throw new XException("operation expires");
         }
         String username = t.substring(13, t.length());
-        if(!(userDao.countUsername(new UserInfo(username)) == 1)){
-            throw new RuntimeException("user not exists");
+        if(userDao.countByUsername(username) != 1){
+            throw new XException(EnumResult.ERROR_USERNAME_NOT_EXISTS);
         }
         return username;
     }
 
-    @Transactional
+    /**
+     * update user password
+     * @param userInfo UserInfo
+     * @return ResultInfo
+     */
     public ResultInfo update(UserInfo userInfo){
-        ResultInfo resultInfo = new ResultInfo();
-        System.out.println(userInfo);
         if(TextUtil.isEmpty(userInfo.getPassword())){
-            throw new RuntimeException("password is empty");
+            throw new XException("password is empty");
         }
         if(userInfo.getPassword().length() < 6){
-            throw new RuntimeException("password format error");
+            throw new XException("password format error");
         }
         userDao.update(userInfo);
-        resultInfo.setCode(ResultInfo.CODE_OK);
-        resultInfo.setStatus(ResultInfo.STATUS_OK);
-        resultInfo.setMessage("reset password successfully");
-        return resultInfo;
+        return ResultMaster.success("reset successfully");
     }
 
-    @Transactional
+    /**
+     * user validate
+     * @param userInfo UserInfo
+     * @return ResultInfo
+     */
     public ResultInfo validate(UserInfo userInfo){
-        ResultInfo resultInfo = new ResultInfo();
-        if(!(userDao.countUsername(userInfo)==1)){
-            resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-            resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-            resultInfo.setMessage("user not exists ");
-            return resultInfo;
+        if(userDao.countByUsername(userInfo.getUsername()) != 1){
+            throw new XException(EnumResult.ERROR_USERNAME_NOT_EXISTS);
         }
         UserInfo userInfo1 = userDao.selectOne(userInfo);
         if(!userInfo1.isStatus()){
-            resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-            resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-            resultInfo.setMessage("user status error");
-            return resultInfo;
+            throw new XException("user status error");
         }
-        resultInfo.setCode(ResultInfo.CODE_OK);
-        resultInfo.setStatus(ResultInfo.STATUS_OK);
-        resultInfo.setMessage("validate successfully");
-        return resultInfo;
+        return ResultMaster.success("validate successfully");
     }
 
-    @Transactional
-    public ResultInfo signOut(HttpServletRequest request, UserInfo userInfo){
-        ResultInfo resultInfo = new ResultInfo();
+    /**
+     * user sign out, invalidate session
+     * @param userInfo UserInfo
+     * @return ResultInfo
+     */
+    public ResultInfo signOut(UserInfo userInfo){
         HttpSession session = SessionListener.getSession(userInfo.getUsername());
         if(session != null){
             session.invalidate();
         }
-        resultInfo.setCode(ResultInfo.CODE_OK);
-        resultInfo.setStatus(ResultInfo.STATUS_OK);
-        resultInfo.setMessage("signout successfully");
-        return resultInfo;
+        return ResultMaster.success("sign out successfully");
     }
 
-    @Transactional
+    /**
+     * update user icon
+     * @param userInfo UserInfo
+     * @return ResultInfo
+     */
     public ResultInfo<UserInfo> updateIcon(UserInfo userInfo){
-        ResultInfo<UserInfo> resultInfo = new ResultInfo<>();
-        if(userInfo.getId() <=0 || TextUtil.isEmpty(userInfo.getIcon())){
-            resultInfo.setCode(ResultInfo.CODE_INVALID);
-            resultInfo.setStatus(ResultInfo.STATUS_INVALID);
-            resultInfo.setMessage("missing upload parameters");
-            return resultInfo;
-        }
         userDao.updateIcon(userInfo);
-        resultInfo.setCode(ResultInfo.CODE_OK);
-        resultInfo.setStatus(ResultInfo.STATUS_OK);
-        resultInfo.setMessage("upload successfully");
-        resultInfo.setT(userDao.selectOneById(userInfo));
-        return resultInfo;
+        return ResultMaster.success(userDao.selectOneById(userInfo.getId()));
     }
 
-    @Transactional(readOnly = true)
+
     public UserInfo selectOne(UserInfo userInfo){
         return userDao.selectUserAndChannels(userInfo);
     }

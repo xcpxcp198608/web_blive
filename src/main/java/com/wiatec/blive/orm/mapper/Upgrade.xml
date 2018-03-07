@@ -2,19 +2,10 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wiatec.blive.orm.dao.UpgradeDao">
-    <resultMap type="com.wiatec.blive.orm.pojo.UpgradeInfo" id="upgradeInfo">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="url" property="url"/>
-        <result column="version" property="version"/>
-        <result column="code" property="code"/>
-        <result column="info" property="info"/>
-    </resultMap>
-
-    <sql id="select">SELECT id, name, url, version, code, info FROM upgrade</sql>
 
     <select id="selectOne" resultType="com.wiatec.blive.orm.pojo.UpgradeInfo">
-        <include refid="select"/>
+        SELECT id, name, url, version, code, info
+        FROM upgrade
         WHERE id =1
     </select>
 

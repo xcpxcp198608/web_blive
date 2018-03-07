@@ -1,16 +1,18 @@
 package com.wiatec.blive.service;
 
+import com.wiatec.blive.common.result.ResultInfo;
+import com.wiatec.blive.common.result.ResultMaster;
+import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.common.utils.TimeUtil;
-import com.wiatec.blive.entity.ResultInfo;
 import com.wiatec.blive.orm.dao.TokenDao;
 import com.wiatec.blive.orm.pojo.TokenInfo;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.concurrent.TimeUnit;
 
+/**
+ * @author patrick
+ */
 @Service
 public class TokenService {
 
@@ -19,31 +21,26 @@ public class TokenService {
     @Resource
     private TokenDao tokenDao;
 
-    @Transactional
-    public TokenInfo selectOne(TokenInfo tokenInfo){
-        return tokenDao.selectOne(tokenInfo);
+    public ResultInfo<TokenInfo> selectOne(String token){
+        TokenInfo tokenInfo = tokenDao.selectOneByToken(token);
+        if(tokenInfo == null){
+            throw new XException("token not exists");
+        }
+        return ResultMaster.success(tokenInfo);
     }
 
-    @Transactional
-    public ResultInfo validate(TokenInfo tokenInfo){
-        ResultInfo resultInfo = new ResultInfo();
-        if(!(tokenDao.countOne(tokenInfo) == 1)){
-            resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-            resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-            resultInfo.setMessage("token not exists");
-            return resultInfo;
+    public ResultInfo validate(String token){
+        if((tokenDao.countOneByToken(token) != 1)){
+            throw new XException("token not exists");
         }
-        TokenInfo tokenInfo1 = tokenDao.selectOne(tokenInfo);
-        long cTime = TimeUtil.getUnixFromStr(tokenInfo1.getCreateTime());
+        TokenInfo t = tokenDao.selectOneByToken(token);
+        if(t == null){
+            throw new XException("token not exists");
+        }
+        long cTime = TimeUtil.getUnixFromStr(t.getCreateTime());
         if(cTime + DURATION < System.currentTimeMillis()){
-            resultInfo.setCode(ResultInfo.CODE_UNAUTHORIZED);
-            resultInfo.setStatus(ResultInfo.STATUS_UNAUTHORIZED);
-            resultInfo.setMessage("token overdue");
-        }else {
-            resultInfo.setCode(ResultInfo.CODE_OK);
-            resultInfo.setStatus(ResultInfo.STATUS_OK);
-            resultInfo.setMessage("token validate successfully");
+            throw new XException("token expires");
         }
-        return resultInfo;
+        return ResultMaster.success();
     }
 }

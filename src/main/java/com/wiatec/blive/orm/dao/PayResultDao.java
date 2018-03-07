@@ -6,6 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * @author patrick
+ */
 @Repository
 public interface PayResultDao {
 
@@ -16,7 +19,6 @@ public interface PayResultDao {
     int countOne(String paymentId);
     PayResultInfo selectOne(String paymentId);
     List<PayResultInfo> selectOneByPayer(PayResultInfo payResultInfo);
-
 
 
     /**

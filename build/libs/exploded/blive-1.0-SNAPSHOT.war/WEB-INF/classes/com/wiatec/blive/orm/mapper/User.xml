@@ -18,6 +18,8 @@
             <result column="message" property="message"/>
             <result column="preview" property="preview"/>
             <result column="url" property="url"/>
+            <result column="rtmp_url" property="rtmpUrl"/>
+            <result column="rtmp_key" property="rtmpKey"/>
             <result column="playUrl" property="playUrl"/>
             <result column="category" property="category"/>
             <result column="available" property="available"/>
@@ -28,7 +30,8 @@
         </association>
     </resultMap>
 
-    <sql id="select">SELECT id userId, username, password, email, phone, icon, status, registerTime, isPublisher FROM auth_user</sql>
+    <sql id="select">SELECT id userId, username, password, email, phone, icon, status, registerTime, isPublisher
+                     FROM auth_user</sql>
 
     <select id="selectOne" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultMap="userInfo">
         SELECT auth_user.id userId, auth_user.username, auth_user.email, auth_user.phone,
@@ -40,7 +43,8 @@
     <select id="selectOneWithChannel" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultMap="userInfo">
         SELECT auth_user.id userId, auth_user.username, auth_user.email, auth_user.phone,
         auth_user.icon, auth_user.status, auth_user.registerTime, auth_user.isPublisher,
-        live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url, live_channel.playUrl,
+        live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url,
+        live_channel.rtmp_url, live_channel.rtmp_key, live_channel.playUrl,
         live_channel.preview, live_channel.category, live_channel.available, live_channel.type,
         live_channel.price, live_channel.startTime, live_channel.userId
         FROM auth_user, live_channel
@@ -48,9 +52,14 @@
         AND auth_user.id = live_channel.userId
     </select>
 
-    <select id="selectOneById" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultMap="userInfo">
+    <select id="selectOneById" resultMap="userInfo">
         SELECT id userId, username, email, phone, icon, status, registerTime, isPublisher FROM auth_user
-        WHERE auth_user.id=#{id}
+        WHERE auth_user.id=#{userId}
+    </select>
+
+    <select id="selectOneByUsername" resultMap="userInfo">
+        SELECT id userId, username, email, phone, icon, status, registerTime, isPublisher FROM auth_user
+        WHERE auth_user.username=#{username}
     </select>
 
     <insert id="insertOne" parameterType="com.wiatec.blive.orm.pojo.UserInfo">
@@ -58,31 +67,37 @@
         VALUES (#{username}, #{password}, #{email}, #{phone}, '1')
     </insert>
 
-    <select id="countUsername" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
-        SELECT COUNT(*) FROM auth_user
+    <select id="countByUsername"  resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_user
         WHERE username=#{username}
     </select>
 
-    <select id="countEmail" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
-        SELECT COUNT(*) FROM auth_user
+    <select id="countByEmail" parameterType="com.wiatec.blive.orm.pojo.UserInfo"
+            resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_user
         WHERE email=#{email}
     </select>
 
-    <select id="countPhone" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
-        SELECT COUNT(*) FROM auth_user
+    <select id="countByPhone" parameterType="com.wiatec.blive.orm.pojo.UserInfo"
+            resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_user
         WHERE phone=#{phone}
     </select>
 
-    <select id="validateStatus" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
+    <select id="validateStatus" parameterType="com.wiatec.blive.orm.pojo.UserInfo"
+            resultType="java.lang.Integer">
         SELECT status FROM auth_user WHERE username=#{username}
     </select>
 
-    <select id="validateUserNameAndEmail" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
-        SELECT COUNT(*)  FROM auth_user WHERE username=#{username} AND email=#{email}
+    <select id="validateUserNameAndEmail" parameterType="com.wiatec.blive.orm.pojo.UserInfo"
+            resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_user
+        WHERE username=#{username} AND email=#{email}
     </select>
 
-    <select id="countOne" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultType="Integer">
-        SELECT COUNT(*) FROM auth_user
+    <select id="countOne" parameterType="com.wiatec.blive.orm.pojo.UserInfo"
+            resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_user
         WHERE username=#{username} AND password=#{password}
     </select>
 
@@ -90,15 +105,17 @@
     <select id="selectUserAndChannels" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultMap="userInfo">
         SELECT auth_user.id userId, auth_user.username, auth_user.email, auth_user.phone,
             auth_user.icon, auth_user.status, auth_user.registerTime, auth_user.isPublisher,
-            live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url, live_channel.playUrl,
-            live_channel.preview, live_channel.category, live_channel.available, live_channel.type,
-            live_channel.price, live_channel.startTime, live_channel.userId
+            live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url,
+            live_channel.rtmp_url, live_channel.rtmp_key, live_channel.playUrl,
+            live_channel.preview, live_channel.category,
+            live_channel.available, live_channel.type, live_channel.price, live_channel.startTime,
+            live_channel.userId
         FROM auth_user, live_channel
         WHERE auth_user.id=#{id}
         AND auth_user.id = live_channel.userId
     </select>
 
-    <update id="updateStatus" parameterType="com.wiatec.blive.orm.pojo.UserInfo">
+    <update id="updateStatusByUsername">
         UPDATE auth_user
         SET status=1
         WHERE username=#{username}

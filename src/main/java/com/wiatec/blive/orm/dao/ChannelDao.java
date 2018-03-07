@@ -9,15 +9,17 @@ import java.util.List;
 public interface ChannelDao {
 
     List<ChannelInfo> selectAllAvailable();
-    ChannelInfo selectOneByUserId(ChannelInfo channelInfo);
-    int countUserId(ChannelInfo channelInfo);
-    void insertChannel(ChannelInfo channelInfo);
-    void updateChannel(ChannelInfo channelInfo);
+    List<ChannelInfo> searchByLikeTitle(String key);
+    ChannelInfo selectOneByUserId(int userId);
+    int countByUserId(ChannelInfo channelInfo);
+    int insertChannel(ChannelInfo channelInfo);
+    int updateChannel(ChannelInfo channelInfo);
+    void updateChannelTitleAndMessage(ChannelInfo channelInfo);
     void updateChannelTitle(ChannelInfo channelInfo);
-    void updateChannelTitle1(ChannelInfo channelInfo);
     void updateChannelMessage(ChannelInfo channelInfo);
     void updateChannelPrice(ChannelInfo channelInfo);
-    void updateChannelAvailable(ChannelInfo channelInfo);
-    void updateChannelUnavailable(ChannelInfo channelInfo);
+    void updateChannelAllSetting(ChannelInfo channelInfo);
+    void updateChannelAvailable(int userId);
+    void updateChannelUnavailable(int userId);
     void updatePreview(ChannelInfo channelInfo);
 }

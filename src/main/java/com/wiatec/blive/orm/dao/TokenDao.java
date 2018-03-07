@@ -3,12 +3,17 @@ package com.wiatec.blive.orm.dao;
 import com.wiatec.blive.orm.pojo.TokenInfo;
 import org.springframework.stereotype.Repository;
 
+/**
+ * @author patrick
+ */
 @Repository
 public interface TokenDao {
 
-    int countOne(TokenInfo tokenInfo);
-    TokenInfo selectOne(TokenInfo tokenInfo);
-    int countUserId(TokenInfo tokenInfo);
-    void insertOne(TokenInfo tokenInfo);
-    void updateOne(TokenInfo tokenInfo);
+    int countOneByToken(String token);
+    TokenInfo selectOneByToken(String token);
+    TokenInfo selectOneByUserId(int userId);
+    int countByUserId(TokenInfo tokenInfo);
+
+    int insertOne(TokenInfo tokenInfo);
+    int updateOne(TokenInfo tokenInfo);
 }

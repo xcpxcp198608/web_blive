@@ -19,6 +19,11 @@ public class XException extends RuntimeException {
         this.code = code;
     }
 
+    public XException(String message) {
+        super(message);
+        this.code = 101;
+    }
+
     public int getCode() {
         return code;
     }

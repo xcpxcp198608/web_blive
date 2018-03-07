@@ -10,11 +10,14 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * @author patrick
+ */
 public class PayPalAccessToken implements Runnable {
 
     private Logger logger = LoggerFactory.getLogger(PayPalAccessToken.class);
 
-//    private final String URL = "https://api.sandbox.paypal.com/v1/oauth2/token";
+    private final String URL_SANDBOX = "https://api.sandbox.paypal.com/v1/oauth2/token";
     private final String URL = "https://api.paypal.com/v1/oauth2/token";
     private final String AUTH = "Basic QVVJb0V3WEdCV1Q0anNTUklDT1U1SFRUWHJvcDdPRnNFUXJJeUFOa2J3RnhMOTgyWXUyZVNNa29sd0FhOEUwelZzbG82ZDJFN1UwbVd2dno6RUp3SF9wb19ER2xHTzBJZEVqVWdHeVBXNWw4TjA2YWlrVTAwalAyMkduOE5fbGg2ZkVyenJHaTNoM3hoSkw4d0hDUjh4OWFZN2RFaDh3QlM=";
     private final String GRANT_TYPE = "client_credentials";
@@ -51,17 +54,16 @@ public class PayPalAccessToken implements Runnable {
                     Application.getInstance().setPayAccessToken(accessToken);
                     logger.debug(accessToken);
                     logger.debug(expires+"");
-                    if(expires < 1000){
-                        Timer timer = new Timer();
-                        timer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                logger.debug("time task run");
-                                getAccessToken();
-                            }
-                        }, expires*1000);
-                    }
-
+//                    if(expires < 1000){
+//                        Timer timer = new Timer();
+//                        timer.schedule(new TimerTask() {
+//                            @Override
+//                            public void run() {
+//                                logger.debug("time task run");
+//                                getAccessToken();
+//                            }
+//                        }, expires*1000);
+//                    }
                 }catch (Exception e){
                     logger.debug(e.getMessage());
                 }
