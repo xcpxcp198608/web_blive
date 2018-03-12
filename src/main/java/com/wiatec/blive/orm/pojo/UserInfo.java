@@ -11,6 +11,7 @@ public class UserInfo {
     private String email;
     private String phone;
     private String icon;
+    private String profile;
     private String registerTime;
     private boolean status;
     private boolean publisher;
@@ -80,6 +81,14 @@ public class UserInfo {
         this.icon = icon;
     }
 
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
     public String getRegisterTime() {
         return registerTime;
     }
@@ -121,6 +130,7 @@ public class UserInfo {
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", icon='" + icon + '\'' +
+                ", profile='" + profile + '\'' +
                 ", registerTime='" + registerTime + '\'' +
                 ", status=" + status +
                 ", publisher=" + publisher +

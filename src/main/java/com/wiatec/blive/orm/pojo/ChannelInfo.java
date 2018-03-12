@@ -8,6 +8,10 @@ public class ChannelInfo {
     private int id;
     private String title;
     private String message;
+    /**
+     * 内容分级：0->G, 1->PG, 2->pg-13, 3->R, 4->NC-17
+     */
+    private int rating;
     private String url;
     private String rtmpUrl;
     private String rtmpKey;
@@ -58,6 +62,14 @@ public class ChannelInfo {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 
     public String getUrl() {
@@ -162,6 +174,7 @@ public class ChannelInfo {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", message='" + message + '\'' +
+                ", rating=" + rating +
                 ", url='" + url + '\'' +
                 ", rtmpUrl='" + rtmpUrl + '\'' +
                 ", rtmpKey='" + rtmpKey + '\'' +

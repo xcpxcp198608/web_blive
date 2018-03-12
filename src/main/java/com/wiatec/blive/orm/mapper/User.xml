@@ -9,11 +9,13 @@
         <result column="email" property="email"/>
         <result column="phone" property="phone"/>
         <result column="icon" property="icon"/>
+        <result column="profile" property="profile"/>
         <result column="status" property="status"/>
         <result column="isPublisher" property="publisher"/>
         <result column="registerTime" property="registerTime"/>
         <association property="channelInfo" javaType="com.wiatec.blive.orm.pojo.ChannelInfo">
             <id column="channelId" property="id"/>
+            <result column="rating" property="rating"/>
             <result column="title" property="title"/>
             <result column="message" property="message"/>
             <result column="preview" property="preview"/>
@@ -30,21 +32,21 @@
         </association>
     </resultMap>
 
-    <sql id="select">SELECT id userId, username, password, email, phone, icon, status, registerTime, isPublisher
+    <sql id="select">SELECT id userId, username, password, email, phone, icon, status, profile, registerTime, isPublisher
                      FROM auth_user</sql>
 
     <select id="selectOne" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultMap="userInfo">
         SELECT auth_user.id userId, auth_user.username, auth_user.email, auth_user.phone,
-            auth_user.icon, auth_user.status, auth_user.registerTime, auth_user.isPublisher
+            auth_user.icon, auth_user.status, auth_user.profile, auth_user.registerTime, auth_user.isPublisher
         FROM auth_user
         WHERE auth_user.username=#{username}
     </select>
 
     <select id="selectOneWithChannel" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultMap="userInfo">
         SELECT auth_user.id userId, auth_user.username, auth_user.email, auth_user.phone,
-        auth_user.icon, auth_user.status, auth_user.registerTime, auth_user.isPublisher,
+        auth_user.icon, auth_user.status, auth_user.profile, auth_user.registerTime, auth_user.isPublisher,
         live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url,
-        live_channel.rtmp_url, live_channel.rtmp_key, live_channel.playUrl,
+        live_channel.rtmp_url, live_channel.rtmp_key, live_channel.playUrl, live_channel.rating,
         live_channel.preview, live_channel.category, live_channel.available, live_channel.type,
         live_channel.price, live_channel.startTime, live_channel.userId
         FROM auth_user, live_channel
@@ -53,12 +55,12 @@
     </select>
 
     <select id="selectOneById" resultMap="userInfo">
-        SELECT id userId, username, email, phone, icon, status, registerTime, isPublisher FROM auth_user
+        SELECT id userId, username, email, phone, icon, status, profile, registerTime, isPublisher FROM auth_user
         WHERE auth_user.id=#{userId}
     </select>
 
     <select id="selectOneByUsername" resultMap="userInfo">
-        SELECT id userId, username, email, phone, icon, status, registerTime, isPublisher FROM auth_user
+        SELECT id userId, username, email, phone, icon, status, profile, registerTime, isPublisher FROM auth_user
         WHERE auth_user.username=#{username}
     </select>
 
@@ -102,17 +104,47 @@
     </select>
 
     <!-- 关联查询时如果column有重名的需要起别名，否则查询结果只有一条 -->
-    <select id="selectUserAndChannels" parameterType="com.wiatec.blive.orm.pojo.UserInfo" resultMap="userInfo">
+    <select id="selectOneWithChannelByUserId" resultMap="userInfo">
         SELECT auth_user.id userId, auth_user.username, auth_user.email, auth_user.phone,
-            auth_user.icon, auth_user.status, auth_user.registerTime, auth_user.isPublisher,
+            auth_user.icon, auth_user.status, auth_user.registerTime, auth_user.isPublisher, auth_user.profile,
             live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url,
-            live_channel.rtmp_url, live_channel.rtmp_key, live_channel.playUrl,
+            live_channel.rtmp_url, live_channel.rtmp_key, live_channel.playUrl, live_channel.rating,
             live_channel.preview, live_channel.category,
             live_channel.available, live_channel.type, live_channel.price, live_channel.startTime,
             live_channel.userId
         FROM auth_user, live_channel
-        WHERE auth_user.id=#{id}
+        WHERE auth_user.id=#{userId}
         AND auth_user.id = live_channel.userId
+    </select>
+
+    <select id="selectBefore" resultMap="userInfo">
+        SELECT auth_user.id userId, auth_user.username, auth_user.email, auth_user.phone,
+            auth_user.icon, auth_user.status, auth_user.registerTime, auth_user.isPublisher, auth_user.profile,
+            live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url,
+            live_channel.rtmp_url, live_channel.rtmp_key, live_channel.playUrl, live_channel.rating,
+            live_channel.preview, live_channel.category,
+            live_channel.available, live_channel.type, live_channel.price, live_channel.startTime,
+            live_channel.userId
+        FROM auth_user, live_channel
+        WHERE auth_user.id <![CDATA[ < ]]> #{limit}
+        AND auth_user.id = live_channel.userId
+    </select>
+
+    <select id="selectMultiWithChannelByUserId" resultMap="userInfo">
+        SELECT auth_user.id userId, auth_user.username, auth_user.email, auth_user.phone,
+            auth_user.icon, auth_user.status, auth_user.registerTime, auth_user.isPublisher, auth_user.profile,
+            live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url,
+            live_channel.rtmp_url, live_channel.rtmp_key, live_channel.playUrl, live_channel.rating,
+            live_channel.preview, live_channel.category,
+            live_channel.available, live_channel.type, live_channel.price, live_channel.startTime,
+            live_channel.userId
+        FROM auth_user, live_channel
+        WHERE auth_user.id in
+          <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+              #{userId}
+          </foreach>
+        AND auth_user.id = live_channel.userId
+        ORDER BY auth_user.username
     </select>
 
     <update id="updateStatusByUsername">
@@ -131,6 +163,12 @@
         UPDATE auth_user
         SET password=#{password}
         WHERE username=#{username}
+    </update>
+
+    <update id="updateByOldPassword">
+        UPDATE auth_user
+        SET password=#{newPassword}
+        WHERE id=#{userId} AND password=#{oldPassword}
     </update>
 
 </mapper>

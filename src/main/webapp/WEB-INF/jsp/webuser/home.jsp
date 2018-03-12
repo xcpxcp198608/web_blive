@@ -233,7 +233,7 @@
 
                 <div style="position: relative; left: 0; top: -600px;
                     z-index: 10; margin-left: 5px; color: #ff0d42; height: 30px">
-                    <span>observer:</span><span id="oCount">0</span>
+                    <span>viewers:</span><span id="oCount">0</span>
                 </div>
 
                 <div style="width: 635px; height:200px; position: relative; left: 0;top: -230px;

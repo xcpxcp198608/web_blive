@@ -13,11 +13,14 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * @author patrick
+ */
 @Aspect
 @Component
 public class AuthShowUsername {
 
-    @Around("execution(* com.wiatec.blive.service.*.*(..))")
+//    @Around("execution(* com.wiatec.blive.service.*.*(..))")
     public Object before(ProceedingJoinPoint joinPoint) throws Throwable {
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder
                 .getRequestAttributes();

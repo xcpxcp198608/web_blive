@@ -65,11 +65,33 @@ public class User {
         return "go";
     }
 
+    /**
+     * 通过邮箱链接修改password
+     * @param userInfo required: user id , new password
+     * @param model Model
+     * @return jsp -> notice.jsp
+     */
     @PostMapping("/update")
     public String updatePassword(UserInfo userInfo, Model model){
         ResultInfo resultInfo = userService.update(userInfo);
         model.addAttribute("message", resultInfo.getMessage());
         return "notice";
+    }
+
+    /**
+     * app内直接修改password
+     * @param userId user id
+     * @param oldPassword old password
+     * @param newPassword new password
+     * @return ResultInfo
+     */
+    @PostMapping("/update/{userId}")
+    @ResponseBody
+    public ResultInfo updatePassword(@PathVariable int userId, String oldPassword, String newPassword){
+        System.out.println(userId);
+        System.out.println(oldPassword);
+        System.out.println(newPassword);
+        return userService.updateByOldPassword(userId, oldPassword, newPassword);
     }
 
     @PostMapping("/signout")
@@ -91,10 +113,23 @@ public class User {
         return userService.updateIcon(new UserInfo(userId, icon));
     }
 
+    @PostMapping("/follows/{userId}")
+    @ResponseBody
+    public ResultInfo<UserInfo> follows(@PathVariable int userId){
+        return userService.follows(userId);
+    }
+
+    @PostMapping("/follow/{action}/{userId}/{friendId}")
+    @ResponseBody
+    public ResultInfo follow(@PathVariable int action, @PathVariable int userId, @PathVariable int friendId){
+        return userService.follow(action, userId, friendId);
+    }
+
+
     @PostMapping("/{userId}")
     @ResponseBody
     public UserInfo get(@PathVariable int userId){
-        return userService.selectOne(new UserInfo(userId));
+        return userService.selectOneWithChannelByUserId(userId);
     }
 
 }

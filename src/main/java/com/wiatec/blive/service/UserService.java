@@ -6,6 +6,7 @@ import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.listener.SessionListener;
 import com.wiatec.blive.orm.dao.ChannelDao;
+import com.wiatec.blive.orm.dao.RelationFriendDao;
 import com.wiatec.blive.orm.dao.TokenDao;
 import com.wiatec.blive.orm.dao.UserDao;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  * @author patrick
@@ -35,6 +37,8 @@ public class UserService {
     private ChannelDao channelDao;
     @Resource
     private TokenDao tokenDao;
+    @Resource
+    private RelationFriendDao relationFriendDao;
 
     /**
      * user sign up
@@ -180,6 +184,25 @@ public class UserService {
     }
 
     /**
+     * update user password by id and old password
+     * @param userId user id
+     * @return ResultInfo
+     */
+    public ResultInfo updateByOldPassword(int userId, String oldPassword, String newPassword){
+        if(TextUtil.isEmpty(oldPassword)){
+            throw new XException("password is incorrect");
+        }
+        if(TextUtil.isEmpty(newPassword) || newPassword.length() < 6){
+            throw new XException("new password format error");
+        }
+        int i = userDao.updateByOldPassword(userId, oldPassword, newPassword);
+        if(i != 1){
+            throw new XException(EnumResult.ERROR_USERNAME_PASSWORD_NO_MATCH);
+        }
+        return ResultMaster.success("password update successful");
+    }
+
+    /**
      * user validate
      * @param userInfo UserInfo
      * @return ResultInfo
@@ -218,8 +241,49 @@ public class UserService {
         return ResultMaster.success(userDao.selectOneById(userInfo.getId()));
     }
 
+    /**
+     * get all friend user info by user id
+     * @param userId user id
+     */
+    public ResultInfo<UserInfo> follows(int userId){
+        List<Integer> friendIds = relationFriendDao.selectFriendsIdByUserId(userId);
+        List<UserInfo> userInfoList = userDao.selectBefore(100);
+        if(friendIds != null && friendIds.size() > 0) {
+            List<UserInfo> userInfoList1 = userDao.selectMultiWithChannelByUserId(friendIds);
+            if (userInfoList1 != null && userInfoList1.size() > 0) {
+                userInfoList.addAll(userInfoList1);
+            }
+        }
+        if(userInfoList.size() <= 0){
+            throw new XException(EnumResult.ERROR_NO_FOUND);
+        }
+        return ResultMaster.success(userInfoList);
+    }
 
-    public UserInfo selectOne(UserInfo userInfo){
-        return userDao.selectUserAndChannels(userInfo);
+    /**
+     * set user relation
+     * @param action 0->release follow, 1->follow
+     * @param userId  user id
+     * @param friendId target user id
+     * @return ResultInfo
+     */
+    public ResultInfo follow(int action, int userId, int friendId){
+        int i;
+        if(action == 0){
+            i = relationFriendDao.deleteOne(userId, friendId);
+        }else if(action == 1){
+            i = relationFriendDao.insertOne(userId, friendId);
+        }else{
+            throw new XException("action error");
+        }
+        if(i != 1) {
+            throw new XException("operation error");
+        }
+        return ResultMaster.success();
+    }
+
+
+    public UserInfo selectOneWithChannelByUserId(int userId){
+        return userDao.selectOneWithChannelByUserId(userId);
     }
 }

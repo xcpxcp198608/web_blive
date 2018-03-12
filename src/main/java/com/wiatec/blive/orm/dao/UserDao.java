@@ -1,7 +1,10 @@
 package com.wiatec.blive.orm.dao;
 
 import com.wiatec.blive.orm.pojo.UserInfo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @author patrick
@@ -21,9 +24,15 @@ public interface UserDao {
     int updateStatusByUsername(String username);
     void updateIcon(UserInfo userInfo);
     void update(UserInfo userInfo);
+    int updateByOldPassword(@Param("userId") int userId,
+                            @Param("oldPassword") String oldPassword,
+                            @Param("newPassword") String newPassword);
     UserInfo selectOne(UserInfo userInfo);
     UserInfo selectOneWithChannel(UserInfo userInfo);
     UserInfo selectOneById(int userId);
     UserInfo selectOneByUsername(String username);
-    UserInfo selectUserAndChannels(UserInfo userInfo);
+    UserInfo selectOneWithChannelByUserId(int userId);
+
+    List<UserInfo> selectBefore(int limit);
+    List<UserInfo> selectMultiWithChannelByUserId(@Param("userIds") List<Integer> userIds);
 }
