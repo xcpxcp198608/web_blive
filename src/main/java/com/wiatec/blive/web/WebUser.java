@@ -1,7 +1,9 @@
 package com.wiatec.blive.web;
 
 import com.wiatec.blive.common.result.ResultInfo;
-import com.wiatec.blive.orm.pojo.UserInfo;
+import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
+import com.wiatec.blive.orm.pojo.ChannelInfo;
+import com.wiatec.blive.service.ChannelService;
 import com.wiatec.blive.service.WebUserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author patrick
@@ -20,17 +21,21 @@ public class WebUser {
 
     @Resource
     private WebUserService webUserService;
+    @Resource
+    private ChannelService channelService;
 
-    @GetMapping(value = "/signin")
+    @PostMapping(value = "/signin")
     @ResponseBody
-    public ResultInfo signIn(HttpServletRequest request, UserInfo userInfo){
-        return webUserService.signIn(request, userInfo);
+    public ResultInfo signIn(HttpServletRequest request, String username, String password){
+        return webUserService.signIn(request, username, password);
     }
 
     @GetMapping(value = "/home")
     public String details(HttpServletRequest request, Model model){
-        UserInfo userInfo = webUserService.getUserInfo(request);
+        AuthRegisterUserInfo userInfo = webUserService.getUserInfo(request);
         model.addAttribute("userInfo", userInfo);
+        ChannelInfo channelInfo = channelService.selectOneByUserId(userInfo.getId());
+        model.addAttribute("channelInfo", channelInfo);
         return "webuser/home";
     }
 }

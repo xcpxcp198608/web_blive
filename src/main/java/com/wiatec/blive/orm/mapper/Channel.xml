@@ -2,127 +2,89 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wiatec.blive.orm.dao.ChannelDao">
-    <resultMap type="com.wiatec.blive.orm.pojo.ChannelInfo" id="channelInfo">
-        <id column="channelId" property="id"/>
-        <result column="rating" property="rating"/>
-        <result column="title" property="title"/>
-        <result column="message" property="message"/>
-        <result column="url" property="url"/>
-        <result column="rtmp_url" property="rtmpUrl"/>
-        <result column="rtmp_key" property="rtmpKey"/>
-        <result column="playUrl" property="playUrl"/>
-        <result column="preview" property="preview"/>
-        <result column="category" property="category"/>
-        <result column="available" property="available"/>
-        <result column="type" property="type"/>
-        <result column="price" property="price"/>
-        <result column="startTime" property="startTime"/>
-        <result column="userId" property="userId"/>
-        <association property="userInfo" javaType="com.wiatec.blive.orm.pojo.UserInfo">
-            <id column="authUserId" property="id"/>
-            <result column="username" property="username"/>
-            <result column="email" property="email"/>
-            <result column="phone" property="phone"/>
-            <result column="icon" property="icon"/>
-            <result column="profile" property="profile"/>
-            <result column="status" property="status"/>
-            <result column="isPublisher" property="publisher"/>
-            <result column="registerTime" property="registerTime"/>
-        </association>
-    </resultMap>
 
-    <sql id="select">SELECT id channelId, rating, title, message, url, playUrl, preview, category, available, type, price, startTime, userId FROM live_channel</sql>
+    <sql id="select">
+        SELECT id, userId, available, rating, title, message, url, rtmp_url, rtmp_key,
+            playUrl, preview, category, type, price, startTime
+        FROM live_channel
+    </sql>
 
-    <select id="selectAllAvailable" resultMap="channelInfo">
-        SELECT live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url,
-            live_channel.rtmp_url, live_channel.rtmp_key, live_channel.playUrl, live_channel.rating,
-            live_channel.preview, live_channel.category, live_channel.available, live_channel.type,
-            live_channel.price, live_channel.startTime, live_channel.userId, auth_user.id authUserId, auth_user.username,
-            auth_user.email, auth_user.phone, auth_user.icon, auth_user.status, auth_user.registerTime, auth_user.isPublisher, auth_user.profile
-        FROM live_channel, auth_user
-        WHERE live_channel.available=1
-        AND auth_user.id = live_channel.userId
-        ORDER BY live_channel.startTime DESC
+    <select id="selectAllAvailable" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
+        <include refid="select"/>
+        WHERE available=1
+        ORDER BY startTime DESC
     </select>
 
-    <select id="searchByLikeTitle" resultMap="channelInfo" parameterType="java.lang.String">
-        SELECT live_channel.id channelId, live_channel.title, live_channel.message, live_channel.url,
-            live_channel.rtmp_url, live_channel.rtmp_key, live_channel.playUrl, live_channel.rating,
-            live_channel.preview, live_channel.category, live_channel.available, live_channel.type,
-            live_channel.price, live_channel.startTime, live_channel.userId, auth_user.id authUserId, auth_user.username,
-            auth_user.email, auth_user.phone, auth_user.icon, auth_user.status, auth_user.registerTime, auth_user.isPublisher, auth_user.profile
-        FROM live_channel, auth_user
-        WHERE live_channel.available=1
-            AND live_channel.title LIKE concat('%',#{_parameter},'%')
-              AND auth_user.id = live_channel.userId
-        ORDER BY live_channel.startTime DESC
+    <select id="searchByLikeTitle" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
+        <include refid="select"/>
+        WHERE available=1 AND title LIKE concat('%',#{title},'%')
+        ORDER BY startTime DESC
     </select>
 
-    <select id="selectOneByUserId" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo" resultMap="channelInfo">
+    <select id="selectOneByUserId" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
       <include refid="select"/>
-        WHERE live_channel.userId=#{userId}
+        WHERE userId=#{userId}
     </select>
 
-    <select id="countByUserId" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo"
-            resultType="java.lang.Integer">
+    <select id="countByUserId" resultType="java.lang.Integer">
       SELECT COUNT(*) count FROM live_channel
-      WHERE live_channel.userId=#{userId}
+      WHERE userId=#{userId}
     </select>
 
-    <update id="insertChannel" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
-        INSERT IGNORE INTO live_channel (title, url, rtmp_url, rtmp_key, playUrl, preview, category, type, userId)
-        VALUES (#{title}, #{url}, #{rtmpUrl}, #{rtmpKey}, #{playUrl}, '1', '1', 1, #{userId})
+    <update id="insertChannel">
+        INSERT IGNORE INTO live_channel (title, url, rtmp_url, rtmp_key, playUrl, preview, category,, userId)
+        VALUES (#{title}, #{url}, #{rtmpUrl}, #{rtmpKey}, #{playUrl}, '1', '1', #{userId})
     </update>
 
-    <update id="updateChannel" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
-        UPDATE live_channel
+    <update id="updateChannel">
+        UPDATE IGNORE live_channel
         SET url=#{url}, rtmp_url=#{rtmpUrl}, rtmp_key = #{rtmpKey}, playUrl=#{playUrl}
         WHERE userId=#{userId}
     </update>
 
-    <update id="updateChannelTitleAndMessage" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <update id="updateTitleAndMessageByUserId">
         UPDATE live_channel
         SET title=#{title}, message=#{message}
         WHERE userId=#{userId}
     </update>
 
-    <update id="updateChannelTitle" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <update id="updateTitleByUserId">
         UPDATE live_channel
         SET title=#{title}
         WHERE userId=#{userId}
     </update>
 
-    <update id="updateChannelMessage" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <update id="updateMessageByUserId">
         UPDATE live_channel
         SET message=#{message}
         WHERE userId=#{userId}
     </update>
 
-    <update id="updateChannelPrice" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <update id="updatePriceByUserId">
         UPDATE live_channel
         SET price=#{price}
         WHERE userId=#{userId}
     </update>
 
-    <update id="updateChannelAllSetting" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <update id="updateAllSettingByUserId">
         UPDATE live_channel
         SET title=#{title}, message=#{message}, price=#{price}, rating = #{rating}
         WHERE userId=#{userId}
     </update>
 
-    <update id="updateChannelAvailable" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <update id="updateAvailableByUserId">
         UPDATE live_channel
         SET available=1, startTime=now()
         WHERE userId=#{userId}
     </update>
 
-    <update id="updateChannelUnavailable" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <update id="updateUnavailableByUserId">
         UPDATE live_channel
         SET available=0
         WHERE userId=#{userId}
     </update>
 
-    <update id="updatePreview" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <update id="updatePreviewByUserId" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
         UPDATE live_channel
         SET preview=#{preview}
         WHERE userId=#{userId}

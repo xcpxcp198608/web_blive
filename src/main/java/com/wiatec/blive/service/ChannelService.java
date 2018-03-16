@@ -1,12 +1,16 @@
 package com.wiatec.blive.service;
 
+import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.dao.ChannelDao;
 import com.wiatec.blive.orm.dao.UserDao;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
+import com.wiatec.blive.rtmp.RtmpInfo;
+import com.wiatec.blive.rtmp.RtmpMaster;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -31,6 +35,26 @@ public class ChannelService {
         return channelDao.selectAllAvailable();
     }
 
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResultInfo create(int userId, String username){
+        RtmpInfo rtmpInfo = new RtmpMaster().getRtmpInfo(username);
+        if(rtmpInfo == null){
+            throw new XException("rtmp server error");
+        }
+        ChannelInfo channelInfo = new ChannelInfo();
+        channelInfo.setTitle(username);
+        channelInfo.setUserId(userId);
+        channelInfo.setUrl(rtmpInfo.getPush_full_url());
+        channelInfo.setRtmpUrl(rtmpInfo.getPush_url());
+        channelInfo.setRtmpKey(rtmpInfo.getPush_key());
+        channelInfo.setPlayUrl(rtmpInfo.getPlay_url());
+        if(channelDao.insertChannel(channelInfo) != 1){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        return ResultMaster.success(channelInfo);
+    }
+
     /**
      * search channel info by the keyword in title
      * @param key keyword
@@ -45,8 +69,9 @@ public class ChannelService {
      * @param userId user id
      * @return ChannelInfo
      */
-    public ChannelInfo selectOne(int userId){
-        return channelDao.selectOneByUserId(userId);
+    public ChannelInfo selectOneByUserId(int userId){
+        ChannelInfo channelInfo = channelDao.selectOneByUserId(userId);
+        return channelInfo;
     }
 
     /**
@@ -54,11 +79,11 @@ public class ChannelService {
      * @param channelInfo ChannelInfo
      * @return ResultInfo
      */
-    public ResultInfo<ChannelInfo> updateChannelUrl(ChannelInfo channelInfo){
-        if(channelDao.countByUserId(channelInfo) == 1){
+    public ResultInfo<ChannelInfo> updateChannelUrl(String username, ChannelInfo channelInfo){
+        if(channelDao.countByUserId(channelInfo.getUserId()) == 1){
             channelDao.updateChannel(channelInfo);
         }else{
-            channelInfo.setTitle(userDao.selectOneById(channelInfo.getUserId()).getUsername());
+            channelInfo.setTitle(username);
             channelDao.insertChannel(channelInfo);
         }
         return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
@@ -70,10 +95,10 @@ public class ChannelService {
      * @return  ResultInfo
      */
     public ResultInfo<ChannelInfo> updateChannelTitleAndMessage(ChannelInfo channelInfo){
-        if(channelDao.countByUserId(channelInfo) != 1){
+        if(channelDao.countByUserId(channelInfo.getUserId()) != 1){
             throw new XException("user channel does not exists");
         }
-        channelDao.updateChannelTitleAndMessage(channelInfo);
+        channelDao.updateTitleAndMessageByUserId(channelInfo);
         return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 
@@ -83,10 +108,10 @@ public class ChannelService {
      * @return ResultInfo
      */
     public ResultInfo<ChannelInfo> updateChannelTitle(ChannelInfo channelInfo){
-        if(channelDao.countByUserId(channelInfo) != 1){
+        if(channelDao.countByUserId(channelInfo.getUserId()) != 1){
             throw new XException("user channel does not exists");
         }
-        channelDao.updateChannelTitle(channelInfo);
+        channelDao.updateTitleByUserId(channelInfo);
         return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 
@@ -96,10 +121,10 @@ public class ChannelService {
      * @return ResultInfo
      */
     public ResultInfo<ChannelInfo> updateChannelMessage(ChannelInfo channelInfo){
-        if(channelDao.countByUserId(channelInfo) != 1){
+        if(channelDao.countByUserId(channelInfo.getUserId()) != 1){
             throw new XException("user channel does not exists");
         }
-        channelDao.updateChannelMessage(channelInfo);
+        channelDao.updateMessageByUserId(channelInfo);
         return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 
@@ -109,10 +134,10 @@ public class ChannelService {
      * @return ResultInfo
      */
     public ResultInfo<ChannelInfo> updateChannelPrice(ChannelInfo channelInfo){
-        if(channelDao.countByUserId(channelInfo) != 1){
+        if(channelDao.countByUserId(channelInfo.getUserId()) != 1){
             throw new XException("user channel does not exists");
         }
-        channelDao.updateChannelPrice(channelInfo);
+        channelDao.updatePriceByUserId(channelInfo);
         return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 
@@ -123,10 +148,10 @@ public class ChannelService {
      * @return ResultInfo
      */
     public ResultInfo<ChannelInfo> updateChannelAllSetting(ChannelInfo channelInfo){
-        if(channelDao.countByUserId(channelInfo) != 1){
+        if(channelDao.countByUserId(channelInfo.getUserId()) != 1){
             throw new XException("user channel does not exists");
         }
-        channelDao.updateChannelAllSetting(channelInfo);
+        channelDao.updateAllSettingByUserId(channelInfo);
         return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 
@@ -138,9 +163,9 @@ public class ChannelService {
      */
     public ResultInfo<ChannelInfo> updateChannelStatus(int activate, int userId){
         if(activate == 1){
-            channelDao.updateChannelAvailable(userId);
+            channelDao.updateAvailableByUserId(userId);
         }else {
-            channelDao.updateChannelUnavailable(userId);
+            channelDao.updateUnavailableByUserId(userId);
         }
         return ResultMaster.success(channelDao.selectOneByUserId(userId));
     }
@@ -151,7 +176,7 @@ public class ChannelService {
      * @return ResultInfo
      */
     public ResultInfo<ChannelInfo> updatePreview(ChannelInfo channelInfo){
-        channelDao.updatePreview(channelInfo);
+        channelDao.updatePreviewByUserId(channelInfo);
         return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 }

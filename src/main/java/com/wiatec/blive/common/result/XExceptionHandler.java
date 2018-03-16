@@ -23,7 +23,7 @@ public class XExceptionHandler {
             return ResultMaster.error(xException.getCode(), xException.getMessage());
         }else {
             logger.error("system exception", e);
-            return ResultMaster.error(EnumResult.ERROR_SERVER);
+            return ResultMaster.error(EnumResult.ERROR_INTERNAL_SERVER);
         }
     }
 }

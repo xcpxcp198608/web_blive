@@ -1,9 +1,11 @@
 package com.wiatec.blive.ws;
 
 import com.wiatec.blive.common.utils.ApplicationContextHelper;
+import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
 import com.wiatec.blive.orm.dao.ChannelDao;
 import com.wiatec.blive.orm.dao.LogLiveCommentDao;
 import com.wiatec.blive.orm.dao.UserDao;
+import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.LogLiveCommentInfo;
 import com.wiatec.blive.orm.pojo.UserInfo;
@@ -11,9 +13,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.ContextLoader;
 
-import javax.annotation.Resource;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
@@ -34,12 +34,14 @@ public class LiveSocket {
     private static final int MSG_TYPE_GROUP = 1;
 
     protected static SqlSession sqlSession;
+    protected static SqlSession panelSqlSession;
 
     static {
         sqlSession = (SqlSession) ApplicationContextHelper.getApplicationContext().getBean("sqlSessionTemplate");
+        panelSqlSession = (SqlSession) ApplicationContextHelper.getApplicationContext().getBean("panelSqlSessionTemplate");
     }
 
-    private UserDao userDao;
+    private AuthRegisterUserDao authRegisterUserDao;
     private ChannelDao channelDao;
     private LogLiveCommentDao logLiveCommentDao;
     public static Map<Integer, LiveSocket> clientMap = new ConcurrentHashMap<>();
@@ -53,10 +55,10 @@ public class LiveSocket {
         this.session = session;
         this.userId = userId;
         this.groupId = groupId;
-        userDao = sqlSession.getMapper(UserDao.class);
+        authRegisterUserDao = panelSqlSession.getMapper(AuthRegisterUserDao.class);
         channelDao = sqlSession.getMapper(ChannelDao.class);
         logLiveCommentDao = sqlSession.getMapper(LogLiveCommentDao.class);
-        UserInfo userInfo = userDao.selectOneById(userId);
+        AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);
         if(userInfo != null){
             username = userInfo.getUsername();
         }
@@ -111,7 +113,7 @@ public class LiveSocket {
     @OnClose
     public void onClose(Session session, CloseReason reason) {
         clientMap.remove(userId);
-        channelDao.updateChannelUnavailable(userId);
+        channelDao.updateUnavailableByUserId(userId);
         logger.debug("ws -> client " + userId +" disconnect, current client is: {}", getOnlineCount());
     }
 

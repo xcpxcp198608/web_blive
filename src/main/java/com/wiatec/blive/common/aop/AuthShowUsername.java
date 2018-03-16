@@ -35,7 +35,7 @@ public class AuthShowUsername {
         if(request != null && model != null) {
             String username = (String) request.getSession().getAttribute("username");
             if(TextUtil.isEmpty(username)){
-                throw new XException(EnumResult.ERROR_AUTHORIZATION_DEFINED);
+                throw new XException(EnumResult.ERROR_FORBIDDEN);
             }
             model.addAttribute("username", username);
         }

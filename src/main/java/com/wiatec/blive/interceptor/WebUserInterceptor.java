@@ -25,7 +25,7 @@ public class WebUserInterceptor implements HandlerInterceptor {
         }
         String ref = request.getHeader("Referer");
         if(ref == null || !ref.contains("/blive")){
-            throw new XException(EnumResult.ERROR_AUTHORIZATION_DEFINED);
+            throw new XException(EnumResult.ERROR_FORBIDDEN);
         }
         String username = (String) request.getSession().getAttribute("username");
         logger.debug(username);

@@ -1,9 +1,12 @@
 package com.wiatec.blive.api;
 
+import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
+import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
+import com.wiatec.blive.service.AuthRegisterUserService;
 import com.wiatec.blive.service.ChannelService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
@@ -26,12 +29,31 @@ import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
 public class Channel {
 
     @Resource
+    private AuthRegisterUserService authRegisterUserService;
+
+    @Resource
     private ChannelService channelService;
 
     @RequestMapping(value = "/")
     @ResponseBody
     public List<ChannelInfo> get(){
         return channelService.selectAllAvailable();
+    }
+
+    @PostMapping(value = "/create")
+    @ResponseBody
+    public ResultInfo create(int userId, String username){
+        return channelService.create(userId, username);
+    }
+
+    @GetMapping(value = "/{userId}")
+    @ResponseBody
+    public ResultInfo getChannel(@PathVariable int userId){
+        ChannelInfo channelInfo = channelService.selectOneByUserId(userId);
+        if(channelInfo == null){
+            throw new XException(EnumResult.ERROR_NO_FOUND);
+        }
+        return ResultMaster.success(channelInfo);
     }
 
     @GetMapping(value = "/search/{key}")
@@ -43,7 +65,8 @@ public class Channel {
     @PutMapping("/update")
     @ResponseBody
     public ResultInfo<ChannelInfo> updateChannelUrl(@RequestBody ChannelInfo channelInfo){
-        return channelService.updateChannelUrl(channelInfo);
+        ResultInfo<AuthRegisterUserInfo> resultInfo = authRegisterUserService.selectOneByUserId(channelInfo.getUserId());
+        return channelService.updateChannelUrl(resultInfo.getData().getUsername(), channelInfo);
     }
 
     @PutMapping("/update/{action}")

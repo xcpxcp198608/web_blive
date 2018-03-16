@@ -27,6 +27,14 @@ public class ResultMaster {
         return resultInfo;
     }
 
+    public static <T> ResultInfo<T> success (String message, T t) {
+        ResultInfo<T> resultInfo = new ResultInfo<>();
+        resultInfo.setCode(EnumResult.SUCCESS.getCode());
+        resultInfo.setMessage(message);
+        resultInfo.setData(t);
+        return resultInfo;
+    }
+
     public static <T> ResultInfo<T> success (List<T> list) {
         ResultInfo<T> resultInfo = new ResultInfo<>();
         resultInfo.setCode(EnumResult.SUCCESS.getCode());

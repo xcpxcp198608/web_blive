@@ -39,7 +39,7 @@ $(function () {
         jErrorMessage.html(' ');
         jErrorMessage.css('display', 'none');
         $.ajax({
-            type: "GET",
+            type: "POST",
             url: baseUrl + "/users/signin",
             data: {"username": username, "password": password},
             dataType: "json",

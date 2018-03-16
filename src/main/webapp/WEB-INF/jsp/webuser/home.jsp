@@ -218,10 +218,10 @@
             <div style="width: 800px; height: 30px; ">
                 <div class="row">
                     <div class="col-6">
-                        <span class="text-muted">URL:&nbsp;${userInfo.channelInfo.rtmpUrl}</span>
+                        <span class="text-muted">URL:&nbsp;${channelInfo.rtmpUrl}</span>
                     </div>
                     <div class="col-6">
-                        <span class="text-muted">KEY:&nbsp;${userInfo.channelInfo.rtmpKey}</span>
+                        <span class="text-muted">KEY:&nbsp;${channelInfo.rtmpKey}</span>
                     </div>
                 </div>
             </div>
@@ -305,18 +305,18 @@
 
                         <div style="margin-bottom: 10px" >
                             <img id="imgPreview" style="width: 100%; margin: auto; max-height: 297px; min-height: 297px"
-                                 src="${userInfo.channelInfo.preview}"
+                                 src="${channelInfo.preview}"
                                  onerror="this.src='Resource/img/img_error_preview.jpg'"/>
                         </div>
 
                         <div class="input-group mb-2 mr-sm-2">
                             <input type="text" class="form-control" id="title" aria-describedby="titleHelp"
-                                   placeholder="title" value="${userInfo.channelInfo.title}">
+                                   placeholder="title" value="${channelInfo.title}">
                         </div>
 
                         <div class="input-group mb-2 mr-sm-2">
                             <textarea class="form-control" id="message" aria-describedby="messageHelp"
-                                      placeholder="message" value="${userInfo.channelInfo.message}" rows="2"></textarea>
+                                      placeholder="message" rows="2">${channelInfo.message}</textarea>
                         </div>
 
 
@@ -325,7 +325,7 @@
                                 <div class="input-group-text">＄</div>
                             </div>
                             <input type="number" class="form-control" id="price" aria-describedby="priceHelp"
-                                   placeholder=" " value="${userInfo.channelInfo.price}">
+                                   placeholder=" " value="${channelInfo.price}">
                         </div>
 
                     </div>

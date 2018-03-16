@@ -1,0 +1,116 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiatec.blive.orm.dao.AuthRegisterUserDao">
+
+    <sql id="select">
+        SELECT id, username, email, phone, first_name, last_name, level, email_status,
+            mac, country, region, city, time_zone, token, active_time, expires_time,
+            last_online_time, create_time, modify_time, status, device_model, rom_version,
+            ui_version, icon, gender
+        FROM auth_register_user
+    </sql>
+
+    <select id="selectOneByUsername" resultType="com.wiatec.blive.orm.pojo.AuthRegisterUserInfo">
+        <include refid="select"/>
+        WHERE username = #{username}
+    </select>
+
+
+    <select id="selectOneById" resultType="com.wiatec.blive.orm.pojo.AuthRegisterUserInfo">
+        <include refid="select"/>
+        WHERE id = #{userId}
+    </select>
+
+    <select id="selectMultiByUserId" resultType="com.wiatec.blive.orm.pojo.AuthRegisterUserInfo">
+        <include refid="select"/>
+        WHERE id IN
+        <foreach collection="userIds" item="userId" separator="," open="(" close=")">
+            #{userId}
+        </foreach>
+    </select>
+
+    <insert id="insertOne">
+        INSERT IGNORE INTO auth_register_user (username, password, email, phone, token, bvision, btv)
+        VALUES (#{username}, #{password}, #{email}, #{phone}, #{token}, 1, 0)
+    </insert>
+
+    <select id="countByUsername"  resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_register_user
+        WHERE username = #{username}
+    </select>
+
+    <select id="countByEmail" resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_register_user
+        WHERE email = #{email}
+    </select>
+
+    <select id="countByToken" resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_register_user
+        WHERE token = #{token}
+    </select>
+
+
+    <select id="countByIdAndToken" resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_register_user
+        WHERE id = #{userId} AND token = #{token}
+    </select>
+
+    <select id="selectEmailStatusByUsername" resultType="java.lang.Integer">
+        SELECT email_status FROM auth_register_user WHERE username = #{username}
+    </select>
+
+    <select id="selectTokenByUsername" resultType="java.lang.String">
+        SELECT token FROM auth_register_user WHERE username = #{username}
+    </select>
+
+    <select id="selectUsernameByToken" resultType="java.lang.String">
+        SELECT username FROM auth_register_user WHERE token = #{token}
+    </select>
+
+    <select id="selectPasswordByUserId" resultType="java.lang.String">
+        SELECT password FROM auth_register_user WHERE id = #{userId}
+    </select>
+
+    <select id="countOneByUserNameAndEmail" resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_register_user
+        WHERE username = #{username} AND email = #{email}
+    </select>
+
+    <select id="countOneByUsernameAndPassowrd" resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM auth_register_user
+        WHERE username = #{username} AND password = #{password}
+    </select>
+
+
+    <update id="updateEmailStatusByToken">
+        UPDATE auth_register_user
+        SET email_status = 1
+        WHERE token=#{token}
+    </update>
+
+    <update id="updateTokenByUsername">
+        UPDATE auth_register_user
+        SET token = #{token}
+        WHERE username = #{username}
+    </update>
+
+    <update id="updateIconByUserId">
+        UPDATE auth_register_user
+        SET icon = #{icon}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updatePasswordByUsername">
+        UPDATE auth_register_user
+        SET password = #{password}
+        WHERE username = #{username}
+    </update>
+
+    <update id="updatePasswordByUserId">
+        UPDATE auth_register_user
+        SET password = #{password}
+        WHERE id = #{userId}
+    </update>
+
+</mapper>

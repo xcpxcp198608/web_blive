@@ -5,21 +5,24 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * @author patrick
+ */
 @Repository
 public interface ChannelDao {
 
     List<ChannelInfo> selectAllAvailable();
-    List<ChannelInfo> searchByLikeTitle(String key);
+    List<ChannelInfo> searchByLikeTitle(String title);
     ChannelInfo selectOneByUserId(int userId);
-    int countByUserId(ChannelInfo channelInfo);
+    int countByUserId(int userId);
     int insertChannel(ChannelInfo channelInfo);
     int updateChannel(ChannelInfo channelInfo);
-    void updateChannelTitleAndMessage(ChannelInfo channelInfo);
-    void updateChannelTitle(ChannelInfo channelInfo);
-    void updateChannelMessage(ChannelInfo channelInfo);
-    void updateChannelPrice(ChannelInfo channelInfo);
-    void updateChannelAllSetting(ChannelInfo channelInfo);
-    void updateChannelAvailable(int userId);
-    void updateChannelUnavailable(int userId);
-    void updatePreview(ChannelInfo channelInfo);
+    int updateTitleAndMessageByUserId(ChannelInfo channelInfo);
+    int updateTitleByUserId(ChannelInfo channelInfo);
+    int updateMessageByUserId(ChannelInfo channelInfo);
+    int updatePriceByUserId(ChannelInfo channelInfo);
+    int updateAllSettingByUserId(ChannelInfo channelInfo);
+    int updateAvailableByUserId(int userId);
+    int updateUnavailableByUserId(int userId);
+    int updatePreviewByUserId(ChannelInfo channelInfo);
 }

@@ -13,6 +13,8 @@ import java.util.List;
 @Repository
 public interface RelationFriendDao {
 
+    int selectOne(@Param("userId") int userId, @Param("friendId")int friendId);
+
     int insertOne(@Param("userId") int userId, @Param("friendId")int friendId);
     int deleteOne(@Param("userId") int userId, @Param("friendId")int friendId);
     List<Integer> selectFriendsIdByUserId(int userId);

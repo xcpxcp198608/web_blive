@@ -2,8 +2,9 @@ package com.wiatec.blive.api;
 
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.XException;
-import com.wiatec.blive.orm.pojo.UserInfo;
-import com.wiatec.blive.service.UserService;
+import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
+import com.wiatec.blive.service.AuthRegisterUserService;
+import com.wiatec.blive.service.ChannelService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,55 +26,79 @@ import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
 public class User {
 
     @Resource
-    private UserService userService;
+    private AuthRegisterUserService authRegisterUserService;
+    @Resource
+    private ChannelService channelService;
 
+    /**
+     * sign up
+     * @param request HttpServletRequest
+     * @param userInfo required: username, password, email, phone
+     * @return ResultInfo
+     */
     @PostMapping("/signup")
     @ResponseBody
-    public ResultInfo<UserInfo> signUp(HttpServletRequest request, UserInfo userInfo){
-        return userService.signUp(request, userInfo);
+    public ResultInfo signUp(HttpServletRequest request, AuthRegisterUserInfo userInfo){
+        AuthRegisterUserInfo authRegisterUserInfo = authRegisterUserService.signUp(request, userInfo).getData();
+        return channelService.create(authRegisterUserInfo.getId(), authRegisterUserInfo.getUsername());
     }
 
+    /**
+     * activate by email link
+     * @param token token
+     * @param model Model
+     * @return jsp -> notice.jsp
+     */
     @RequestMapping(value = "/activate/{token}")
     public String activate(@PathVariable String token, Model model){
-        model.addAttribute("message", userService.activate(token));
+        model.addAttribute("message", authRegisterUserService.activate(token));
         return "notice";
     }
 
+    /**
+     * sign in
+     * required: username password
+     * @return ResultInfo
+     */
     @PostMapping("/signin")
     @ResponseBody
-    public ResultInfo signIn(UserInfo userInfo){
-        return userService.signIn(userInfo);
+    public ResultInfo signIn(String username, String password){
+        return authRegisterUserService.signIn(username, password);
     }
 
-    @PostMapping("/validate")
+    /**
+     * validate access token
+     * @param token token
+     * @return ResultInfo
+     */
+    @PostMapping("/validate/{userId}/{token}")
     @ResponseBody
-    public ResultInfo validate(UserInfo userInfo){
-        return userService.validate(userInfo);
+    public ResultInfo validate(@PathVariable int userId, @PathVariable String token){
+        return authRegisterUserService.validateToken(userId, token);
     }
+
 
     @PostMapping("/reset")
     @ResponseBody
-    public ResultInfo resetPassword(HttpServletRequest request, UserInfo userInfo){
-        System.out.println(userInfo);
-        return userService.reset(request, userInfo);
+    public ResultInfo resetPassword(HttpServletRequest request, String username, String email){
+        return authRegisterUserService.reset(request, username, email);
     }
 
     @RequestMapping(value = "/go/{token}")
     public String goUpdatePage(Model model, @PathVariable String token){
-        String username =  userService.go(token);
+        String username =  authRegisterUserService.go(token);
         model.addAttribute("username", username);
         return "go";
     }
 
     /**
      * 通过邮箱链接修改password
-     * @param userInfo required: user id , new password
      * @param model Model
      * @return jsp -> notice.jsp
      */
     @PostMapping("/update")
-    public String updatePassword(UserInfo userInfo, Model model){
-        ResultInfo resultInfo = userService.update(userInfo);
+    public String updatePassword(String username, String password, Model model){
+        ResultInfo resultInfo = authRegisterUserService.updatePasswordByUsername(username, password);
         model.addAttribute("message", resultInfo.getMessage());
         return "notice";
     }
@@ -91,18 +116,26 @@ public class User {
         System.out.println(userId);
         System.out.println(oldPassword);
         System.out.println(newPassword);
-        return userService.updateByOldPassword(userId, oldPassword, newPassword);
+        return authRegisterUserService.updateByOldPassword(userId, oldPassword, newPassword);
     }
 
     @PostMapping("/signout")
     @ResponseBody
-    public ResultInfo signOut(UserInfo userInfo){
-        return userService.signOut(userInfo);
+    public ResultInfo signOut(String username){
+        return authRegisterUserService.signOut(username);
     }
 
+    /**
+     * upload user icon image
+     * @param file image file
+     * @param userId user id
+     * @param request HttpServletRequest
+     * @return ResultInfo
+     * @throws IOException IOException
+     */
     @PostMapping("/upload/{userId}")
     @ResponseBody
-    public ResultInfo<UserInfo> uploadIcon(@RequestParam MultipartFile file, @PathVariable int userId,
+    public ResultInfo uploadIcon(@RequestParam MultipartFile file, @PathVariable int userId,
                                     HttpServletRequest request) throws IOException {
         if(file.isEmpty()){
             throw new XException("icon error");
@@ -110,26 +143,54 @@ public class User {
         String path = request.getSession().getServletContext().getRealPath("/Resource/icon/");
         FileUtils.copyInputStreamToFile(file.getInputStream(), new File( path,  file.getOriginalFilename()));
         String icon = BASE_RESOURCE_URL + "icon/" + file.getOriginalFilename();
-        return userService.updateIcon(new UserInfo(userId, icon));
+        return authRegisterUserService.updateIcon(icon, userId);
     }
 
+    /**
+     *  list of all follows by user id
+     * @param userId use id
+     * @return ResultInfo with list of userInfo
+     */
     @PostMapping("/follows/{userId}")
     @ResponseBody
-    public ResultInfo<UserInfo> follows(@PathVariable int userId){
-        return userService.follows(userId);
+    public ResultInfo follows(@PathVariable int userId){
+        return authRegisterUserService.follows(userId);
     }
 
+    /**
+     *  get 2 user follow status
+     * @param userId user id
+     * @param friendId target user id
+     * @return ResultInfo
+     */
+    @PostMapping("/follow/status/{userId}/{friendId}")
+    @ResponseBody
+    public ResultInfo follow(@PathVariable int userId, @PathVariable int friendId){
+        return authRegisterUserService.followStatus(userId, friendId);
+    }
+
+    /**
+     *  add or delete a follow relationship
+     * @param action 0-> delete, 1-> add
+     * @param userId user id
+     * @param friendId target user id
+     * @return ResultInfo
+     */
     @PostMapping("/follow/{action}/{userId}/{friendId}")
     @ResponseBody
     public ResultInfo follow(@PathVariable int action, @PathVariable int userId, @PathVariable int friendId){
-        return userService.follow(action, userId, friendId);
+        return authRegisterUserService.follow(action, userId, friendId);
     }
 
-
+    /**
+     * get user info with channel info by user id
+     * @param userId user id
+     * @return ResultInfo
+     */
     @PostMapping("/{userId}")
     @ResponseBody
-    public UserInfo get(@PathVariable int userId){
-        return userService.selectOneWithChannelByUserId(userId);
+    public ResultInfo<AuthRegisterUserInfo> get(@PathVariable int userId){
+        return authRegisterUserService.selectOneByUserId(userId);
     }
 
 }

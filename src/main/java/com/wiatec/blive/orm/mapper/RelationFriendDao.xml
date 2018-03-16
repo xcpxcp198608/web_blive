@@ -9,6 +9,11 @@
         WHERE user_id = #{userId}
     </select>
 
+    <select id="selectOne" resultType="java.lang.Integer">
+        SELECT COUNT(*) count From relation_friend
+        WHERE user_id = #{userId} AND friend_id = #{friendId}
+    </select>
+
     <insert id="insertOne">
         INSERT IGNORE INTO relation_friend (user_id, friend_id)
           VALUES (#{userId}, #{friendId})

@@ -29,7 +29,7 @@
         <property name="location" value="classpath:jdbc.properties"/>
     </bean>
 
-    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+    <bean id="bliveDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
         <property name="filters" value="stat" />
         <property name="username" value="${user}"/>
         <property name="password" value="${password}"/>
@@ -38,23 +38,45 @@
         <property name="initialSize" value="${initSize}" />
         <property name="minIdle" value="${minSize}" />
         <property name="maxActive" value="${maxSize}" />
-        <!-- 配置获取连接等待超时的时间 -->
         <property name="maxWait" value="${maxWait}" />
-
-        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
         <property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}" />
-
-        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
         <property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}" />
-
         <property name="validationQuery" value="SELECT 'x'" />
         <property name="testWhileIdle" value="true" />
         <property name="testOnBorrow" value="false" />
         <property name="testOnReturn" value="false" />
-
-        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
         <property name="poolPreparedStatements" value="false" />
         <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+    </bean>
+
+    <bean id="panelDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="filters" value="stat" />
+        <property name="username" value="${user}"/>
+        <property name="password" value="${password_panel}"/>
+        <property name="driverClassName" value="${driver}"/>
+        <property name="url" value="${url_panel}"/>
+        <property name="initialSize" value="${initSize}" />
+        <property name="minIdle" value="${minSize}" />
+        <property name="maxActive" value="${maxSize}" />
+        <property name="maxWait" value="${maxWait}" />
+        <property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}" />
+        <property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}" />
+        <property name="validationQuery" value="SELECT 'x'" />
+        <property name="testWhileIdle" value="true" />
+        <property name="testOnBorrow" value="false" />
+        <property name="testOnReturn" value="false" />
+        <property name="poolPreparedStatements" value="false" />
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+    </bean>
+
+    <bean id="dataSource" class="com.wiatec.blive.common.data_source.DynamicDataSource">
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+                <entry key="bliveDataSource" value-ref="bliveDataSource"/>
+                <entry key="panelDataSource" value-ref="panelDataSource"/>
+            </map>
+        </property>
+        <property name="defaultTargetDataSource" ref="bliveDataSource"/>
     </bean>
 
     <!-- 配置mybatis sqlSessionFactory-->
@@ -67,6 +89,20 @@
     <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="sqlSessionFactory" />
     </bean>
+
+
+    <!-- 配置mybatis sqlSessionFactory-->
+    <bean name="panelSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="panelDataSource"/>
+        <property name="configLocation" value="classpath:mybatis-configuration.xml"/>
+        <property name="mapperLocations" value="classpath*:com/wiatec/blive/orm/mapper/*.xml"/>
+    </bean>
+
+    <bean id="panelSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="panelSqlSessionFactory" />
+    </bean>
+
+
     <!-- 配置mybatis xml 映射文件自动加载-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
