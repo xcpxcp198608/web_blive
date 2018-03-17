@@ -58,12 +58,13 @@ public class User {
     /**
      * sign in
      * required: username password
+     * optional: country, region, city, timeZone, deviceModel, romVersion, uiVersion
      * @return ResultInfo
      */
     @PostMapping("/signin")
     @ResponseBody
-    public ResultInfo signIn(String username, String password){
-        return authRegisterUserService.signIn(username, password);
+    public ResultInfo signIn(AuthRegisterUserInfo authRegisterUserInfo){
+        return authRegisterUserService.signIn(authRegisterUserInfo);
     }
 
     /**
@@ -104,7 +105,7 @@ public class User {
     }
 
     /**
-     * app内直接修改password
+     * update password by user id and old password
      * @param userId user id
      * @param oldPassword old password
      * @param newPassword new password
@@ -112,8 +113,7 @@ public class User {
      */
     @PostMapping("/update/{userId}")
     @ResponseBody
-    public ResultInfo updatePassword(@PathVariable int userId, String oldPassword, String newPassword){
-        System.out.println(userId);
+    public ResultInfo updatePassword(String oldPassword, String newPassword, @PathVariable int userId){
         System.out.println(oldPassword);
         System.out.println(newPassword);
         return authRegisterUserService.updateByOldPassword(userId, oldPassword, newPassword);
@@ -146,16 +146,6 @@ public class User {
         return authRegisterUserService.updateIcon(icon, userId);
     }
 
-    /**
-     *  list of all follows by user id
-     * @param userId use id
-     * @return ResultInfo with list of userInfo
-     */
-    @PostMapping("/follows/{userId}")
-    @ResponseBody
-    public ResultInfo follows(@PathVariable int userId){
-        return authRegisterUserService.follows(userId);
-    }
 
     /**
      *  get 2 user follow status
@@ -163,7 +153,7 @@ public class User {
      * @param friendId target user id
      * @return ResultInfo
      */
-    @PostMapping("/follow/status/{userId}/{friendId}")
+    @GetMapping("/follow/status/{userId}/{friendId}")
     @ResponseBody
     public ResultInfo follow(@PathVariable int userId, @PathVariable int friendId){
         return authRegisterUserService.followStatus(userId, friendId);
@@ -181,6 +171,19 @@ public class User {
     public ResultInfo follow(@PathVariable int action, @PathVariable int userId, @PathVariable int friendId){
         return authRegisterUserService.follow(action, userId, friendId);
     }
+
+
+    /**
+     *  list of all follows by user id
+     * @param userId use id
+     * @return ResultInfo with list of userInfo
+     */
+    @GetMapping("/follows/{userId}")
+    @ResponseBody
+    public ResultInfo follows(@PathVariable int userId){
+        return authRegisterUserService.follows(userId);
+    }
+
 
     /**
      * get user info with channel info by user id

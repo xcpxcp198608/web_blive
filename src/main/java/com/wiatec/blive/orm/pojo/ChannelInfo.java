@@ -6,6 +6,7 @@ package com.wiatec.blive.orm.pojo;
 public class ChannelInfo {
 
     private int id;
+    private int userId;
     private String title;
     private String message;
     /**
@@ -25,8 +26,6 @@ public class ChannelInfo {
     private int type;
     private float price;
     private String startTime;
-    private int userId;
-    private UserInfo userInfo;
 
     public ChannelInfo() {
     }
@@ -160,13 +159,6 @@ public class ChannelInfo {
         this.userId = userId;
     }
 
-    public UserInfo getUserInfo() {
-        return userInfo;
-    }
-
-    public void setUserInfo(UserInfo userInfo) {
-        this.userInfo = userInfo;
-    }
 
     @Override
     public String toString() {
@@ -186,7 +178,6 @@ public class ChannelInfo {
                 ", price=" + price +
                 ", startTime='" + startTime + '\'' +
                 ", userId=" + userId +
-                ", userInfo=" + userInfo +
                 '}';
     }
 }

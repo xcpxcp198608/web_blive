@@ -51,7 +51,7 @@ public class AuthRegisterUserService extends BaseService {
         if(authRegisterUserDao.countByEmail(userInfo.getEmail()) == COUNT_1) {
             throw new XException(EnumResult.ERROR_EMAIL_EXISTS);
         }
-        String token = TokenUtil.create64(userInfo.getUsername(), System.currentTimeMillis()+ "");
+        String token = TokenUtil.create64(userInfo.getUsername());
         userInfo.setToken(token);
         // insert user information
         authRegisterUserDao.insertOne(userInfo);
@@ -84,23 +84,23 @@ public class AuthRegisterUserService extends BaseService {
 
     /**
      * user sign in
-     * @param username username
      * @return ResultInfo
      */
     @DataSource(name = DataSource.DATA_SOURCE_PANEL)
-    public ResultInfo signIn(String username, String password){
-        if (authRegisterUserDao.countByUsername(username) != 1) {
+    public ResultInfo signIn(AuthRegisterUserInfo userInfo){
+        if (authRegisterUserDao.countByUsername(userInfo.getUsername()) != 1) {
             throw new XException(EnumResult.ERROR_USERNAME_NOT_EXISTS);
         }
-        if (authRegisterUserDao.countOneByUsernameAndPassowrd(username, password) != COUNT_1) {
+        if (authRegisterUserDao.countOneByUsernameAndPassowrd(userInfo.getUsername(), userInfo.getPassword()) != COUNT_1) {
             throw new XException(EnumResult.ERROR_USERNAME_PASSWORD_NO_MATCH);
         }
-        if(authRegisterUserDao.selectEmailStatusByUsername(username) != COUNT_1){
+        if(authRegisterUserDao.selectEmailStatusByUsername(userInfo.getUsername()) != COUNT_1){
             throw new XException(EnumResult.ERROR_EMAIL_NO_ACTIVATE);
         }
-        String token = TokenUtil.create64(username, System.currentTimeMillis()+"");
-        authRegisterUserDao.updateTokenByUsername(username, token);
-        AuthRegisterUserInfo userInfo1 = authRegisterUserDao.selectOneByUsername(username);
+        String token = TokenUtil.create64(userInfo.getUsername());
+        userInfo.setToken(token);
+        authRegisterUserDao.updateSignInInfoByUsername(userInfo);
+        AuthRegisterUserInfo userInfo1 = authRegisterUserDao.selectOneByUsername(userInfo.getUsername());
         return ResultMaster.success(userInfo1);
     }
 
@@ -247,12 +247,13 @@ public class AuthRegisterUserService extends BaseService {
     @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo follows(int userId){
         List<Integer> friendIds = relationFriendDao.selectFriendsIdByUserId(userId);
-        if(friendIds == null || friendIds.size() <= COUNT_1){
+        System.out.println(friendIds);
+        if(friendIds == null || friendIds.size() <= COUNT_0){
             throw new XException(EnumResult.ERROR_NO_FOUND);
         }
         List<AuthRegisterUserInfo> authRegisterUserInfoList = authRegisterUserDao
                 .selectMultiByUserId(friendIds);
-
+        System.out.println(authRegisterUserInfoList);
         if(authRegisterUserInfoList == null || authRegisterUserInfoList.size() <= COUNT_0){
             throw new XException(EnumResult.ERROR_NO_FOUND);
         }

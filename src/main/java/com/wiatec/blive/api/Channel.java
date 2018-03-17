@@ -30,7 +30,6 @@ public class Channel {
 
     @Resource
     private AuthRegisterUserService authRegisterUserService;
-
     @Resource
     private ChannelService channelService;
 
@@ -51,7 +50,8 @@ public class Channel {
     public ResultInfo getChannel(@PathVariable int userId){
         ChannelInfo channelInfo = channelService.selectOneByUserId(userId);
         if(channelInfo == null){
-            throw new XException(EnumResult.ERROR_NO_FOUND);
+            AuthRegisterUserInfo authRegisterUserInfo = authRegisterUserService.selectOneByUserId(userId).getData();
+            channelInfo = channelService.create(userId, authRegisterUserInfo.getUsername()).getData();
         }
         return ResultMaster.success(channelInfo);
     }
@@ -69,6 +69,12 @@ public class Channel {
         return channelService.updateChannelUrl(resultInfo.getData().getUsername(), channelInfo);
     }
 
+    /**
+     *  update channel setting
+     * @param action 0-> all, 1-> title and message, 2->title, 3-> message, 4-> price
+     * @param channelInfo channelInfo
+     * @return ResultInfo
+     */
     @PutMapping("/update/{action}")
     @ResponseBody
     public ResultInfo updateChannel(@PathVariable int action, @RequestBody ChannelInfo channelInfo){
@@ -90,10 +96,10 @@ public class Channel {
         return ResultMaster.error(1001, "update failure");
     }
 
-    @PutMapping("/status/{activate}/{userId}")
+    @PutMapping("/status/{action}/{userId}")
     @ResponseBody
-    public ResultInfo<ChannelInfo> updateChannelUnavailable(@PathVariable int activate, @PathVariable int userId){
-        return channelService.updateChannelStatus(activate, userId);
+    public ResultInfo<ChannelInfo> updateChannelUnavailable(@PathVariable int action, @PathVariable int userId){
+        return channelService.updateChannelStatus(action, userId);
     }
 
     @PostMapping("/upload/{userId}")

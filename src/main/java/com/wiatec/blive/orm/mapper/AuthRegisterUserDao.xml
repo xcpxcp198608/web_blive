@@ -7,7 +7,7 @@
         SELECT id, username, email, phone, first_name, last_name, level, email_status,
             mac, country, region, city, time_zone, token, active_time, expires_time,
             last_online_time, create_time, modify_time, status, device_model, rom_version,
-            ui_version, icon, gender
+            ui_version, icon, gender, bvision, btv
         FROM auth_register_user
     </sql>
 
@@ -95,10 +95,18 @@
         WHERE username = #{username}
     </update>
 
+    <update id="updateSignInInfoByUsername">
+        UPDATE auth_register_user
+        SET token = #{token}, country = #{country}, region = #{region}, city = #{city},
+            time_zone = #{timeZone}, device_model = #{deviceModel},
+            rom_version = #{romVersion}, ui_version = #{uiVersion}, last_online_time = now()
+        WHERE username = #{username}
+    </update>
+
     <update id="updateIconByUserId">
         UPDATE auth_register_user
         SET icon = #{icon}
-        WHERE id = #{id}
+        WHERE id = #{userId}
     </update>
 
     <update id="updatePasswordByUsername">

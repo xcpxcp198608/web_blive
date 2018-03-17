@@ -39,6 +39,8 @@ public class AuthRegisterUserInfo {
      * 是否从btv设备注册
      */
     private boolean btv;
+    private String icon;
+    private int gender;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date activeTime;
@@ -278,6 +280,22 @@ public class AuthRegisterUserInfo {
         this.btv = btv;
     }
 
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public int getGender() {
+        return gender;
+    }
+
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
+
     @Override
     public String toString() {
         return "AuthRegisterUserInfo{" +
@@ -302,6 +320,8 @@ public class AuthRegisterUserInfo {
                 ", uiVersion='" + uiVersion + '\'' +
                 ", bvision=" + bvision +
                 ", btv=" + btv +
+                ", icon='" + icon + '\'' +
+                ", gender=" + gender +
                 ", activeTime=" + activeTime +
                 ", expiresTime=" + expiresTime +
                 ", lastOnLineTime=" + lastOnLineTime +

@@ -50,6 +50,10 @@ public class ResultMaster {
         return resultInfo;
     }
 
+    public static ResultInfo error (String message) {
+        return error(500, message);
+    }
+
     public static ResultInfo error (int code, String message) {
         ResultInfo resultInfo = new ResultInfo();
         resultInfo.setCode(code);

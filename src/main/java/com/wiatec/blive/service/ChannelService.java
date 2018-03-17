@@ -37,7 +37,7 @@ public class ChannelService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public ResultInfo create(int userId, String username){
+    public ResultInfo<ChannelInfo> create(int userId, String username){
         RtmpInfo rtmpInfo = new RtmpMaster().getRtmpInfo(username);
         if(rtmpInfo == null){
             throw new XException("rtmp server error");
@@ -52,7 +52,9 @@ public class ChannelService {
         if(channelDao.insertChannel(channelInfo) != 1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
-        return ResultMaster.success(channelInfo);
+        return ResultMaster.success("Please check your email to confirm and activate the account. " +
+                "The activation email may take up to 60 minutes to arrive, " +
+                "if you didn't get the email, please contact customer service.", channelInfo);
     }
 
     /**
@@ -71,6 +73,8 @@ public class ChannelService {
      */
     public ChannelInfo selectOneByUserId(int userId){
         ChannelInfo channelInfo = channelDao.selectOneByUserId(userId);
+
+
         return channelInfo;
     }
 
@@ -157,12 +161,12 @@ public class ChannelService {
 
     /**
      * update channel status
-     * @param activate 1 -> activate, 0 -> deactivate
+     * @param action 1 -> activate, 0 -> deactivate
      * @param userId user id
      * @return ResultInfo
      */
-    public ResultInfo<ChannelInfo> updateChannelStatus(int activate, int userId){
-        if(activate == 1){
+    public ResultInfo<ChannelInfo> updateChannelStatus(int action, int userId){
+        if(action == 1){
             channelDao.updateAvailableByUserId(userId);
         }else {
             channelDao.updateUnavailableByUserId(userId);

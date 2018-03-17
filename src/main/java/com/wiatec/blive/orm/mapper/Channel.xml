@@ -32,7 +32,7 @@
     </select>
 
     <update id="insertChannel">
-        INSERT IGNORE INTO live_channel (title, url, rtmp_url, rtmp_key, playUrl, preview, category,, userId)
+        INSERT IGNORE INTO live_channel (title, url, rtmp_url, rtmp_key, playUrl, preview, category, userId)
         VALUES (#{title}, #{url}, #{rtmpUrl}, #{rtmpKey}, #{playUrl}, '1', '1', #{userId})
     </update>
 

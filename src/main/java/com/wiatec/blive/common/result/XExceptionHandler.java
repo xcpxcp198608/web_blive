@@ -1,5 +1,6 @@
 package com.wiatec.blive.common.result;
 
+import com.wiatec.blive.common.utils.TextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -23,7 +24,12 @@ public class XExceptionHandler {
             return ResultMaster.error(xException.getCode(), xException.getMessage());
         }else {
             logger.error("system exception", e);
-            return ResultMaster.error(EnumResult.ERROR_INTERNAL_SERVER);
+            String message = e.getMessage();
+            if (TextUtil.isEmpty(message)) {
+                return ResultMaster.error(EnumResult.ERROR_INTERNAL_SERVER);
+            }else {
+                return ResultMaster.error(message);
+            }
         }
     }
 }

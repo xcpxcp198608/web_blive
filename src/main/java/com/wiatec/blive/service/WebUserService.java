@@ -53,7 +53,7 @@ public class WebUserService {
         if(authRegisterUserDao.selectEmailStatusByUsername(username) != 1){
             throw new XException(EnumResult.ERROR_EMAIL_NO_ACTIVATE);
         }
-        String token = TokenUtil.create64(username, System.currentTimeMillis()+"");
+        String token = TokenUtil.create64(username);
         authRegisterUserDao.updateTokenByUsername(username, token);
         AuthRegisterUserInfo userInfo1 = authRegisterUserDao.selectOneByUsername(username);
         HttpSession session = request.getSession();

@@ -33,6 +33,7 @@ public interface AuthRegisterUserDao {
 
     int updateEmailStatusByToken(String token);
     int updateTokenByUsername(@Param("username") String username, @Param("token") String token);
+    int updateSignInInfoByUsername(AuthRegisterUserInfo authRegisterUserInfo);
     int updateIconByUserId(@Param("icon") String icon, @Param("userId") int userId);
     int updatePasswordByUsername(@Param("username") String username, @Param("password") String password);
     int updatePasswordByUserId(@Param("userId") int userId, @Param("password") String password);
