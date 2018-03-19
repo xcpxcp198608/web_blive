@@ -41,7 +41,6 @@ public class WebUserService {
      * @return ResultInfo
      */
 
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     @Transactional(rollbackFor = Exception.class)
     public ResultInfo signIn(HttpServletRequest request, String username, String password){
         if (authRegisterUserDao.countByUsername(username) != 1) {
@@ -66,7 +65,6 @@ public class WebUserService {
      * @param request HttpServletRequest
      * @return UserInfo
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public AuthRegisterUserInfo getUserInfo(HttpServletRequest request){
         String username = (String) request.getSession().getAttribute("username");
         if(TextUtil.isEmpty(username)){

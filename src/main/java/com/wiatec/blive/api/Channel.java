@@ -48,12 +48,7 @@ public class Channel {
     @GetMapping(value = "/{userId}")
     @ResponseBody
     public ResultInfo getChannel(@PathVariable int userId){
-        ChannelInfo channelInfo = channelService.selectOneByUserId(userId);
-        if(channelInfo == null){
-            AuthRegisterUserInfo authRegisterUserInfo = authRegisterUserService.selectOneByUserId(userId).getData();
-            channelInfo = channelService.create(userId, authRegisterUserInfo.getUsername()).getData();
-        }
-        return ResultMaster.success(channelInfo);
+        return channelService.selectOneByUserId(userId);
     }
 
     @GetMapping(value = "/search/{key}")

@@ -6,7 +6,7 @@
     <sql id="select">
         SELECT id, userId, available, rating, title, message, url, rtmp_url, rtmp_key,
             playUrl, preview, category, type, price, startTime
-        FROM live_channel
+        FROM bvision_channel_live
     </sql>
 
     <select id="selectAllAvailable" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
@@ -27,65 +27,65 @@
     </select>
 
     <select id="countByUserId" resultType="java.lang.Integer">
-      SELECT COUNT(*) count FROM live_channel
+      SELECT COUNT(*) count FROM bvision_channel_live
       WHERE userId=#{userId}
     </select>
 
     <update id="insertChannel">
-        INSERT IGNORE INTO live_channel (title, url, rtmp_url, rtmp_key, playUrl, preview, category, userId)
+        INSERT IGNORE INTO bvision_channel_live (title, url, rtmp_url, rtmp_key, playUrl, preview, category, userId)
         VALUES (#{title}, #{url}, #{rtmpUrl}, #{rtmpKey}, #{playUrl}, '1', '1', #{userId})
     </update>
 
     <update id="updateChannel">
-        UPDATE IGNORE live_channel
+        UPDATE IGNORE bvision_channel_live
         SET url=#{url}, rtmp_url=#{rtmpUrl}, rtmp_key = #{rtmpKey}, playUrl=#{playUrl}
         WHERE userId=#{userId}
     </update>
 
     <update id="updateTitleAndMessageByUserId">
-        UPDATE live_channel
+        UPDATE bvision_channel_live
         SET title=#{title}, message=#{message}
         WHERE userId=#{userId}
     </update>
 
     <update id="updateTitleByUserId">
-        UPDATE live_channel
+        UPDATE bvision_channel_live
         SET title=#{title}
         WHERE userId=#{userId}
     </update>
 
     <update id="updateMessageByUserId">
-        UPDATE live_channel
+        UPDATE bvision_channel_live
         SET message=#{message}
         WHERE userId=#{userId}
     </update>
 
     <update id="updatePriceByUserId">
-        UPDATE live_channel
+        UPDATE bvision_channel_live
         SET price=#{price}
         WHERE userId=#{userId}
     </update>
 
     <update id="updateAllSettingByUserId">
-        UPDATE live_channel
+        UPDATE bvision_channel_live
         SET title=#{title}, message=#{message}, price=#{price}, rating = #{rating}
         WHERE userId=#{userId}
     </update>
 
     <update id="updateAvailableByUserId">
-        UPDATE live_channel
+        UPDATE bvision_channel_live
         SET available=1, startTime=now()
         WHERE userId=#{userId}
     </update>
 
     <update id="updateUnavailableByUserId">
-        UPDATE live_channel
+        UPDATE bvision_channel_live
         SET available=0
         WHERE userId=#{userId}
     </update>
 
     <update id="updatePreviewByUserId" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
-        UPDATE live_channel
+        UPDATE bvision_channel_live
         SET preview=#{preview}
         WHERE userId=#{userId}
     </update>

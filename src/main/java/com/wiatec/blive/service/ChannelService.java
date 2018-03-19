@@ -4,8 +4,8 @@ import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
+import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
 import com.wiatec.blive.orm.dao.ChannelDao;
-import com.wiatec.blive.orm.dao.UserDao;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.rtmp.RtmpInfo;
 import com.wiatec.blive.rtmp.RtmpMaster;
@@ -25,7 +25,7 @@ public class ChannelService {
     private ChannelDao channelDao;
 
     @Resource
-    private UserDao userDao;
+    private AuthRegisterUserDao authRegisterUserDao;
 
     /**
      * select channels that in living
@@ -52,9 +52,7 @@ public class ChannelService {
         if(channelDao.insertChannel(channelInfo) != 1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
-        return ResultMaster.success("Please check your email to confirm and activate the account. " +
-                "The activation email may take up to 60 minutes to arrive, " +
-                "if you didn't get the email, please contact customer service.", channelInfo);
+        return ResultMaster.success(channelInfo);
     }
 
     /**
@@ -71,11 +69,13 @@ public class ChannelService {
      * @param userId user id
      * @return ChannelInfo
      */
-    public ChannelInfo selectOneByUserId(int userId){
+    public ResultInfo<ChannelInfo> selectOneByUserId(int userId){
         ChannelInfo channelInfo = channelDao.selectOneByUserId(userId);
-
-
-        return channelInfo;
+        if(channelInfo == null){
+            String username = authRegisterUserDao.selectOneById(userId).getUsername();
+            return create(userId, username);
+        }
+        return ResultMaster.success(channelInfo);
     }
 
     /**

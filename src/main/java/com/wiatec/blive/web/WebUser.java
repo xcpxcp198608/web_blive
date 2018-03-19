@@ -34,8 +34,9 @@ public class WebUser {
     public String details(HttpServletRequest request, Model model){
         AuthRegisterUserInfo userInfo = webUserService.getUserInfo(request);
         model.addAttribute("userInfo", userInfo);
-        ChannelInfo channelInfo = channelService.selectOneByUserId(userInfo.getId());
+        ChannelInfo channelInfo = channelService.selectOneByUserId(userInfo.getId()).getData();
         model.addAttribute("channelInfo", channelInfo);
         return "webuser/home";
     }
+
 }

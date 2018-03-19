@@ -31,10 +31,10 @@
     <sql id="select">SELECT id, payerName, publisherId, channelName, auth, paymentId, state, cart,
                          paymentMethod, paymentStatus, email, firstName, lastName,
                          payPalPayerId, phone, countryCode, price, currency, description,
-                         transactionFee, createTime, updateTime, time time1 FROM paypal_result</sql>
+                         transactionFee, createTime, updateTime, time time1 FROM bvision_paypal_result</sql>
 
     <insert id="insertOne" parameterType="com.wiatec.blive.orm.pojo.PayResultInfo">
-        INSERT INTO paypal_result (payerName, publisherId, channelName, auth, paymentId, state, cart,
+        INSERT INTO bvision_paypal_result (payerName, publisherId, channelName, auth, paymentId, state, cart,
                                    paymentMethod, paymentStatus, email, firstName, lastName,
                                    payPalPayerId, phone, countryCode, price, currency, description,
                                    transactionFee, createTime, updateTime)
@@ -45,7 +45,7 @@
     </insert>
 
     <select id="countOne" parameterType="java.lang.String" resultType="int">
-        SELECT count(*) FROM paypal_result WHERE paymentId = #{_parameter}
+        SELECT count(*) FROM bvision_paypal_result WHERE paymentId = #{_parameter}
     </select>
 
     <select id="selectOne" parameterType="java.lang.String" resultMap="payResultInfo">
@@ -59,7 +59,7 @@
     </select>
 
     <update id="updateOne" parameterType="com.wiatec.blive.orm.pojo.PayResultInfo">
-        UPDATE paypal_result
+        UPDATE bvision_paypal_result
         SET payerName=#{payerName}, publisherId=#{publisherId}, channelName=#{channelName},
             auth=#{auth}, state=#{state}, cart=#{cart}, paymentMethod=#{paymentMethod},
             paymentStatus=#{paymentStatus}, email=#{email}, firstName=#{firstName},

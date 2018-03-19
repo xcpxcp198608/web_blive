@@ -5,11 +5,11 @@
 
     <select id="selectAll" resultType="com.wiatec.blive.orm.pojo.LogLiveCommentInfo">
         SELECT id, channel_id, group_id, watch_user_id, comment, create_time
-        FROM log_live_comment
+        FROM bvision_log_channel_comment
     </select>
 
     <insert id="insertOne">
-        INSERT IGNORE INTO log_live_comment
+        INSERT IGNORE INTO bvision_log_channel_comment
           (channel_id, group_id, watch_user_id, comment)
         VALUES (#{channelId}, #{groupId}, #{watchUserId}, #{comment})
     </insert>

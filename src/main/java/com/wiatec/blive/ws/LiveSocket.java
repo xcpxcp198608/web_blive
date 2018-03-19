@@ -34,11 +34,9 @@ public class LiveSocket {
     private static final int MSG_TYPE_GROUP = 1;
 
     protected static SqlSession sqlSession;
-    protected static SqlSession panelSqlSession;
 
     static {
         sqlSession = (SqlSession) ApplicationContextHelper.getApplicationContext().getBean("sqlSessionTemplate");
-        panelSqlSession = (SqlSession) ApplicationContextHelper.getApplicationContext().getBean("panelSqlSessionTemplate");
     }
 
     private AuthRegisterUserDao authRegisterUserDao;
@@ -55,7 +53,7 @@ public class LiveSocket {
         this.session = session;
         this.userId = userId;
         this.groupId = groupId;
-        authRegisterUserDao = panelSqlSession.getMapper(AuthRegisterUserDao.class);
+        authRegisterUserDao = sqlSession.getMapper(AuthRegisterUserDao.class);
         channelDao = sqlSession.getMapper(ChannelDao.class);
         logLiveCommentDao = sqlSession.getMapper(LogLiveCommentDao.class);
         AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);

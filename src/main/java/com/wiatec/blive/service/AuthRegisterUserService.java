@@ -42,7 +42,6 @@ public class AuthRegisterUserService extends BaseService {
      * @param userInfo  UserInfo
      * @return ResultInfo
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     @Transactional(rollbackFor = Exception.class)
     public ResultInfo<AuthRegisterUserInfo> signUp(HttpServletRequest request, AuthRegisterUserInfo userInfo){
         if(authRegisterUserDao.countByUsername(userInfo.getUsername()) == COUNT_1){
@@ -56,6 +55,22 @@ public class AuthRegisterUserService extends BaseService {
         // insert user information
         authRegisterUserDao.insertOne(userInfo);
         AuthRegisterUserInfo userInfo1 = authRegisterUserDao.selectOneByUsername(userInfo.getUsername());
+
+        RtmpInfo rtmpInfo = new RtmpMaster().getRtmpInfo(userInfo1.getUsername());
+        if(rtmpInfo == null){
+            throw new XException("rtmp server error");
+        }
+        ChannelInfo channelInfo = new ChannelInfo();
+        channelInfo.setTitle(userInfo1.getUsername());
+        channelInfo.setUserId(userInfo1.getId());
+        channelInfo.setUrl(rtmpInfo.getPush_full_url());
+        channelInfo.setRtmpUrl(rtmpInfo.getPush_url());
+        channelInfo.setRtmpKey(rtmpInfo.getPush_key());
+        channelInfo.setPlayUrl(rtmpInfo.getPlay_url());
+        if(channelDao.insertChannel(channelInfo) != COUNT_1){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+
         // send validate email
         EmailMaster emailMaster = new EmailMaster();
         String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
@@ -63,7 +78,7 @@ public class AuthRegisterUserService extends BaseService {
         emailMaster.send(userInfo1.getEmail());
         return ResultMaster.success("Please check your email to confirm and activate the account. " +
                 "The activation email may take up to 60 minutes to arrive, " +
-                "if you didn't get the email, please contact customer service.", userInfo1);
+                "if you didn't get the email, please contact customer service.");
     }
 
     /**
@@ -71,7 +86,6 @@ public class AuthRegisterUserService extends BaseService {
      * @param token token from system create in sign up
      * @return activate result message
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public String activate(String token){
         if(authRegisterUserDao.countByToken(token) != COUNT_1){
             return "access token error";
@@ -86,7 +100,6 @@ public class AuthRegisterUserService extends BaseService {
      * user sign in
      * @return ResultInfo
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo signIn(AuthRegisterUserInfo userInfo){
         if (authRegisterUserDao.countByUsername(userInfo.getUsername()) != 1) {
             throw new XException(EnumResult.ERROR_USERNAME_NOT_EXISTS);
@@ -110,7 +123,6 @@ public class AuthRegisterUserService extends BaseService {
      * @param username username
      * @return ResultInfo
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo reset(HttpServletRequest request, String username, String email){
         if(authRegisterUserDao.countByUsername(username) != COUNT_1){
             throw new XException(EnumResult.ERROR_USERNAME_NOT_EXISTS);
@@ -134,7 +146,6 @@ public class AuthRegisterUserService extends BaseService {
      * @param token token
      * @return username
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public String go(String token){
         if(authRegisterUserDao.countByToken(token) != COUNT_1){
             throw new XException(EnumResult.ERROR_TOKEN_NOT_EXISTS);
@@ -147,7 +158,6 @@ public class AuthRegisterUserService extends BaseService {
      * @param username username
      * @return ResultInfo
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo updatePasswordByUsername(String username,  String password){
         if(TextUtil.isEmpty(password)){
             throw new XException("password is empty");
@@ -166,7 +176,6 @@ public class AuthRegisterUserService extends BaseService {
      * @param userId user id
      * @return ResultInfo
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo updateByOldPassword(int userId, String oldPassword, String newPassword){
         if(TextUtil.isEmpty(oldPassword)){
             throw new XException("password is incorrect");
@@ -188,7 +197,6 @@ public class AuthRegisterUserService extends BaseService {
      * @param token token
      * @return ResultInfo
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo validateToken(int userId, String token){
         if(TextUtil.isEmpty(token) || token.length() != LENGTH_64){
             throw new XException(EnumResult.ERROR_ACCESS_TOKEN);
@@ -204,7 +212,6 @@ public class AuthRegisterUserService extends BaseService {
      * user sign out, invalidate session
      * @return ResultInfo
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo signOut(String username){
         HttpSession session = SessionListener.getSession(username);
         if(session != null){
@@ -218,7 +225,6 @@ public class AuthRegisterUserService extends BaseService {
      * @param userId userId
      * @return ResultInfo
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo updateIcon(String icon, int userId){
         if(authRegisterUserDao.updateIconByUserId(icon, userId) != COUNT_1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
@@ -231,7 +237,6 @@ public class AuthRegisterUserService extends BaseService {
      * @param userId user id
      * @return ResultInfo
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo<AuthRegisterUserInfo> selectOneByUserId(int userId){
         AuthRegisterUserInfo authRegisterUserInfo = authRegisterUserDao.selectOneById(userId);
         if(authRegisterUserInfo == null){
@@ -244,7 +249,6 @@ public class AuthRegisterUserService extends BaseService {
      * get all friend user info by user id
      * @param userId user id
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo follows(int userId){
         List<Integer> friendIds = relationFriendDao.selectFriendsIdByUserId(userId);
         System.out.println(friendIds);
@@ -260,7 +264,6 @@ public class AuthRegisterUserService extends BaseService {
         return ResultMaster.success(authRegisterUserInfoList);
     }
 
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo followStatus(int userId, int friendId){
         String status = "false";
         if(relationFriendDao.selectOne(userId, friendId) >= COUNT_1){
@@ -276,7 +279,6 @@ public class AuthRegisterUserService extends BaseService {
      * @param friendId target user id
      * @return ResultInfo
      */
-    @DataSource(name = DataSource.DATA_SOURCE_PANEL)
     public ResultInfo follow(int action, int userId, int friendId){
         int i;
         if(action == 0){

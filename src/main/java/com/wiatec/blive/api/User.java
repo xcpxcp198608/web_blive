@@ -27,8 +27,6 @@ public class User {
 
     @Resource
     private AuthRegisterUserService authRegisterUserService;
-    @Resource
-    private ChannelService channelService;
 
     /**
      * sign up
@@ -39,8 +37,7 @@ public class User {
     @PostMapping("/signup")
     @ResponseBody
     public ResultInfo signUp(HttpServletRequest request, AuthRegisterUserInfo userInfo){
-        AuthRegisterUserInfo authRegisterUserInfo = authRegisterUserService.signUp(request, userInfo).getData();
-        return channelService.create(authRegisterUserInfo.getId(), authRegisterUserInfo.getUsername());
+        return authRegisterUserService.signUp(request, userInfo);
     }
 
     /**
