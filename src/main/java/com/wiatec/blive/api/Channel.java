@@ -28,6 +28,11 @@ import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
 @RequestMapping(value = "/channel")
 public class Channel {
 
+    private final String[] FILTER_KEYWORD = {"CEO", "CTO", "COO", "fuck", "shit", "dick", "pussy",
+            "mother fucker", "fucker", "president", "Vice President", "FUCK", "SHIT", "DICK",
+            "PUSSY", "MOTHER FUCKER", "FUCKER", "PRESIDENT", "President"};
+
+
     @Resource
     private AuthRegisterUserService authRegisterUserService;
     @Resource
@@ -73,6 +78,14 @@ public class Channel {
     @PutMapping("/update/{action}")
     @ResponseBody
     public ResultInfo updateChannel(@PathVariable int action, @RequestBody ChannelInfo channelInfo){
+        for (String s: FILTER_KEYWORD) {
+            if(channelInfo.getTitle().contains(s)){
+                throw new XException("title contains not allow word");
+            }
+            if(channelInfo.getMessage().contains(s)){
+                throw new XException("content contains not allow word");
+            }
+        }
         if(action == 0) {
             return channelService.updateChannelAllSetting(channelInfo);
         }

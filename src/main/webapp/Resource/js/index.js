@@ -1,6 +1,6 @@
 $(function () {
 
-    var baseUrl = "https://"+location.host+"/blive";
+    var baseUrl = "https://"+location.host;
     var jLoading = $('#loading');
 
     $('#a_sign_up').click(function(){

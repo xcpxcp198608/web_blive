@@ -10,7 +10,7 @@
     </style>
     <script>
         $(function(){
-            var baseUrl = "https://"+location.host+"/blive";
+            var baseUrl = "https://"+location.host;
             var webSocket = null;
             var living = false;
 
@@ -83,7 +83,7 @@
             });
 
             function wsConnect() {
-                var url = "wss://" + location.hostname + ":8443/blive/live/${userInfo.id}/${userInfo.id}";
+                var url = "wss://" + location.hostname + "/live/${userInfo.id}/${userInfo.id}";
                 var webSocket = null;
                 if ('WebSocket' in window) {
                     webSocket = new WebSocket(url);
@@ -206,6 +206,11 @@
                     $('#notice').css('display', 'none');
                 }, 3000)
             }
+            
+            
+            $('#btLogout').click(function () {
+                window.open('/', '_self')
+            });
         })
     </script>
 </rapid:override>
@@ -236,18 +241,21 @@
                     <span>viewers:</span><span id="oCount">0</span>
                 </div>
 
-                <div style="width: 635px; height:200px; position: relative; left: 0;top: -230px;
-                    z-index: 10; overflow: scroll; margin-left: 5px" id="divComment">
+                <div style="width: 585px; height:200px; position: relative; left: 0;top: -230px;
+                    z-index: 10; overflow: scroll; overflow-y:hidden; overflow-x:hidden;  margin-left: 5px" id="divComment">
 
                 </div>
 
-                <div style="width: 155px; height: 40px; margin-right: 5px; position: relative; left: 80%; top: -270px; z-index: 10">
+                <div style="width: 205px; height: 40px; margin-right: 5px; position: relative; left: 73%; top: -270px; z-index: 10">
                     <div class=" text-right" style="margin: 5px 0 0 5px;">
                         <button type="button" class="btn btn-sm btn-warning" id="btSetting">
                             Setting
                         </button>
                         <button type="button" class="btn btn-sm btn-primary" id="btStart">
                             Start
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" id="btLogout">
+                            Logout
                         </button>
                     </div>
                 </div>

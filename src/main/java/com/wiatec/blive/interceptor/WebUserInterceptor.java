@@ -20,30 +20,26 @@ public class WebUserInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if(request.getRequestURI().equals("/blive/users/signin")){
+        if(request.getRequestURI().equals("/users/signin")){
             return true;
-        }
-        String ref = request.getHeader("Referer");
-        if(ref == null || !ref.contains("/blive")){
-            throw new XException(EnumResult.ERROR_FORBIDDEN);
         }
         String username = (String) request.getSession().getAttribute("username");
         logger.debug(username);
         if(TextUtil.isEmpty(username)){
-            throw new XException("sign in error");
+            throw new XException(EnumResult.ERROR_FORBIDDEN);
         }
         return true;
     }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        if(request.getRequestURI().equals("/blive/users/signin")){
+        if(request.getRequestURI().equals("/users/signin")){
             return;
         }
         String username = (String) request.getSession().getAttribute("username");
         logger.debug(username);
         if(TextUtil.isEmpty(username)){
-            throw new XException("sign in error");
+            throw new XException(EnumResult.ERROR_FORBIDDEN);
         }
         if(modelAndView != null) {
             modelAndView.getModel().put("username", username);

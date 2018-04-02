@@ -1,11 +1,14 @@
 package com.wiatec.blive.service;
 
+import com.wiatec.blive.common.jpush.PushMaster;
+import com.wiatec.blive.common.jpush.PushPayloadBuilder;
 import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
 import com.wiatec.blive.orm.dao.ChannelDao;
+import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.rtmp.RtmpInfo;
 import com.wiatec.blive.rtmp.RtmpMaster;
@@ -23,7 +26,6 @@ public class ChannelService {
 
     @Resource
     private ChannelDao channelDao;
-
     @Resource
     private AuthRegisterUserDao authRegisterUserDao;
 
@@ -166,12 +168,15 @@ public class ChannelService {
      * @return ResultInfo
      */
     public ResultInfo<ChannelInfo> updateChannelStatus(int action, int userId){
+        AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);
+        ChannelInfo channelInfo = channelDao.selectOneByUserId(userId);
         if(action == 1){
             channelDao.updateAvailableByUserId(userId);
+            PushMaster.push(PushPayloadBuilder.buildForIos(userInfo.getUsername() + " start live: " + channelInfo.getTitle()));
         }else {
             channelDao.updateUnavailableByUserId(userId);
         }
-        return ResultMaster.success(channelDao.selectOneByUserId(userId));
+        return ResultMaster.success(channelInfo);
     }
 
     /**

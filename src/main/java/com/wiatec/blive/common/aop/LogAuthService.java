@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * 注解实现spring aop
+ * @author patrick
  */
 @Component
 @Aspect

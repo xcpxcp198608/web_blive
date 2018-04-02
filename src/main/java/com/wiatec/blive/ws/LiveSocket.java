@@ -151,7 +151,7 @@ public class LiveSocket {
         int count = 0;
         for(Map.Entry<Integer, LiveSocket> entry: clientMap.entrySet()){
             LiveSocket liveSocket = entry.getValue();
-            if(liveSocket.getGroupId() == groupId){
+            if(liveSocket.getGroupId() == groupId && liveSocket.getGroupId() != liveSocket.getUserId()){
                 count ++;
             }
         }

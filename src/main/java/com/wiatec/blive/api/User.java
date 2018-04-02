@@ -3,8 +3,9 @@ package com.wiatec.blive.api;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
+import com.wiatec.blive.orm.pojo.FeedbackInfo;
 import com.wiatec.blive.service.AuthRegisterUserService;
-import com.wiatec.blive.service.ChannelService;
+import com.wiatec.blive.service.FeedbackService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +28,8 @@ public class User {
 
     @Resource
     private AuthRegisterUserService authRegisterUserService;
+    @Resource
+    private FeedbackService feedbackService;
 
     /**
      * sign up
@@ -191,6 +194,12 @@ public class User {
     @ResponseBody
     public ResultInfo<AuthRegisterUserInfo> get(@PathVariable int userId){
         return authRegisterUserService.selectOneByUserId(userId);
+    }
+
+    @PostMapping("/feedback")
+    @ResponseBody
+    public ResultInfo feedback(FeedbackInfo feedbackInfo){
+        return feedbackService.insertOne(feedbackInfo);
     }
 
 }

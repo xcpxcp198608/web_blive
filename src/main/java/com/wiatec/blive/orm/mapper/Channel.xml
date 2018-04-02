@@ -32,7 +32,8 @@
     </select>
 
     <update id="insertChannel">
-        INSERT IGNORE INTO bvision_channel_live (title, url, rtmp_url, rtmp_key, playUrl, preview, category, userId)
+        INSERT IGNORE INTO bvision_channel_live (title, url, rtmp_url, rtmp_key, playUrl,
+                                                 preview, category, userId)
         VALUES (#{title}, #{url}, #{rtmpUrl}, #{rtmpKey}, #{playUrl}, '1', '1', #{userId})
     </update>
 

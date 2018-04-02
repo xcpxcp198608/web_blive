@@ -78,5 +78,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
     compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
+    // https://mvnrepository.com/artifact/cn.jpush.api/jpush-client
+    compile group: 'cn.jpush.api', name: 'jpush-client', version: '3.3.5'
+
 
 }
