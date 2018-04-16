@@ -1,11 +1,11 @@
 package com.wiatec.blive.api;
 
-import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
+import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.service.AuthRegisterUserService;
 import com.wiatec.blive.service.ChannelService;
 import org.apache.commons.io.FileUtils;
@@ -42,6 +42,13 @@ public class Channel {
     @ResponseBody
     public List<ChannelInfo> get(){
         return channelService.selectAllAvailable();
+    }
+
+
+    @RequestMapping(value = "/living")
+    @ResponseBody
+    public List<LiveChannelInfo> getWithUserInfo(){
+        return channelService.selectAllAvailableWithUser();
     }
 
     @PostMapping(value = "/create")
@@ -100,6 +107,9 @@ public class Channel {
         }
         if(action == 4){
             return channelService.updateChannelPrice(channelInfo);
+        }
+        if(action == 5){
+            return channelService.updateChannelLink(channelInfo);
         }
         return ResultMaster.error(1001, "update failure");
     }

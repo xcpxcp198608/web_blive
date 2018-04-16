@@ -10,6 +10,7 @@ import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
 import com.wiatec.blive.orm.dao.ChannelDao;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
+import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.rtmp.RtmpInfo;
 import com.wiatec.blive.rtmp.RtmpMaster;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,11 @@ public class ChannelService {
      */
     public List<ChannelInfo> selectAllAvailable(){
         return channelDao.selectAllAvailable();
+    }
+
+
+    public List<LiveChannelInfo> selectAllAvailableWithUser(){
+        return channelDao.selectAllAvailableWithUserInfo();
     }
 
 
@@ -144,6 +150,19 @@ public class ChannelService {
             throw new XException("user channel does not exists");
         }
         channelDao.updatePriceByUserId(channelInfo);
+        return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
+    }
+
+    /**
+     * update channel link
+     * @param channelInfo ChannelInfo
+     * @return ResultInfo
+     */
+    public ResultInfo<ChannelInfo> updateChannelLink(ChannelInfo channelInfo){
+        if(channelDao.countByUserId(channelInfo.getUserId()) != 1){
+            throw new XException("user channel does not exists");
+        }
+        channelDao.updateLinkByUserId(channelInfo);
         return ResultMaster.success(channelDao.selectOneByUserId(channelInfo.getUserId()));
     }
 

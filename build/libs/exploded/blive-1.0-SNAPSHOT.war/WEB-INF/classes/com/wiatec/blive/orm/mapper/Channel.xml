@@ -5,7 +5,7 @@
 
     <sql id="select">
         SELECT id, userId, available, rating, title, message, url, rtmp_url, rtmp_key,
-            playUrl, preview, category, type, price, startTime
+            playUrl, preview, category, type, price, link, startTime
         FROM bvision_channel_live
     </sql>
 
@@ -13,6 +13,19 @@
         <include refid="select"/>
         WHERE available=1
         ORDER BY startTime DESC
+    </select>
+
+    <select id="selectAllAvailableWithUserInfo" resultType="com.wiatec.blive.orm.pojo.LiveChannelInfo">
+        SELECT bvision_channel_live.id, bvision_channel_live.userId, bvision_channel_live.available,
+        bvision_channel_live.rating, bvision_channel_live.title, bvision_channel_live.message,
+        bvision_channel_live.url, bvision_channel_live.rtmp_url, bvision_channel_live.rtmp_key,
+        bvision_channel_live.playUrl, bvision_channel_live.preview, bvision_channel_live.category,
+        bvision_channel_live.type, bvision_channel_live.price, bvision_channel_live.link,
+        bvision_channel_live.startTime,
+        auth_register_user.username username, auth_register_user.icon userIcon
+        FROM bvision_channel_live, auth_register_user
+        WHERE bvision_channel_live.userId = auth_register_user.id AND bvision_channel_live.available = 1
+        ORDER BY bvision_channel_live.startTime DESC
     </select>
 
     <select id="searchByLikeTitle" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
@@ -67,9 +80,15 @@
         WHERE userId=#{userId}
     </update>
 
+    <update id="updateLinkByUserId">
+        UPDATE bvision_channel_live
+        SET link=#{link}
+        WHERE userId=#{userId}
+    </update>
+
     <update id="updateAllSettingByUserId">
         UPDATE bvision_channel_live
-        SET title=#{title}, message=#{message}, price=#{price}, rating = #{rating}
+        SET title=#{title}, message=#{message}, link=#{link}, price=#{price}, rating = #{rating}
         WHERE userId=#{userId}
     </update>
 

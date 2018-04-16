@@ -3,10 +3,12 @@ package com.wiatec.blive.orm.pojo;
 /**
  * @author patrick
  */
-public class ChannelInfo {
+public class LiveChannelInfo {
 
     private int id;
     private int userId;
+    private String username;
+    private String userIcon;
     private String title;
     private String message;
     /**
@@ -29,24 +31,36 @@ public class ChannelInfo {
 
     private String link;
 
-    public ChannelInfo() {
-    }
-
-    public ChannelInfo(int userId) {
-        this.userId = userId;
-    }
-
-    public ChannelInfo(String preview, int userId) {
-        this.preview = preview;
-        this.userId = userId;
-    }
-
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUserIcon() {
+        return userIcon;
+    }
+
+    public void setUserIcon(String userIcon) {
+        this.userIcon = userIcon;
     }
 
     public String getTitle() {
@@ -153,14 +167,6 @@ public class ChannelInfo {
         this.startTime = startTime;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
     public String getLink() {
         return link;
     }
@@ -171,9 +177,11 @@ public class ChannelInfo {
 
     @Override
     public String toString() {
-        return "ChannelInfo{" +
+        return "LiveChannelInfo{" +
                 "id=" + id +
                 ", userId=" + userId +
+                ", username='" + username + '\'' +
+                ", userIcon='" + userIcon + '\'' +
                 ", title='" + title + '\'' +
                 ", message='" + message + '\'' +
                 ", rating=" + rating +
