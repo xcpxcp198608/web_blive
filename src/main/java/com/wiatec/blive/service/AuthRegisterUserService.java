@@ -1,7 +1,6 @@
 package com.wiatec.blive.service;
 
 import com.wiatec.blive.common.base.BaseService;
-import com.wiatec.blive.common.data_source.DataSource;
 import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
@@ -251,7 +250,6 @@ public class AuthRegisterUserService extends BaseService {
      */
     public ResultInfo follows(int userId){
         List<Integer> friendIds = relationFriendDao.selectFriendsIdByUserId(userId);
-        System.out.println(friendIds);
         if(friendIds == null || friendIds.size() <= COUNT_0){
             throw new XException(EnumResult.ERROR_NO_FOUND);
         }
@@ -272,6 +270,22 @@ public class AuthRegisterUserService extends BaseService {
         return ResultMaster.success(status);
     }
 
+
+    public ResultInfo<AuthRegisterUserInfo> getFollowers(int userId){
+        List<Integer> userIds = relationFriendDao.selectUserIdByFriendsId(userId);
+        if(userIds == null || userIds.size() <= COUNT_0){
+            throw new XException(EnumResult.ERROR_NO_FOUND);
+        }
+        List<AuthRegisterUserInfo> authRegisterUserInfoList = authRegisterUserDao
+                .selectMultiByUserId(userIds);
+        System.out.println(authRegisterUserInfoList);
+        if(authRegisterUserInfoList == null || authRegisterUserInfoList.size() <= COUNT_0){
+            throw new XException(EnumResult.ERROR_NO_FOUND);
+        }
+        return ResultMaster.success(authRegisterUserInfoList);
+    }
+
+
     /**
      * set user relation
      * @param action 0->release follow, 1->follow
@@ -281,6 +295,9 @@ public class AuthRegisterUserService extends BaseService {
      */
     public ResultInfo follow(int action, int userId, int friendId){
         int i;
+        if(userId == friendId){
+            throw new XException("can not follow yourself");
+        }
         if(action == 0){
             i = relationFriendDao.deleteOne(userId, friendId);
         }else if(action == 1){

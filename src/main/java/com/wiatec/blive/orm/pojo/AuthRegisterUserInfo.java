@@ -55,6 +55,7 @@ public class AuthRegisterUserInfo {
 
     private boolean experience;
     private boolean online;
+    private boolean channelActive;
 
     public int getId() {
         return id;
@@ -296,6 +297,14 @@ public class AuthRegisterUserInfo {
         this.gender = gender;
     }
 
+    public boolean isChannelActive() {
+        return channelActive;
+    }
+
+    public void setChannelActive(boolean channelActive) {
+        this.channelActive = channelActive;
+    }
+
     @Override
     public String toString() {
         return "AuthRegisterUserInfo{" +
@@ -329,6 +338,7 @@ public class AuthRegisterUserInfo {
                 ", modifyTime=" + modifyTime +
                 ", experience=" + experience +
                 ", online=" + online +
+                ", channelActive=" + channelActive +
                 '}';
     }
 }

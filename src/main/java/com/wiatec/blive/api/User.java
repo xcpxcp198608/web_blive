@@ -185,6 +185,12 @@ public class User {
     }
 
 
+    @GetMapping("/followers/{userId}")
+    @ResponseBody
+    public ResultInfo getFollowers(@PathVariable int userId){
+        return authRegisterUserService.getFollowers(userId);
+    }
+
     /**
      * get user info with channel info by user id
      * @param userId user id

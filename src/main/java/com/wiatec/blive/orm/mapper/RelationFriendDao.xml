@@ -9,6 +9,12 @@
         WHERE user_id = #{userId}
     </select>
 
+    <select id="selectUserIdByFriendsId" resultType="java.lang.Integer">
+        SELECT user_id
+        FROM bvision_relation_friend
+        WHERE friend_id = #{userId}
+    </select>
+
     <select id="selectOne" resultType="java.lang.Integer">
         SELECT COUNT(*) count From bvision_relation_friend
         WHERE user_id = #{userId} AND friend_id = #{friendId}

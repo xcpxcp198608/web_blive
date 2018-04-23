@@ -23,11 +23,18 @@
     </select>
 
     <select id="selectMultiByUserId" resultType="com.wiatec.blive.orm.pojo.AuthRegisterUserInfo">
-        <include refid="select"/>
-        WHERE id IN
+        SELECT auth_register_user.id, username, email, phone, first_name, last_name, level, email_status,
+        mac, country, region, city, time_zone, token, active_time, expires_time,
+        last_online_time, create_time, modify_time, status, device_model, rom_version,
+        ui_version, icon, gender, bvision, btv,
+        bvision_channel_live.available channelActive
+        FROM auth_register_user, bvision_channel_live
+        WHERE auth_register_user.id IN
         <foreach collection="userIds" item="userId" separator="," open="(" close=")">
             #{userId}
         </foreach>
+        AND auth_register_user.id = bvision_channel_live.userId
+        ORDER BY username
     </select>
 
     <insert id="insertOne">
