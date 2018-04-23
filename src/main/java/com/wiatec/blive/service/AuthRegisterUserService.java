@@ -12,6 +12,7 @@ import com.wiatec.blive.listener.SessionListener;
 import com.wiatec.blive.orm.dao.*;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
+import com.wiatec.blive.orm.pojo.LogUserOperationInfo;
 import com.wiatec.blive.rtmp.RtmpInfo;
 import com.wiatec.blive.rtmp.RtmpMaster;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,8 @@ public class AuthRegisterUserService extends BaseService {
     private ChannelDao channelDao;
     @Resource
     private RelationFriendDao relationFriendDao;
+    @Resource
+    private LogUserOperationDao logUserOperationDao;
 
     /**
      * user sign up
@@ -113,6 +116,7 @@ public class AuthRegisterUserService extends BaseService {
         userInfo.setToken(token);
         authRegisterUserDao.updateSignInInfoByUsername(userInfo);
         AuthRegisterUserInfo userInfo1 = authRegisterUserDao.selectOneByUsername(userInfo.getUsername());
+        logUserOperationDao.insertOne(userInfo1.getId(), LogUserOperationInfo.TYPE_SELECT, "sign in");
         return ResultMaster.success(userInfo1);
     }
 
@@ -167,6 +171,8 @@ public class AuthRegisterUserService extends BaseService {
         if(authRegisterUserDao.updatePasswordByUsername(username, password) != COUNT_1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
+        AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneByUsername(username);
+        logUserOperationDao.insertOne(userInfo.getId(), LogUserOperationInfo.TYPE_UPDATE, "update password by email");
         return ResultMaster.success("reset successfully");
     }
 
@@ -188,6 +194,7 @@ public class AuthRegisterUserService extends BaseService {
         if(authRegisterUserDao.updatePasswordByUserId(userId, newPassword) != COUNT_1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
+        logUserOperationDao.insertOne(userId, LogUserOperationInfo.TYPE_UPDATE, "update password in app");
         return ResultMaster.success("password update successful");
     }
 
@@ -228,6 +235,7 @@ public class AuthRegisterUserService extends BaseService {
         if(authRegisterUserDao.updateIconByUserId(icon, userId) != COUNT_1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
+        logUserOperationDao.insertOne(userId, LogUserOperationInfo.TYPE_UPDATE, "update icon");
         return ResultMaster.success(authRegisterUserDao.selectOneById(userId));
     }
 
@@ -300,11 +308,14 @@ public class AuthRegisterUserService extends BaseService {
         }
         if(action == 0){
             i = relationFriendDao.deleteOne(userId, friendId);
+            logUserOperationDao.insertOne(userId, LogUserOperationInfo.TYPE_DELETE, "cancel follow " + friendId);
+
         }else if(action == 1){
             if(relationFriendDao.selectOne(userId, friendId) >= COUNT_1){
                 throw new XException("relation already exists");
             }
             i = relationFriendDao.insertOne(userId, friendId);
+            logUserOperationDao.insertOne(userId, LogUserOperationInfo.TYPE_INSERT, "create follow " + friendId);
         }else{
             throw new XException("action error");
         }

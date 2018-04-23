@@ -1,11 +1,15 @@
 package com.wiatec.blive.api;
 
+import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
+import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.FeedbackInfo;
 import com.wiatec.blive.service.AuthRegisterUserService;
+import com.wiatec.blive.service.BlackListService;
 import com.wiatec.blive.service.FeedbackService;
+import com.wiatec.blive.service.LogUserOperationService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +34,10 @@ public class User {
     private AuthRegisterUserService authRegisterUserService;
     @Resource
     private FeedbackService feedbackService;
+    @Resource
+    private BlackListService blackListService;
+    @Resource
+    private LogUserOperationService logUserOperationService;
 
     /**
      * sign up
@@ -208,4 +216,19 @@ public class User {
         return feedbackService.insertOne(feedbackInfo);
     }
 
+    @PostMapping("/black/{action}/{userId}")
+    public ResultInfo addBlackList(@PathVariable int action, @PathVariable int userId, String username){
+        if(action == 1){
+            return blackListService.insertOne(userId, username);
+        }else if(action == 0){
+            return blackListService.deleteOne(userId, username);
+        }else{
+            throw new XException(EnumResult.ERROR_BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/operations/{userId}")
+    public ResultInfo getOperations(@PathVariable int userId){
+        return logUserOperationService.getOperations(userId);
+    }
 }
