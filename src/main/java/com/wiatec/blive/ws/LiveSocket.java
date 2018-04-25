@@ -29,6 +29,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LiveSocket {
 
     private final Logger logger = LoggerFactory.getLogger(LiveSocket.class);
+    public static final String [] KEYS = {"arse", "ass", "asshole", "bastard", "bitch", "bollocks",
+            "child-fucker", "Christ on a bike", "Christ on a cracker", "cunt", "fuck", "Fuck",
+            "FUCK", "fucking", "Fucking", "FUCKING", "fucker", "Fucker", "FUCKER", "Fuckers",
+            "FUCKERS", "fuckers", "goddamn", "godsdamn", "holy shit", "motherfucker",
+            "Motherfuckers", "nigga", "nigger", "shit", "shit ass", "shitass", "son of a bitch",
+            "son of a motherless goat", "son of a whore", "twat"};
 
     private static final int MSG_TYPE_FULL = 0;
     private static final int MSG_TYPE_GROUP = 1;
@@ -87,6 +93,9 @@ public class LiveSocket {
         logger.debug("ws -> type: {}", type);
         logger.debug("ws -> group: {}", group);
         logger.debug("ws -> comment: {}", comment);
+        for(String key: KEYS){
+            comment = comment.replace(key, "**");
+        }
         if(type == MSG_TYPE_FULL){
             for(Map.Entry<Integer, LiveSocket> entry: clientMap.entrySet()){
                 entry.getValue().sendMessage(comment);

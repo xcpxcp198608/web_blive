@@ -37,4 +37,6 @@ public interface AuthRegisterUserDao {
     int updateIconByUserId(@Param("icon") String icon, @Param("userId") int userId);
     int updatePasswordByUsername(@Param("username") String username, @Param("password") String password);
     int updatePasswordByUserId(@Param("userId") int userId, @Param("password") String password);
+    int updateGender(@Param("userId") int userId, @Param("gender") int gender);
+    int updateProfile(@Param("userId") int userId, @Param("profile") String profile);
 }

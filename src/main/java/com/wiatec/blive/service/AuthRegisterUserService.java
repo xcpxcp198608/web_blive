@@ -102,6 +102,7 @@ public class AuthRegisterUserService extends BaseService {
      * user sign in
      * @return ResultInfo
      */
+    @Transactional(rollbackFor = Exception.class)
     public ResultInfo signIn(AuthRegisterUserInfo userInfo){
         if (authRegisterUserDao.countByUsername(userInfo.getUsername()) != 1) {
             throw new XException(EnumResult.ERROR_USERNAME_NOT_EXISTS);
@@ -161,6 +162,7 @@ public class AuthRegisterUserService extends BaseService {
      * @param username username
      * @return ResultInfo
      */
+    @Transactional(rollbackFor = Exception.class)
     public ResultInfo updatePasswordByUsername(String username,  String password){
         if(TextUtil.isEmpty(password)){
             throw new XException("password is empty");
@@ -181,6 +183,7 @@ public class AuthRegisterUserService extends BaseService {
      * @param userId user id
      * @return ResultInfo
      */
+    @Transactional(rollbackFor = Exception.class)
     public ResultInfo updateByOldPassword(int userId, String oldPassword, String newPassword){
         if(TextUtil.isEmpty(oldPassword)){
             throw new XException("password is incorrect");
@@ -231,6 +234,7 @@ public class AuthRegisterUserService extends BaseService {
      * @param userId userId
      * @return ResultInfo
      */
+    @Transactional(rollbackFor = Exception.class)
     public ResultInfo updateIcon(String icon, int userId){
         if(authRegisterUserDao.updateIconByUserId(icon, userId) != COUNT_1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
@@ -279,21 +283,6 @@ public class AuthRegisterUserService extends BaseService {
     }
 
 
-    public ResultInfo<AuthRegisterUserInfo> getFollowers(int userId){
-        List<Integer> userIds = relationFriendDao.selectUserIdByFriendsId(userId);
-        if(userIds == null || userIds.size() <= COUNT_0){
-            throw new XException(EnumResult.ERROR_NO_FOUND);
-        }
-        List<AuthRegisterUserInfo> authRegisterUserInfoList = authRegisterUserDao
-                .selectMultiByUserId(userIds);
-        System.out.println(authRegisterUserInfoList);
-        if(authRegisterUserInfoList == null || authRegisterUserInfoList.size() <= COUNT_0){
-            throw new XException(EnumResult.ERROR_NO_FOUND);
-        }
-        return ResultMaster.success(authRegisterUserInfoList);
-    }
-
-
     /**
      * set user relation
      * @param action 0->release follow, 1->follow
@@ -301,6 +290,7 @@ public class AuthRegisterUserService extends BaseService {
      * @param friendId target user id
      * @return ResultInfo
      */
+    @Transactional(rollbackFor = Exception.class)
     public ResultInfo follow(int action, int userId, int friendId){
         int i;
         if(userId == friendId){
@@ -321,6 +311,37 @@ public class AuthRegisterUserService extends BaseService {
         }
         if(i != COUNT_1) {
             throw new XException("operation error");
+        }
+        return ResultMaster.success();
+    }
+
+
+    public ResultInfo<AuthRegisterUserInfo> getFollowers(int userId){
+        List<Integer> userIds = relationFriendDao.selectUserIdByFriendsId(userId);
+        if(userIds == null || userIds.size() <= COUNT_0){
+            throw new XException(EnumResult.ERROR_NO_FOUND);
+        }
+        List<AuthRegisterUserInfo> authRegisterUserInfoList = authRegisterUserDao
+                .selectMultiByUserId(userIds);
+        System.out.println(authRegisterUserInfoList);
+        if(authRegisterUserInfoList == null || authRegisterUserInfoList.size() <= COUNT_0){
+            throw new XException(EnumResult.ERROR_NO_FOUND);
+        }
+        return ResultMaster.success(authRegisterUserInfoList);
+    }
+
+
+    public ResultInfo updateGender(int userId, int gender){
+        if(authRegisterUserDao.updateGender(userId, gender) != COUNT_1){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        return ResultMaster.success();
+    }
+
+
+    public ResultInfo updateProfile(int userId, String profile){
+        if(authRegisterUserDao.updateProfile(userId, profile) != COUNT_1){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
         return ResultMaster.success();
     }

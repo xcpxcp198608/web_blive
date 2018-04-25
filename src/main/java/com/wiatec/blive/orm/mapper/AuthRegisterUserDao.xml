@@ -7,7 +7,7 @@
         SELECT id, username, email, phone, first_name, last_name, level, email_status,
             mac, country, region, city, time_zone, token, active_time, expires_time,
             last_online_time, create_time, modify_time, status, device_model, rom_version,
-            ui_version, icon, gender, bvision, btv
+            ui_version, icon, gender, bvision, btv, profile
         FROM auth_register_user
     </sql>
 
@@ -26,7 +26,7 @@
         SELECT auth_register_user.id, username, email, phone, first_name, last_name, level, email_status,
         mac, country, region, city, time_zone, token, active_time, expires_time,
         last_online_time, create_time, modify_time, status, device_model, rom_version,
-        ui_version, icon, gender, bvision, btv,
+        ui_version, icon, gender, bvision, btv, profile,
         bvision_channel_live.available channelActive
         FROM auth_register_user, bvision_channel_live
         WHERE auth_register_user.id IN
@@ -91,19 +91,19 @@
 
 
     <update id="updateEmailStatusByToken">
-        UPDATE auth_register_user
+        UPDATE IGNORE auth_register_user
         SET email_status = 1
         WHERE token=#{token}
     </update>
 
     <update id="updateTokenByUsername">
-        UPDATE auth_register_user
+        UPDATE IGNORE auth_register_user
         SET token = #{token}
         WHERE username = #{username}
     </update>
 
     <update id="updateSignInInfoByUsername">
-        UPDATE auth_register_user
+        UPDATE IGNORE auth_register_user
         SET token = #{token}, country = #{country}, region = #{region}, city = #{city},
             time_zone = #{timeZone}, device_model = #{deviceModel},
             rom_version = #{romVersion}, ui_version = #{uiVersion}, last_online_time = now()
@@ -111,20 +111,32 @@
     </update>
 
     <update id="updateIconByUserId">
-        UPDATE auth_register_user
+        UPDATE IGNORE auth_register_user
         SET icon = #{icon}
         WHERE id = #{userId}
     </update>
 
     <update id="updatePasswordByUsername">
-        UPDATE auth_register_user
+        UPDATE IGNORE auth_register_user
         SET password = #{password}
         WHERE username = #{username}
     </update>
 
     <update id="updatePasswordByUserId">
-        UPDATE auth_register_user
+        UPDATE IGNORE auth_register_user
         SET password = #{password}
+        WHERE id = #{userId}
+    </update>
+
+    <update id="updateGender">
+        UPDATE IGNORE auth_register_user
+        SET gender = #{gender}
+        WHERE id = #{userId}
+    </update>
+
+    <update id="updateProfile">
+        UPDATE IGNORE auth_register_user
+        SET profile = #{profile}
         WHERE id = #{userId}
     </update>
 

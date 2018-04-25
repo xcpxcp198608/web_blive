@@ -2,7 +2,6 @@ package com.wiatec.blive.api;
 
 import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
-import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.FeedbackInfo;
@@ -86,13 +85,26 @@ public class User {
         return authRegisterUserService.validateToken(userId, token);
     }
 
-
+    /**
+     * request update password in app
+     * @param request HttpServletRequest
+     * @param username username
+     * @param email email
+     * @return ResultInfo
+     */
     @PostMapping("/reset")
     @ResponseBody
     public ResultInfo resetPassword(HttpServletRequest request, String username, String email){
         return authRegisterUserService.reset(request, username, email);
     }
 
+
+    /**
+     * show update password web page after click email link
+     * @param model model
+     * @param token token
+     * @return go.jsp
+     */
     @RequestMapping(value = "/go/{token}")
     public String goUpdatePage(Model model, @PathVariable String token){
         String username =  authRegisterUserService.go(token);
@@ -101,7 +113,7 @@ public class User {
     }
 
     /**
-     * 通过邮箱链接修改password
+     * change password by email link
      * @param model Model
      * @return jsp -> notice.jsp
      */
@@ -122,8 +134,6 @@ public class User {
     @PostMapping("/update/{userId}")
     @ResponseBody
     public ResultInfo updatePassword(String oldPassword, String newPassword, @PathVariable int userId){
-        System.out.println(oldPassword);
-        System.out.println(newPassword);
         return authRegisterUserService.updateByOldPassword(userId, oldPassword, newPassword);
     }
 
@@ -193,6 +203,11 @@ public class User {
     }
 
 
+    /**
+     * list all of user's followers
+     * @param userId user id
+     * @return ResultInfo
+     */
     @GetMapping("/followers/{userId}")
     @ResponseBody
     public ResultInfo getFollowers(@PathVariable int userId){
@@ -210,13 +225,52 @@ public class User {
         return authRegisterUserService.selectOneByUserId(userId);
     }
 
+    /**
+     * submit feedback
+     * @param feedbackInfo feedbackInfo
+     * @return ResultInfo
+     */
     @PostMapping("/feedback")
     @ResponseBody
     public ResultInfo feedback(FeedbackInfo feedbackInfo){
         return feedbackService.insertOne(feedbackInfo);
     }
 
+
+    /**
+     * list all black list by user id
+     * @param userId user id
+     * @return ResultInfo
+     */
+    @GetMapping("/blacks/{userId}")
+    @ResponseBody
+    public ResultInfo getBlackList(@PathVariable int userId){
+        return blackListService.listAll(userId);
+    }
+
+
+    /**
+     * check target user does in user's black list
+     * @param userId user id
+     * @param targetUserId target user id
+     * @return ResultInfo
+     */
+    @GetMapping("/black/{userId}/{targetUserId}")
+    @ResponseBody
+    public ResultInfo checkBlack(@PathVariable int userId, @PathVariable int targetUserId){
+        return blackListService.checkBlack(userId, targetUserId);
+    }
+
+
+    /**
+     * user set black list
+     * @param action 1-> add to, 0-> remove
+     * @param userId user id
+     * @param username target user name
+     * @return  ResultInfo
+     */
     @PostMapping("/black/{action}/{userId}")
+    @ResponseBody
     public ResultInfo addBlackList(@PathVariable int action, @PathVariable int userId, String username){
         if(action == 1){
             return blackListService.insertOne(userId, username);
@@ -227,8 +281,40 @@ public class User {
         }
     }
 
-    @PostMapping("/operations/{userId}")
+    /**
+     * get all of user operation recorder
+     * @param userId user id
+     * @return ResultInfo
+     */
+    @GetMapping("/operations/{userId}")
+    @ResponseBody
     public ResultInfo getOperations(@PathVariable int userId){
         return logUserOperationService.getOperations(userId);
+    }
+
+
+    /**
+     * set user gender
+     * @param userId user id
+     * @param gender gender
+     * @return ResultInfo
+     */
+    @PutMapping("/gender/{userId}/{gender}")
+    @ResponseBody
+    public ResultInfo setGender(@PathVariable int userId, @PathVariable int gender){
+        return authRegisterUserService.updateGender(userId, gender);
+    }
+
+
+    /**
+     * set user profile
+     * @param userId user id
+     * @param profile profile
+     * @return ResultInfo
+     */
+    @PutMapping("/profile/{userId}")
+    @ResponseBody
+    public ResultInfo setProfile(@PathVariable int userId, String profile){
+        return authRegisterUserService.updateProfile(userId, profile);
     }
 }

@@ -6,16 +6,16 @@ import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
 import com.wiatec.blive.orm.dao.BlackListDao;
-import com.wiatec.blive.orm.dao.FeedbackDao;
 import com.wiatec.blive.orm.dao.LogUserOperationDao;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
-import com.wiatec.blive.orm.pojo.FeedbackInfo;
+import com.wiatec.blive.orm.pojo.BlackListInfo;
 import com.wiatec.blive.orm.pojo.LogUserOperationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author patrick
@@ -40,7 +40,10 @@ public class BlackListService {
         if(userId == authRegisterUserInfo.getId()){
             throw new XException("can not do this on yourself");
         }
-        int i = blackListDao.insertOne(userId, authRegisterUserInfo.getId());
+        if(blackListDao.countOne(userId, authRegisterUserInfo.getId()) == 1){
+            throw new XException("the user has been in your black list");
+        }
+        int i = blackListDao.insertOne(userId, authRegisterUserInfo.getId(), blackUsername);
         if(i != 1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
@@ -61,6 +64,25 @@ public class BlackListService {
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
         logUserOperationDao.insertOne(userId, LogUserOperationInfo.TYPE_DELETE, "remove " + blackUsername + " from black list");
+        return ResultMaster.success();
+    }
+
+    public ResultInfo listAll(int userId){
+        List<BlackListInfo> blackListInfoList = blackListDao.selectAllByUserId(userId);
+        if(blackListInfoList == null || blackListInfoList.size() <= 0){
+            throw new XException(EnumResult.ERROR_NO_FOUND);
+        }
+        return ResultMaster.success(blackListInfoList);
+    }
+
+
+    public ResultInfo checkBlack(int userId, int targetUserId){
+        if(userId == targetUserId){
+            throw new XException("");
+        }
+        if(blackListDao.countOne(userId, targetUserId) == 1){
+            throw new XException("You have been shown on the blacklist here.");
+        }
         return ResultMaster.success();
     }
 

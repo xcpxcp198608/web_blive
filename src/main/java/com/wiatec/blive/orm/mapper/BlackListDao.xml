@@ -4,8 +4,8 @@
 <mapper namespace="com.wiatec.blive.orm.dao.BlackListDao">
 
     <insert id="insertOne">
-        INSERT IGNORE INTO bvision_black_list (user_id, black_id)
-        VALUES (#{userId}, #{blackId})
+        INSERT IGNORE INTO bvision_black_list (user_id, black_id, black_username)
+        VALUES (#{userId}, #{blackId}, #{blackUsername})
     </insert>
 
     <delete id="deleteOne">
@@ -13,5 +13,16 @@
         WHERE user_id = #{userId}
               AND black_id = #{blackId}
     </delete>
+
+    <select id="countOne" resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM bvision_black_list
+        WHERE user_id = #{userId} AND black_id = #{blackId}
+    </select>
+
+    <select id="selectAllByUserId" resultType="com.wiatec.blive.orm.pojo.BlackListInfo">
+        SELECT * FROM bvision_black_list WHERE user_id = #{userId}
+        ORDER BY black_username
+
+    </select>
 
 </mapper>

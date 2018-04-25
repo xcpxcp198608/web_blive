@@ -29,8 +29,13 @@ import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
 public class Channel {
 
     private final String[] FILTER_KEYWORD = {"CEO", "CTO", "COO", "fuck", "shit", "dick", "pussy",
-            "mother fucker", "fucker", "president", "Vice President", "FUCK", "SHIT", "DICK",
-            "PUSSY", "MOTHER FUCKER", "FUCKER", "PRESIDENT", "President"};
+            "mother fucker", "president", "Vice President", "FUCK", "SHIT", "DICK",
+            "PUSSY", "MOTHER FUCKER", "FUCKER", "PRESIDENT", "President", "arse", "ass", "asshole",
+            "bastard", "bitch", "bollocks", "child-fucker", "Christ on a bike", "Christ on a cracker",
+            "cunt", "fuck", "Fuck", "FUCK", "fucking", "Fucking", "FUCKING", "fucker", "Fucker",
+            "FUCKER", "Fuckers", "FUCKERS", "fuckers", "goddamn", "godsdamn", "holy shit",
+            "motherfucker", "Motherfuckers", "nigga", "nigger", "shit", "shit ass", "shitass",
+            "son of a bitch", "son of a motherless goat", "son of a whore", "twat"};
 
 
     @Resource

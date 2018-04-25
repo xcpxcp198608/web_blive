@@ -82,4 +82,10 @@ dependencies {
     compile group: 'cn.jpush.api', name: 'jpush-client', version: '3.3.5'
 
 
+    //okhttp
+    compile 'com.squareup.okhttp3:okhttp:3.9.0'
+    compile 'com.squareup.okio:okio:1.13.0'
+    //rx java2
+    compile 'io.reactivex.rxjava2:rxjava:2.0.5'
+
 }

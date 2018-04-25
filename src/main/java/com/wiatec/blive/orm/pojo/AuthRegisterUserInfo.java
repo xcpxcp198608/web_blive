@@ -41,6 +41,7 @@ public class AuthRegisterUserInfo {
     private boolean btv;
     private String icon;
     private int gender;
+    private String profile;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date activeTime;
@@ -305,6 +306,14 @@ public class AuthRegisterUserInfo {
         this.channelActive = channelActive;
     }
 
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
     @Override
     public String toString() {
         return "AuthRegisterUserInfo{" +
@@ -331,6 +340,7 @@ public class AuthRegisterUserInfo {
                 ", btv=" + btv +
                 ", icon='" + icon + '\'' +
                 ", gender=" + gender +
+                ", profile='" + profile + '\'' +
                 ", activeTime=" + activeTime +
                 ", expiresTime=" + expiresTime +
                 ", lastOnLineTime=" + lastOnLineTime +
