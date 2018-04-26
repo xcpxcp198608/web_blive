@@ -1,0 +1,33 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiatec.blive.orm.dao.CoinDao">
+
+    <select id="countOne" resultType="java.lang.Integer">
+        SELECT COUNT(*) count FROM bvision_coin
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countCoins" resultType="java.lang.Integer">
+        SELECT COALESCE(coins, 0) FROM bvision_coin
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertOne">
+        INSERT IGNORE INTO bvision_coin (user_id, coins)
+        VALUES (#{userId}, #{coins})
+    </insert>
+
+    <update id="updateOne">
+        UPDATE IGNORE bvision_coin
+        SET modify_time = now(), coins =
+          <if test="action == 1">
+              coins + #{coins}
+          </if>
+          <if test="action == 0">
+              coins <![CDATA[ - ]]> #{coins}
+          </if>
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>

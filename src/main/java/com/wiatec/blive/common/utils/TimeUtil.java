@@ -21,6 +21,10 @@ public class TimeUtil {
         return date.getTime();
     }
 
+    public static long getUnix10(){
+        return System.currentTimeMillis() / 1000;
+    }
+
     public static String getStrTime(){
         return getStrTime(System.currentTimeMillis());
     }

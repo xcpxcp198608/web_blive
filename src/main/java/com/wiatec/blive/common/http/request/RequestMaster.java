@@ -67,18 +67,18 @@ public abstract class RequestMaster {
     /**
      * 同步执行请求
      */
-    public String execute(){
+    public Response execute(){
         try {
             Request request = createRequest(header, parameters, mTag);
             Call call = HttpMaster.okHttpClient.newCall(request);
             Response response = call.execute();
-            return response.body().string();
+            return response;
         }catch (Exception e){
             if(e.getMessage() != null) {
                 System.out.println(e.getMessage());
             }
         }
-        return "";
+        return null;
     }
 
     //异步执行请求

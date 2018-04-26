@@ -26,6 +26,12 @@ public enum EnumResult {
      */
     ERROR_UNAUTHORIZED(401, "Unauthorized"),
 
+
+    /**
+     * access token 超时
+     */
+    ERROR_ACCESS_TOKEN_TIMEOUT(402, "Access token timeout"),
+
     /**
      * 禁止操作该资源，例如权限不够等
      */
@@ -34,7 +40,7 @@ public enum EnumResult {
     /**
      * 资源不存在
      */
-    ERROR_NO_FOUND(404, "Resource not exists"),
+    ERROR_NO_FOUND(404, "Data resource not exists"),
 
     /**
      * 请求方法错误
