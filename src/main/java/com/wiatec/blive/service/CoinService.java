@@ -10,7 +10,7 @@ import com.wiatec.blive.orm.dao.CoinDao;
 import com.wiatec.blive.orm.dao.CoinIAPDao;
 import com.wiatec.blive.orm.dao.LogCoinDao;
 import com.wiatec.blive.orm.pojo.CoinIAPInfo;
-import com.wiatec.blive.orm.pojo.LogCoinIInfo;
+import com.wiatec.blive.orm.pojo.LogCoinInfo;
 import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author patrick
@@ -84,26 +85,26 @@ public class CoinService {
             }
         }
         //log user consume info
-        LogCoinIInfo logCoinIInfo = new LogCoinIInfo();
-        logCoinIInfo.setUserId(userId);
-        logCoinIInfo.setAction(CONSUME_ACTION_SUB);
-        logCoinIInfo.setCoin(numbers);
-        logCoinIInfo.setPlatform(platform);
-        logCoinIInfo.setDescription(description);
-        logCoinIInfo.setRemark("targetUserId" + targetUserId);
-        logger.info(logCoinIInfo.toString());
-        logCoinDao.insertOne(logCoinIInfo);
+        LogCoinInfo logCoinInfo = new LogCoinInfo();
+        logCoinInfo.setUserId(userId);
+        logCoinInfo.setAction(CONSUME_ACTION_SUB);
+        logCoinInfo.setCoin(numbers);
+        logCoinInfo.setPlatform(platform);
+        logCoinInfo.setDescription(description);
+        logCoinInfo.setRemark("targetUserId" + targetUserId);
+        logger.info(logCoinInfo.toString());
+        logCoinDao.insertOne(logCoinInfo);
 
         //log user add coin info
-        LogCoinIInfo logCoinIInfo1 = new LogCoinIInfo();
-        logCoinIInfo1.setUserId(targetUserId);
-        logCoinIInfo1.setAction(CONSUME_ACTION_PLUS);
-        logCoinIInfo1.setCoin(numbers);
-        logCoinIInfo1.setPlatform(platform);
-        logCoinIInfo1.setDescription(description);
-        logCoinIInfo1.setRemark("consumeUserId" + userId);
-        logger.info(logCoinIInfo.toString());
-        logCoinDao.insertOne(logCoinIInfo1);
+        LogCoinInfo logCoinInfo1 = new LogCoinInfo();
+        logCoinInfo1.setUserId(targetUserId);
+        logCoinInfo1.setAction(CONSUME_ACTION_PLUS);
+        logCoinInfo1.setCoin(numbers);
+        logCoinInfo1.setPlatform(platform);
+        logCoinInfo1.setDescription(description);
+        logCoinInfo1.setRemark("consumeUserId" + userId);
+        logger.info(logCoinInfo.toString());
+        logCoinDao.insertOne(logCoinInfo1);
         return ResultMaster.success();
     }
 
@@ -118,6 +119,7 @@ public class CoinService {
      */
     public ResultInfo iapVerify(int userId, String receiptData, String platform,
                                 String productIdentifier){
+        logger.info(receiptData);
         CoinIAPInfo coinIAPInfo = coinIAPDao.selectOneByIdentifier(productIdentifier);
         if(coinIAPInfo == null){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
@@ -125,6 +127,7 @@ public class CoinService {
         //verify IAP result by receiptData with apple server
         Response response = HttpMaster.post(VERIFY_RECEIPT_URL_PRODUCT)
                 .headers("Content-Type", "application/json")
+                .jsonEncodeing(true)
                 .param("receipt-data", receiptData)
                 .execute();
         if(response == null){
@@ -138,8 +141,8 @@ public class CoinService {
             if(TextUtil.isEmpty(result)){
                 throw new XException("Apple server response error");
             }
-            logger.debug(userId + " IAP purchase: " + coinIAPInfo.getName());
-            logger.debug(userId + " IAP verify result: " + result);
+            logger.info(userId + " IAP purchase: " + coinIAPInfo.getName());
+            logger.info(userId + " IAP verify result: " + result);
             JSONObject jsonResult = new JSONObject(result);
             int status = jsonResult.getInt("status");
             if(status != 0){
@@ -162,16 +165,16 @@ public class CoinService {
             }
 
             //log iap info
-            LogCoinIInfo logCoinIInfo = new LogCoinIInfo();
-            logCoinIInfo.setUserId(userId);
-            logCoinIInfo.setAction(CONSUME_ACTION_PLUS);
-            logCoinIInfo.setCoin(coinIAPInfo.getNumber());
-            logCoinIInfo.setAmount(coinIAPInfo.getAmount());
-            logCoinIInfo.setPlatform(platform);
-            logCoinIInfo.setTransactionId(transactionId);
-            logCoinIInfo.setDescription("IAP purchase: " + coinIAPInfo.getName());
-            logCoinIInfo.setRemark(result);
-            logCoinDao.insertOne(logCoinIInfo);
+            LogCoinInfo logCoinInfo = new LogCoinInfo();
+            logCoinInfo.setUserId(userId);
+            logCoinInfo.setAction(CONSUME_ACTION_PLUS);
+            logCoinInfo.setCoin(coinIAPInfo.getNumber());
+            logCoinInfo.setAmount(coinIAPInfo.getAmount());
+            logCoinInfo.setPlatform(platform);
+            logCoinInfo.setTransactionId(transactionId);
+            logCoinInfo.setDescription("IAP purchase: " + coinIAPInfo.getName());
+            logCoinInfo.setRemark(result);
+            logCoinDao.insertOne(logCoinInfo);
         } catch (IOException e) {
             throw new XException("Apple server response error");
         }
@@ -183,6 +186,7 @@ public class CoinService {
                                                    CoinIAPInfo coinIAPInfo){
         Response response = HttpMaster.post(VERIFY_RECEIPT_URL_SANDBOX)
                 .headers("Content-Type", "application/json")
+                .jsonEncodeing(true)
                 .param("receipt-data", receiptData)
                 .execute();
         if(response == null){
@@ -208,7 +212,6 @@ public class CoinService {
             JSONObject inApp = inApps.getJSONObject(0);
             String transactionId = inApp.getString("transaction_id");
 
-
             //insert or update user coin number
             if(coinDao.countOne(userId) == 1){
                 coinDao.updateOne(userId, CONSUME_ACTION_PLUS, coinIAPInfo.getNumber());
@@ -217,20 +220,29 @@ public class CoinService {
             }
 
             //log iap info
-            LogCoinIInfo logCoinIInfo = new LogCoinIInfo();
-            logCoinIInfo.setUserId(userId);
-            logCoinIInfo.setAction(CONSUME_ACTION_PLUS);
-            logCoinIInfo.setCoin(coinIAPInfo.getNumber());
-            logCoinIInfo.setAmount(coinIAPInfo.getAmount());
-            logCoinIInfo.setPlatform(platform);
-            logCoinIInfo.setTransactionId(transactionId);
-            logCoinIInfo.setDescription("IAP purchase: " + coinIAPInfo.getName());
-            logCoinIInfo.setRemark(result);
-            logCoinDao.insertOne(logCoinIInfo);
+            LogCoinInfo logCoinInfo = new LogCoinInfo();
+            logCoinInfo.setUserId(userId);
+            logCoinInfo.setAction(CONSUME_ACTION_PLUS);
+            logCoinInfo.setCoin(coinIAPInfo.getNumber());
+            logCoinInfo.setAmount(coinIAPInfo.getAmount());
+            logCoinInfo.setPlatform(platform);
+            logCoinInfo.setTransactionId(transactionId);
+            logCoinInfo.setDescription("IAP purchase: " + coinIAPInfo.getName());
+            logCoinInfo.setRemark(result);
+            logCoinDao.insertOne(logCoinInfo);
         } catch (IOException e) {
             throw new XException("Apple server response error");
         }
         return ResultMaster.success(coinDao.countCoins(userId));
+    }
+
+
+    public ResultInfo<LogCoinInfo> getBills(int userId){
+        List<LogCoinInfo> logCoinInfoList = logCoinDao.selectByUserId(userId);
+        if(logCoinInfoList == null || logCoinInfoList.size() <= 0){
+            throw new XException(EnumResult.ERROR_NO_FOUND);
+        }
+        return ResultMaster.success(logCoinInfoList);
     }
 
 }

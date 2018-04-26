@@ -3,21 +3,20 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wiatec.blive.orm.dao.LogCoinDao">
 
-    <sql id="select">
+    <select id="selectAll" resultType="com.wiatec.blive.orm.pojo.LogCoinInfo">
         SELECT bvision_log_coin.id, user_id, action, coin, amount, platform, transaction_id, description,
             remark, bvision_log_coin.create_time, bvision_log_coin.modify_time,
             auth_register_user.username username
         FROM bvision_log_coin, auth_register_user
         WHERE bvision_log_coin.user_id = auth_register_user.id
-    </sql>
-
-    <select id="selectAll" resultType="com.wiatec.blive.orm.pojo.LogCoinIInfo">
-        <include refid="select"/>
+        ORDER BY create_time DESC
     </select>
 
-    <select id="selectByUserId" resultType="com.wiatec.blive.orm.pojo.LogCoinIInfo">
-        <include refid="select"/>
-        AND bvision_log_coin.user_id = #{userId}
+    <select id="selectByUserId" resultType="com.wiatec.blive.orm.pojo.LogCoinInfo">
+        SELECT id, user_id, action, coin, amount, platform, description, create_time
+        FROM bvision_log_coin
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
     </select>
 
     <insert id="insertOne">

@@ -1,7 +1,6 @@
 package com.wiatec.blive.orm.dao;
 
-import com.wiatec.blive.orm.pojo.LogCoinIInfo;
-import org.apache.ibatis.annotations.Param;
+import com.wiatec.blive.orm.pojo.LogCoinInfo;
 
 import java.util.List;
 
@@ -10,8 +9,8 @@ import java.util.List;
  */
 public interface LogCoinDao {
 
-    int insertOne(LogCoinIInfo logCoinIInfo);
-    List<LogCoinIInfo> selectAll();
-    List<LogCoinIInfo> selectByUserId(int userId);
+    int insertOne(LogCoinInfo logCoinInfo);
+    List<LogCoinInfo> selectAll();
+    List<LogCoinInfo> selectByUserId(int userId);
 
 }

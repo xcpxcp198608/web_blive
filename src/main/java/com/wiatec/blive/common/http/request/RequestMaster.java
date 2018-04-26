@@ -21,6 +21,7 @@ public abstract class RequestMaster {
     private Object mTag;
     private Map<Object ,Call> callMap = new ConcurrentHashMap<>();
     protected DownloadInfo mDownloadInfo;
+    protected boolean isJsonEncoding;
 
     public RequestMaster() {
         parameters = new Parameters();
@@ -29,6 +30,11 @@ public abstract class RequestMaster {
 
     public RequestMaster tag(Object tag){
         this.mTag = tag;
+        return this;
+    }
+
+    public RequestMaster jsonEncodeing(boolean encode){
+        this.isJsonEncoding = encode;
         return this;
     }
 

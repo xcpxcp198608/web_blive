@@ -18,6 +18,7 @@ public class PostRequest extends RequestMaster {
         this.url = url;
     }
 
+
     @Override
     protected Request createRequest(Header header, Parameters parameters , Object tag) {
         Request.Builder builder = new Request.Builder();
@@ -26,13 +27,32 @@ public class PostRequest extends RequestMaster {
             builder.headers(headers);
         }
         if(parameters != null){
-            MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
-            StringBuilder stringBuilder = new StringBuilder();
-            for (Map.Entry<String ,String > entry : parameters.stringMap.entrySet()){
-                stringBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+            MediaType mediaType;
+            if (isJsonEncoding){
+                mediaType = MediaType.parse("application/json; charset=utf-8");
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("{");
+                for (Map.Entry<String ,String > entry : parameters.stringMap.entrySet()){
+                    stringBuilder.append("\"")
+                            .append(entry.getKey())
+                            .append("\": \"")
+                            .append(entry.getValue())
+                            .append("\",");
+                }
+                stringBuilder.deleteCharAt(stringBuilder.lastIndexOf(","));
+                stringBuilder.append("}");
+                RequestBody requestBody = RequestBody.create(mediaType, stringBuilder.toString());
+                System.out.println(requestBody.toString());
+                builder.post(requestBody);
+            }else {
+                mediaType = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
+                StringBuilder stringBuilder = new StringBuilder();
+                for (Map.Entry<String ,String > entry : parameters.stringMap.entrySet()){
+                    stringBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+                }
+                RequestBody requestBody = RequestBody.create(mediaType, stringBuilder.toString());
+                builder.post(requestBody);
             }
-            RequestBody requestBody = RequestBody.create(mediaType, stringBuilder.toString());
-            builder.post(requestBody);
         }
         if(tag != null){
             builder.tag(tag);

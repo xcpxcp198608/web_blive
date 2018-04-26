@@ -1,6 +1,7 @@
 package com.wiatec.blive.api;
 
 import com.wiatec.blive.common.result.ResultInfo;
+import com.wiatec.blive.orm.pojo.LogCoinInfo;
 import com.wiatec.blive.service.CoinService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -56,5 +57,12 @@ public class Coin {
     @ResponseBody
     public ResultInfo verify(@PathVariable int userId, String receiptData, String platform, String productIdentifier){
         return coinService.iapVerify(userId, receiptData, platform, productIdentifier);
+    }
+
+
+    @GetMapping("/bill/{userId}")
+    @ResponseBody
+    public ResultInfo<LogCoinInfo> getBill(@PathVariable int userId){
+        return coinService.getBills(userId);
     }
 }

@@ -9,12 +9,12 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>web_logs/blive/logFile.log</file>
+        <file>D:/blive/logs/logFile.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{32} - %msg%n</pattern>
         </encoder>
         <rollingPolicy  class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>web_logs/blive/log_%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>D:/blive/logs/log_%d{yyyy-MM-dd}.log</FileNamePattern>
         </rollingPolicy>
     </appender>
 

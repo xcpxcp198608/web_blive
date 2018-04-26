@@ -4,7 +4,7 @@
 <mapper namespace="com.wiatec.blive.orm.dao.CoinIAPDao">
 
     <select id="selectOneByIdentifier" resultType="com.wiatec.blive.orm.pojo.CoinIAPInfo">
-        SELECT * count FROM bvision_coin_iap
+        SELECT * FROM bvision_coin_iap
         WHERE identifier = #{identifier}
     </select>
 
