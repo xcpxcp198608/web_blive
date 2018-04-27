@@ -25,7 +25,8 @@
     <select id="selectMultiByUserId" resultType="com.wiatec.blive.orm.pojo.AuthRegisterUserInfo">
         SELECT auth_register_user.id, username, email, phone, first_name, last_name, level, email_status,
         mac, country, region, city, time_zone, token, active_time, expires_time,
-        last_online_time, create_time, modify_time, status, device_model, rom_version,
+        last_online_time, auth_register_user.create_time, auth_register_user.modify_time,
+        status, device_model, rom_version,
         ui_version, icon, gender, bvision, btv, profile,
         bvision_channel_live.available channelActive
         FROM auth_register_user, bvision_channel_live
@@ -92,13 +93,13 @@
 
     <update id="updateEmailStatusByToken">
         UPDATE IGNORE auth_register_user
-        SET email_status = 1
+        SET email_status = 1, modify_time = now()
         WHERE token=#{token}
     </update>
 
     <update id="updateTokenByUsername">
         UPDATE IGNORE auth_register_user
-        SET token = #{token}
+        SET token = #{token}, modify_time = now()
         WHERE username = #{username}
     </update>
 
@@ -106,37 +107,38 @@
         UPDATE IGNORE auth_register_user
         SET token = #{token}, country = #{country}, region = #{region}, city = #{city},
             time_zone = #{timeZone}, device_model = #{deviceModel},
-            rom_version = #{romVersion}, ui_version = #{uiVersion}, last_online_time = now()
+            rom_version = #{romVersion}, ui_version = #{uiVersion}, last_online_time = now(),
+            modify_time = now()
         WHERE username = #{username}
     </update>
 
     <update id="updateIconByUserId">
         UPDATE IGNORE auth_register_user
-        SET icon = #{icon}
+        SET icon = #{icon}, modify_time = now()
         WHERE id = #{userId}
     </update>
 
     <update id="updatePasswordByUsername">
         UPDATE IGNORE auth_register_user
-        SET password = #{password}
+        SET password = #{password}, modify_time = now()
         WHERE username = #{username}
     </update>
 
     <update id="updatePasswordByUserId">
         UPDATE IGNORE auth_register_user
-        SET password = #{password}
+        SET password = #{password}, modify_time = now()
         WHERE id = #{userId}
     </update>
 
     <update id="updateGender">
         UPDATE IGNORE auth_register_user
-        SET gender = #{gender}
+        SET gender = #{gender}, modify_time = now()
         WHERE id = #{userId}
     </update>
 
     <update id="updateProfile">
         UPDATE IGNORE auth_register_user
-        SET profile = #{profile}
+        SET profile = #{profile}, modify_time = now()
         WHERE id = #{userId}
     </update>
 

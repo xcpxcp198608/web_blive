@@ -13,7 +13,7 @@ import javax.annotation.Resource;
  */
 @Controller
 @RequestMapping(value = "/coin")
-public class Coin {
+public class BVisionCoin {
 
     @Resource
     private CoinService coinService;

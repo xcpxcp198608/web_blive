@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:applicationContext.xml"})
-public class CoinServiceTest {
+public class BVisionCoinServiceTest {
 
     @Resource
     private CoinService coinService;

@@ -122,7 +122,7 @@ public class PayService {
             String updateTime = sale.getString("update_time");
             updateTime = updateTime.replace("T", " ");
             updateTime = updateTime.replace("Z", "");
-            payResultInfo.setUpdateTime(updateTime);
+            payResultInfo.setModifyTime(updateTime);
             if(!"approved".equals(payResultInfo.getState())) {
                 throw new XException("pay state no approved");
             }

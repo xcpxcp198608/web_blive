@@ -1,7 +1,5 @@
 package com.wiatec.blive.service;
 
-import com.wiatec.blive.common.data_source.DataSource;
-import com.wiatec.blive.common.data_source.DataSourceHolder;
 import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
@@ -9,7 +7,6 @@ import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.common.utils.TextUtil;
 import com.wiatec.blive.common.utils.TokenUtil;
 import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
-import com.wiatec.blive.orm.dao.TokenDao;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

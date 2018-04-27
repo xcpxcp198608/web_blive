@@ -16,7 +16,7 @@ import javax.annotation.Resource;
  */
 @Controller
 @RequestMapping(value ="/pay")
-public class Pay {
+public class PayPal {
 
     @Resource
     private PayService payService;

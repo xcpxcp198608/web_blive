@@ -1,5 +1,9 @@
 package com.wiatec.blive.orm.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.util.Date;
+
 /**
  * @author patrick
  */
@@ -27,7 +31,8 @@ public class LiveChannelInfo extends BaseInfo {
      */
     private int type;
     private float price;
-    private String startTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date startTime;
 
     private String link;
 
@@ -41,6 +46,16 @@ public class LiveChannelInfo extends BaseInfo {
     public LiveChannelInfo(String preview, int userId) {
         this.preview = preview;
         this.userId = userId;
+    }
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getUserId() {
@@ -163,11 +178,11 @@ public class LiveChannelInfo extends BaseInfo {
         this.price = price;
     }
 
-    public String getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(String startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
@@ -198,7 +213,7 @@ public class LiveChannelInfo extends BaseInfo {
                 ", available=" + available +
                 ", type=" + type +
                 ", price=" + price +
-                ", startTime='" + startTime + '\'' +
+                ", startTime=" + startTime +
                 ", link='" + link + '\'' +
                 ", id=" + id +
                 ", createTime=" + createTime +

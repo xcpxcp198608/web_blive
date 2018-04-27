@@ -1,7 +1,8 @@
 package com.wiatec.blive.orm.pojo;
 
-public class PayResultInfo extends BaseInfo {
+public class PayResultInfo {
 
+    private int id;
     private String payerName;
     private int publisherId;
     private String channelName;
@@ -22,6 +23,8 @@ public class PayResultInfo extends BaseInfo {
     private String description;
     private float transactionFee;
     private String time;
+    private String createTime;
+    private String modifyTime;
 
     public PayResultInfo() {
     }
@@ -29,6 +32,14 @@ public class PayResultInfo extends BaseInfo {
     public PayResultInfo(String payerName, int publisherId) {
         this.payerName = payerName;
         this.publisherId = publisherId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getPayerName() {
@@ -191,10 +202,27 @@ public class PayResultInfo extends BaseInfo {
         this.time = time;
     }
 
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getModifyTime() {
+        return modifyTime;
+    }
+
+    public void setModifyTime(String modifyTime) {
+        this.modifyTime = modifyTime;
+    }
+
     @Override
     public String toString() {
         return "PayResultInfo{" +
-                "payerName='" + payerName + '\'' +
+                "id=" + id +
+                ", payerName='" + payerName + '\'' +
                 ", publisherId=" + publisherId +
                 ", channelName='" + channelName + '\'' +
                 ", auth='" + auth + '\'' +
@@ -214,9 +242,8 @@ public class PayResultInfo extends BaseInfo {
                 ", description='" + description + '\'' +
                 ", transactionFee=" + transactionFee +
                 ", time='" + time + '\'' +
-                ", id=" + id +
-                ", createTime=" + createTime +
-                ", modifyTime=" + modifyTime +
+                ", createTime='" + createTime + '\'' +
+                ", modifyTime='" + modifyTime + '\'' +
                 '}';
     }
 }

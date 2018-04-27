@@ -1,0 +1,10 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiatec.blive.orm.dao.ImageAdDao">
+
+    <select id="selectByPosition" resultType="com.wiatec.blive.orm.pojo.ImageAdInfo">
+      SELECT * FROM bvision_image_ad WHERE position = #{position} AND visible = 1
+    </select>
+
+</mapper>

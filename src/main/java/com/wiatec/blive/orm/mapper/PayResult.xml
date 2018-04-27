@@ -31,13 +31,13 @@
     <sql id="select">SELECT id, payerName, publisherId, channelName, auth, paymentId, state, cart,
                          paymentMethod, paymentStatus, email, firstName, lastName,
                          payPalPayerId, phone, countryCode, price, currency, description,
-                         transactionFee, createTime, updateTime, time time1 FROM bvision_paypal_result</sql>
+                         transactionFee, createTime, modifyTime, time time1 FROM bvision_paypal_result</sql>
 
     <insert id="insertOne" parameterType="com.wiatec.blive.orm.pojo.PayResultInfo">
         INSERT INTO bvision_paypal_result (payerName, publisherId, channelName, auth, paymentId, state, cart,
                                    paymentMethod, paymentStatus, email, firstName, lastName,
                                    payPalPayerId, phone, countryCode, price, currency, description,
-                                   transactionFee, createTime, updateTime)
+                                   transactionFee, createTime, modifyTime)
         VALUES (#{payerName}, #{publisherId}, #{channelName}, #{auth}, #{paymentId}, #{state}, #{cart}, #{paymentMethod},
                                 #{paymentStatus}, #{email}, #{firstName}, #{lastName},
                                 #{payPalPayerId}, #{phone}, #{countryCode}, #{price}, #{currency},
@@ -66,7 +66,7 @@
             lastName=#{lastName}, payPalPayerId=#{payPalPayerId}, phone=#{phone},
             countryCode=#{countryCode}, price=#{price}, transactionFee=#{transactionFee},
             currency=#{currency}, description=#{description},  createTime=#{createTime},
-            updateTime=#{updateTime}
+            modifyTime=#{updateTime}
         WHERE paymentId=#{paymentId}
     </update>
 

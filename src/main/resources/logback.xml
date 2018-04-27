@@ -2,10 +2,14 @@
 
 <configuration scan="true" scanPeriod="3 seconds">
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoding>UTF-8</encoding>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{userId}] %logger - %msg%n</pattern>
         </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -15,13 +19,47 @@
         </encoder>
         <rollingPolicy  class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>D:/blive/logs/log_%d{yyyy-MM-dd}.log</FileNamePattern>
+            <append>true</append>
+            <maxFileSize>1024MB</maxFileSize>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>60GB</totalSizeCap>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+
+
+    <appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>D:/blive/logs/error.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{32} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy  class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>D:/blive/logs/error_%d{yyyy-MM-dd}.log</FileNamePattern>
+            <append>true</append>
+            <maxFileSize>1024MB</maxFileSize>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>60GB</totalSizeCap>
         </rollingPolicy>
     </appender>
 
+    <logger name="com.wiatec.blive" additivity="false" level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+
+    <logger name="com.wiatec.blive.orm.dao" level="DEBUG"/>
+
     <root>
         <level value="DEBUG"/>
-        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR"/>
     </root>
 
 </configuration>
