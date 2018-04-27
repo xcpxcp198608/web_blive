@@ -1,32 +1,32 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wiatec.blive.orm.dao.RelationFriendDao">
+<mapper namespace="com.wiatec.blive.orm.dao.RelationFollowDao">
 
     <select id="selectFriendsIdByUserId" resultType="java.lang.Integer">
         SELECT friend_id
-        FROM bvision_relation_friend
+        FROM bvision_relation_follow
         WHERE user_id = #{userId}
     </select>
 
     <select id="selectUserIdByFriendsId" resultType="java.lang.Integer">
         SELECT user_id
-        FROM bvision_relation_friend
+        FROM bvision_relation_follow
         WHERE friend_id = #{userId}
     </select>
 
     <select id="selectOne" resultType="java.lang.Integer">
-        SELECT COUNT(*) count From bvision_relation_friend
+        SELECT COUNT(*) count From bvision_relation_follow
         WHERE user_id = #{userId} AND friend_id = #{friendId}
     </select>
 
     <insert id="insertOne">
-        INSERT IGNORE INTO bvision_relation_friend (user_id, friend_id)
+        INSERT IGNORE INTO bvision_relation_follow (user_id, friend_id)
           VALUES (#{userId}, #{friendId})
     </insert>
 
     <delete id="deleteOne">
-        DELETE IGNORE FROM bvision_relation_friend WHERE user_id = #{userId} AND friend_id = #{friendId}
+        DELETE IGNORE FROM bvision_relation_follow WHERE user_id = #{userId} AND friend_id = #{friendId}
     </delete>
 
 </mapper>

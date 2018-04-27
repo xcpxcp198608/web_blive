@@ -3,9 +3,8 @@ package com.wiatec.blive.orm.pojo;
 /**
  * @author patrick
  */
-public class ChannelInfo {
+public class ChannelInfo extends BaseInfo {
 
-    private int id;
     private int userId;
     private String title;
     private String message;
@@ -39,14 +38,6 @@ public class ChannelInfo {
     public ChannelInfo(String preview, int userId) {
         this.preview = preview;
         this.userId = userId;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getTitle() {
@@ -172,8 +163,7 @@ public class ChannelInfo {
     @Override
     public String toString() {
         return "ChannelInfo{" +
-                "id=" + id +
-                ", userId=" + userId +
+                "userId=" + userId +
                 ", title='" + title + '\'' +
                 ", message='" + message + '\'' +
                 ", rating=" + rating +
@@ -188,6 +178,9 @@ public class ChannelInfo {
                 ", price=" + price +
                 ", startTime='" + startTime + '\'' +
                 ", link='" + link + '\'' +
+                ", id=" + id +
+                ", createTime=" + createTime +
+                ", modifyTime=" + modifyTime +
                 '}';
     }
 }

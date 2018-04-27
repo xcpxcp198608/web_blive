@@ -3,22 +3,13 @@ package com.wiatec.blive.orm.pojo;
 /**
  * Created by xuchengpeng on 23/06/2017.
  */
-public class UpgradeInfo {
+public class UpgradeInfo extends BaseInfo {
 
-    private int id;
     private String name;
     private String url;
     private String version;
     private int code;
     private String info;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -63,12 +54,14 @@ public class UpgradeInfo {
     @Override
     public String toString() {
         return "UpgradeInfo{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 ", url='" + url + '\'' +
                 ", version='" + version + '\'' +
                 ", code=" + code +
                 ", info='" + info + '\'' +
+                ", id=" + id +
+                ", createTime=" + createTime +
+                ", modifyTime=" + modifyTime +
                 '}';
     }
 }

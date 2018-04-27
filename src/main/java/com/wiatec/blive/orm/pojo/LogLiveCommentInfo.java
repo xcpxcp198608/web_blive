@@ -1,29 +1,16 @@
 package com.wiatec.blive.orm.pojo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Date;
 
 /**
  * @author patrick
  */
-public class LogLiveCommentInfo {
+public class LogLiveCommentInfo extends BaseInfo {
 
-    private int id;
     private int channelId;
     private int groupId;
     private int watchUserId;
     private String comment;
-    private Date createTime;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getChannelId() {
         return channelId;
@@ -57,23 +44,16 @@ public class LogLiveCommentInfo {
         this.comment = comment;
     }
 
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
     @Override
     public String toString() {
         return "LogLiveCommentInfo{" +
-                "id=" + id +
-                ", channelId=" + channelId +
+                "channelId=" + channelId +
                 ", groupId=" + groupId +
                 ", watchUserId=" + watchUserId +
                 ", comment='" + comment + '\'' +
+                ", id=" + id +
                 ", createTime=" + createTime +
+                ", modifyTime=" + modifyTime +
                 '}';
     }
 }

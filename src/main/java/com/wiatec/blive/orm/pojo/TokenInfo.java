@@ -1,10 +1,8 @@
 package com.wiatec.blive.orm.pojo;
 
-public class TokenInfo {
+public class TokenInfo extends BaseInfo {
 
-    private int id;
     private String token;
-    private String createTime;
     private int userId;
     private UserInfo userInfo;
 
@@ -15,28 +13,12 @@ public class TokenInfo {
         this.token = token;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getToken() {
         return token;
     }
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    public String getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(String createTime) {
-        this.createTime = createTime;
     }
 
     public int getUserId() {
@@ -58,11 +40,12 @@ public class TokenInfo {
     @Override
     public String toString() {
         return "TokenInfo{" +
-                "id=" + id +
-                ", token='" + token + '\'' +
-                ", createTime='" + createTime + '\'' +
+                "token='" + token + '\'' +
                 ", userId=" + userId +
                 ", userInfo=" + userInfo +
+                ", id=" + id +
+                ", createTime=" + createTime +
+                ", modifyTime=" + modifyTime +
                 '}';
     }
 }

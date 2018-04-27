@@ -1,7 +1,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.wiatec.blive.orm.dao.ChannelDao">
+<mapper namespace="com.wiatec.blive.orm.dao.LiveChannelDao">
 
     <sql id="select">
         SELECT id, userId, available, rating, title, message, url, rtmp_url, rtmp_key,
@@ -9,7 +9,7 @@
         FROM bvision_channel_live
     </sql>
 
-    <select id="selectAllAvailable" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <select id="selectAllAvailable" resultType="com.wiatec.blive.orm.pojo.LiveChannelInfo">
         <include refid="select"/>
         WHERE available=1
         ORDER BY startTime DESC
@@ -28,13 +28,13 @@
         ORDER BY bvision_channel_live.startTime DESC
     </select>
 
-    <select id="searchByLikeTitle" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <select id="searchByLikeTitle" resultType="com.wiatec.blive.orm.pojo.LiveChannelInfo">
         <include refid="select"/>
         WHERE available=1 AND title LIKE concat('%',#{title},'%')
         ORDER BY startTime DESC
     </select>
 
-    <select id="selectOneByUserId" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <select id="selectOneByUserId" resultType="com.wiatec.blive.orm.pojo.LiveChannelInfo">
       <include refid="select"/>
         WHERE userId=#{userId}
     </select>
@@ -104,7 +104,7 @@
         WHERE userId=#{userId}
     </update>
 
-    <update id="updatePreviewByUserId" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
+    <update id="updatePreviewByUserId" parameterType="com.wiatec.blive.orm.pojo.LiveChannelInfo">
         UPDATE bvision_channel_live
         SET preview=#{preview}
         WHERE userId=#{userId}

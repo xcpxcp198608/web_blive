@@ -9,22 +9,12 @@ import java.util.Date;
 /**
  * @author patrick
  */
-public class BlackListInfo {
+public class BlackListInfo extends BaseInfo {
 
-    private int id;
     private int userId;
     private int blackId;
     private String blackUsername;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getUserId() {
         return userId;
@@ -50,22 +40,16 @@ public class BlackListInfo {
         this.blackUsername = blackUsername;
     }
 
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
 
     @Override
     public String toString() {
         return "BlackListInfo{" +
-                "id=" + id +
-                ", userId=" + userId +
+                "userId=" + userId +
                 ", blackId=" + blackId +
                 ", blackUsername='" + blackUsername + '\'' +
+                ", id=" + id +
                 ", createTime=" + createTime +
+                ", modifyTime=" + modifyTime +
                 '}';
     }
 }

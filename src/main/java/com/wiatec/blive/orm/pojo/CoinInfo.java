@@ -1,26 +1,17 @@
 package com.wiatec.blive.orm.pojo;
 
 
+import org.kohsuke.rngom.parse.host.Base;
+
 import java.util.Date;
 
 /**
  * @author patrick
  */
-public class CoinInfo {
+public class CoinInfo extends BaseInfo {
 
-    private int id;
     private int userId;
     private int coins;
-    private Date createTime;
-    private Date modifyTime;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getUserId() {
         return userId;
@@ -36,22 +27,6 @@ public class CoinInfo {
 
     public void setCoins(int coins) {
         this.coins = coins;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getModifyTime() {
-        return modifyTime;
-    }
-
-    public void setModifyTime(Date modifyTime) {
-        this.modifyTime = modifyTime;
     }
 
     @Override

@@ -11,7 +11,7 @@ import com.wiatec.blive.common.utils.TokenUtil;
 import com.wiatec.blive.listener.SessionListener;
 import com.wiatec.blive.orm.dao.*;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
-import com.wiatec.blive.orm.pojo.ChannelInfo;
+import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.orm.pojo.LogUserOperationInfo;
 import com.wiatec.blive.rtmp.RtmpInfo;
 import com.wiatec.blive.rtmp.RtmpMaster;
@@ -32,9 +32,9 @@ public class AuthRegisterUserService extends BaseService {
     @Resource
     private AuthRegisterUserDao authRegisterUserDao;
     @Resource
-    private ChannelDao channelDao;
+    private LiveChannelDao liveChannelDao;
     @Resource
-    private RelationFriendDao relationFriendDao;
+    private RelationFollowDao relationFollowDao;
     @Resource
     private LogUserOperationDao logUserOperationDao;
 
@@ -62,14 +62,14 @@ public class AuthRegisterUserService extends BaseService {
         if(rtmpInfo == null){
             throw new XException("rtmp server error");
         }
-        ChannelInfo channelInfo = new ChannelInfo();
+        LiveChannelInfo channelInfo = new LiveChannelInfo();
         channelInfo.setTitle(userInfo1.getUsername());
         channelInfo.setUserId(userInfo1.getId());
         channelInfo.setUrl(rtmpInfo.getPush_full_url());
         channelInfo.setRtmpUrl(rtmpInfo.getPush_url());
         channelInfo.setRtmpKey(rtmpInfo.getPush_key());
         channelInfo.setPlayUrl(rtmpInfo.getPlay_url());
-        if(channelDao.insertChannel(channelInfo) != COUNT_1){
+        if(liveChannelDao.insertChannel(channelInfo) != COUNT_1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
 
@@ -261,13 +261,12 @@ public class AuthRegisterUserService extends BaseService {
      * @param userId user id
      */
     public ResultInfo follows(int userId){
-        List<Integer> friendIds = relationFriendDao.selectFriendsIdByUserId(userId);
+        List<Integer> friendIds = relationFollowDao.selectFriendsIdByUserId(userId);
         if(friendIds == null || friendIds.size() <= COUNT_0){
             throw new XException(EnumResult.ERROR_NO_FOUND);
         }
         List<AuthRegisterUserInfo> authRegisterUserInfoList = authRegisterUserDao
                 .selectMultiByUserId(friendIds);
-        System.out.println(authRegisterUserInfoList);
         if(authRegisterUserInfoList == null || authRegisterUserInfoList.size() <= COUNT_0){
             throw new XException(EnumResult.ERROR_NO_FOUND);
         }
@@ -276,7 +275,7 @@ public class AuthRegisterUserService extends BaseService {
 
     public ResultInfo followStatus(int userId, int friendId){
         String status = "false";
-        if(relationFriendDao.selectOne(userId, friendId) >= COUNT_1){
+        if(relationFollowDao.selectOne(userId, friendId) >= COUNT_1){
             status = "true";
         }
         return ResultMaster.success(status);
@@ -297,14 +296,14 @@ public class AuthRegisterUserService extends BaseService {
             throw new XException("can not follow yourself");
         }
         if(action == 0){
-            i = relationFriendDao.deleteOne(userId, friendId);
+            i = relationFollowDao.deleteOne(userId, friendId);
             logUserOperationDao.insertOne(userId, LogUserOperationInfo.TYPE_DELETE, "cancel follow " + friendId);
 
         }else if(action == 1){
-            if(relationFriendDao.selectOne(userId, friendId) >= COUNT_1){
+            if(relationFollowDao.selectOne(userId, friendId) >= COUNT_1){
                 throw new XException("relation already exists");
             }
-            i = relationFriendDao.insertOne(userId, friendId);
+            i = relationFollowDao.insertOne(userId, friendId);
             logUserOperationDao.insertOne(userId, LogUserOperationInfo.TYPE_INSERT, "create follow " + friendId);
         }else{
             throw new XException("action error");
@@ -317,7 +316,7 @@ public class AuthRegisterUserService extends BaseService {
 
 
     public ResultInfo<AuthRegisterUserInfo> getFollowers(int userId){
-        List<Integer> userIds = relationFriendDao.selectUserIdByFriendsId(userId);
+        List<Integer> userIds = relationFollowDao.selectUserIdByFriendsId(userId);
         if(userIds == null || userIds.size() <= COUNT_0){
             throw new XException(EnumResult.ERROR_NO_FOUND);
         }

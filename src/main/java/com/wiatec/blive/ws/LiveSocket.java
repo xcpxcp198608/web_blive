@@ -2,13 +2,11 @@ package com.wiatec.blive.ws;
 
 import com.wiatec.blive.common.utils.ApplicationContextHelper;
 import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
-import com.wiatec.blive.orm.dao.ChannelDao;
+import com.wiatec.blive.orm.dao.LiveChannelDao;
 import com.wiatec.blive.orm.dao.LogLiveCommentDao;
-import com.wiatec.blive.orm.dao.UserDao;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
-import com.wiatec.blive.orm.pojo.ChannelInfo;
+import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.orm.pojo.LogLiveCommentInfo;
-import com.wiatec.blive.orm.pojo.UserInfo;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +44,7 @@ public class LiveSocket {
     }
 
     private AuthRegisterUserDao authRegisterUserDao;
-    private ChannelDao channelDao;
+    private LiveChannelDao liveChannelDao;
     private LogLiveCommentDao logLiveCommentDao;
     public static Map<Integer, LiveSocket> clientMap = new ConcurrentHashMap<>();
     private Session session;
@@ -60,7 +58,7 @@ public class LiveSocket {
         this.userId = userId;
         this.groupId = groupId;
         authRegisterUserDao = sqlSession.getMapper(AuthRegisterUserDao.class);
-        channelDao = sqlSession.getMapper(ChannelDao.class);
+        liveChannelDao = sqlSession.getMapper(LiveChannelDao.class);
         logLiveCommentDao = sqlSession.getMapper(LogLiveCommentDao.class);
         AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);
         if(userInfo != null){
@@ -108,7 +106,7 @@ public class LiveSocket {
                 }
             }
         }
-        ChannelInfo channelInfo = channelDao.selectOneByUserId(group);
+        LiveChannelInfo channelInfo = liveChannelDao.selectOneByUserId(group);
         LogLiveCommentInfo logLiveCommentInfo = new LogLiveCommentInfo();
         logLiveCommentInfo.setChannelId(channelInfo.getId());
         logLiveCommentInfo.setGroupId(group);
@@ -120,7 +118,7 @@ public class LiveSocket {
     @OnClose
     public void onClose(Session session, CloseReason reason) {
         clientMap.remove(userId);
-        channelDao.updateUnavailableByUserId(userId);
+        liveChannelDao.updateUnavailableByUserId(userId);
         logger.debug("ws -> client " + userId +" disconnect, current client is: {}", getOnlineCount());
     }
 

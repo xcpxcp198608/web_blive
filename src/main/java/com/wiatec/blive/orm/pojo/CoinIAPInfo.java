@@ -4,21 +4,12 @@ package com.wiatec.blive.orm.pojo;
 /**
  * @author patrick
  */
-public class CoinIAPInfo {
+public class CoinIAPInfo extends BaseInfo {
 
-    private int id;
     private String name;
     private String identifier;
     private int number;
     private Float amount;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -55,11 +46,13 @@ public class CoinIAPInfo {
     @Override
     public String toString() {
         return "CoinIAPInfo{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 ", identifier='" + identifier + '\'' +
                 ", number=" + number +
                 ", amount=" + amount +
+                ", id=" + id +
+                ", createTime=" + createTime +
+                ", modifyTime=" + modifyTime +
                 '}';
     }
 }

@@ -8,9 +8,8 @@ import java.util.Date;
 /**
  * @author patrick
  */
-public class AuthRegisterUserInfo {
+public class AuthRegisterUserInfo extends BaseInfo {
 
-    private int id;
     private String username;
     private String password;
     private String email;
@@ -49,22 +48,11 @@ public class AuthRegisterUserInfo {
     private Date expiresTime;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastOnLineTime;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
 
     private boolean experience;
     private boolean online;
     private boolean channelActive;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getUsername() {
         return username;
@@ -234,22 +222,6 @@ public class AuthRegisterUserInfo {
         this.lastOnLineTime = lastOnLineTime;
     }
 
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getModifyTime() {
-        return modifyTime;
-    }
-
-    public void setModifyTime(Date modifyTime) {
-        this.modifyTime = modifyTime;
-    }
-
     public boolean isExperience() {
         return experience;
     }
@@ -317,8 +289,7 @@ public class AuthRegisterUserInfo {
     @Override
     public String toString() {
         return "AuthRegisterUserInfo{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
+                "username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
@@ -344,11 +315,12 @@ public class AuthRegisterUserInfo {
                 ", activeTime=" + activeTime +
                 ", expiresTime=" + expiresTime +
                 ", lastOnLineTime=" + lastOnLineTime +
-                ", createTime=" + createTime +
-                ", modifyTime=" + modifyTime +
                 ", experience=" + experience +
                 ", online=" + online +
                 ", channelActive=" + channelActive +
+                ", id=" + id +
+                ", createTime=" + createTime +
+                ", modifyTime=" + modifyTime +
                 '}';
     }
 }

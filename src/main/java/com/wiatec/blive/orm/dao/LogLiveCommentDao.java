@@ -1,6 +1,5 @@
 package com.wiatec.blive.orm.dao;
 
-import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.LogLiveCommentInfo;
 import org.springframework.stereotype.Repository;
 

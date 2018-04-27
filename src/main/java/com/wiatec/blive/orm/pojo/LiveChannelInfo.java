@@ -3,7 +3,7 @@ package com.wiatec.blive.orm.pojo;
 /**
  * @author patrick
  */
-public class LiveChannelInfo {
+public class LiveChannelInfo extends BaseInfo {
 
     private int id;
     private int userId;
@@ -31,12 +31,16 @@ public class LiveChannelInfo {
 
     private String link;
 
-    public int getId() {
-        return id;
+    public LiveChannelInfo() {
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public LiveChannelInfo(int userId) {
+        this.userId = userId;
+    }
+
+    public LiveChannelInfo(String preview, int userId) {
+        this.preview = preview;
+        this.userId = userId;
     }
 
     public int getUserId() {
@@ -196,6 +200,9 @@ public class LiveChannelInfo {
                 ", price=" + price +
                 ", startTime='" + startTime + '\'' +
                 ", link='" + link + '\'' +
+                ", id=" + id +
+                ", createTime=" + createTime +
+                ", modifyTime=" + modifyTime +
                 '}';
     }
 }

@@ -4,19 +4,10 @@ package com.wiatec.blive.orm.pojo;
 /**
  * @author patrick
  */
-public class RelationFriendInfo {
+public class RelationFollowInfo extends BaseInfo {
 
-    private int id;
     private int userId;
     private int friendId;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getUserId() {
         return userId;
@@ -36,10 +27,12 @@ public class RelationFriendInfo {
 
     @Override
     public String toString() {
-        return "RelationFriendInfo{" +
-                "id=" + id +
-                ", userId=" + userId +
+        return "RelationFollowInfo{" +
+                "userId=" + userId +
                 ", friendId=" + friendId +
+                ", id=" + id +
+                ", createTime=" + createTime +
+                ", modifyTime=" + modifyTime +
                 '}';
     }
 }

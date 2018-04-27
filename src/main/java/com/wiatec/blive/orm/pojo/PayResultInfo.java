@@ -1,8 +1,7 @@
 package com.wiatec.blive.orm.pojo;
 
-public class PayResultInfo {
+public class PayResultInfo extends BaseInfo {
 
-    private int id;
     private String payerName;
     private int publisherId;
     private String channelName;
@@ -22,8 +21,6 @@ public class PayResultInfo {
     private String currency;
     private String description;
     private float transactionFee;
-    private String createTime;
-    private String updateTime;
     private String time;
 
     public PayResultInfo() {
@@ -32,14 +29,6 @@ public class PayResultInfo {
     public PayResultInfo(String payerName, int publisherId) {
         this.payerName = payerName;
         this.publisherId = publisherId;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getPayerName() {
@@ -194,22 +183,6 @@ public class PayResultInfo {
         this.transactionFee = transactionFee;
     }
 
-    public String getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(String createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(String updateTime) {
-        this.updateTime = updateTime;
-    }
-
     public String getTime() {
         return time;
     }
@@ -221,8 +194,7 @@ public class PayResultInfo {
     @Override
     public String toString() {
         return "PayResultInfo{" +
-                "id=" + id +
-                ", payerName='" + payerName + '\'' +
+                "payerName='" + payerName + '\'' +
                 ", publisherId=" + publisherId +
                 ", channelName='" + channelName + '\'' +
                 ", auth='" + auth + '\'' +
@@ -241,9 +213,10 @@ public class PayResultInfo {
                 ", currency='" + currency + '\'' +
                 ", description='" + description + '\'' +
                 ", transactionFee=" + transactionFee +
-                ", createTime='" + createTime + '\'' +
-                ", updateTime='" + updateTime + '\'' +
                 ", time='" + time + '\'' +
+                ", id=" + id +
+                ", createTime=" + createTime +
+                ", modifyTime=" + modifyTime +
                 '}';
     }
 }

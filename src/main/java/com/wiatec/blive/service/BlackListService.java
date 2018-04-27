@@ -81,7 +81,7 @@ public class BlackListService {
             throw new XException("");
         }
         if(blackListDao.countOne(userId, targetUserId) == 1){
-            throw new XException(555, "Please contact the broadcaster for additional information.");
+            throw new XException(555, "Please contact the broadcaster for additional information");
         }
         return ResultMaster.success();
     }

@@ -4,7 +4,6 @@ import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
-import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.service.AuthRegisterUserService;
 import com.wiatec.blive.service.ChannelService;
@@ -26,7 +25,7 @@ import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
  */
 @Controller
 @RequestMapping(value = "/channel")
-public class Channel {
+public class LiveChannel {
 
     private final String[] FILTER_KEYWORD = {"CEO", "CTO", "COO", "fuck", "shit", "dick", "pussy",
             "mother fucker", "president", "Vice President", "FUCK", "SHIT", "DICK",
@@ -45,7 +44,7 @@ public class Channel {
 
     @RequestMapping(value = "/")
     @ResponseBody
-    public List<ChannelInfo> get(){
+    public List<LiveChannelInfo> get(){
         return channelService.selectAllAvailable();
     }
 
@@ -70,13 +69,13 @@ public class Channel {
 
     @GetMapping(value = "/search/{key}")
     @ResponseBody
-    public List<ChannelInfo> searchByLikeTitle(@PathVariable String key){
+    public List<LiveChannelInfo> searchByLikeTitle(@PathVariable String key){
         return channelService.searchByLikeTitle(key);
     }
 
     @PutMapping("/update")
     @ResponseBody
-    public ResultInfo<ChannelInfo> updateChannelUrl(@RequestBody ChannelInfo channelInfo){
+    public ResultInfo<LiveChannelInfo> updateChannelUrl(@RequestBody LiveChannelInfo channelInfo){
         ResultInfo<AuthRegisterUserInfo> resultInfo = authRegisterUserService.selectOneByUserId(channelInfo.getUserId());
         return channelService.updateChannelUrl(resultInfo.getData().getUsername(), channelInfo);
     }
@@ -89,7 +88,7 @@ public class Channel {
      */
     @PutMapping("/update/{action}")
     @ResponseBody
-    public ResultInfo updateChannel(@PathVariable int action, @RequestBody ChannelInfo channelInfo){
+    public ResultInfo updateChannel(@PathVariable int action, @RequestBody LiveChannelInfo channelInfo){
         for (String s: FILTER_KEYWORD) {
             if(channelInfo.getTitle().contains(s)){
                 throw new XException("title contains not allow word");
@@ -121,13 +120,13 @@ public class Channel {
 
     @PutMapping("/status/{action}/{userId}")
     @ResponseBody
-    public ResultInfo<ChannelInfo> updateChannelUnavailable(@PathVariable int action, @PathVariable int userId){
+    public ResultInfo<LiveChannelInfo> updateChannelUnavailable(@PathVariable int action, @PathVariable int userId){
         return channelService.updateChannelStatus(action, userId);
     }
 
     @PostMapping("/upload/{userId}")
     @ResponseBody
-    public ResultInfo<ChannelInfo> uploadPreviewImage(@PathVariable int userId,
+    public ResultInfo<LiveChannelInfo> uploadPreviewImage(@PathVariable int userId,
                                                       @RequestParam MultipartFile file,
                                                       HttpServletRequest request) throws IOException {
         if(file.isEmpty()){
@@ -136,6 +135,6 @@ public class Channel {
         String path = request.getSession().getServletContext().getRealPath("/Resource/channel_preview/");
         FileUtils.copyInputStreamToFile(file.getInputStream(), new File( path,  file.getOriginalFilename()));
         String preview = BASE_RESOURCE_URL + "channel_preview/" + file.getOriginalFilename();
-        return channelService.updatePreview(new ChannelInfo(preview, userId));
+        return channelService.updatePreview(new LiveChannelInfo(preview, userId));
     }
 }

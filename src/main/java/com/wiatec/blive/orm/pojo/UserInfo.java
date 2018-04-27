@@ -16,7 +16,7 @@ public class UserInfo {
     private boolean status;
     private boolean publisher;
 
-    private ChannelInfo channelInfo;
+    private LiveChannelInfo channelInfo;
 
     public UserInfo() { }
 
@@ -113,11 +113,11 @@ public class UserInfo {
         this.publisher = publisher;
     }
 
-    public ChannelInfo getChannelInfo() {
+    public LiveChannelInfo getChannelInfo() {
         return channelInfo;
     }
 
-    public void setChannelInfo(ChannelInfo channelInfo) {
+    public void setChannelInfo(LiveChannelInfo channelInfo) {
         this.channelInfo = channelInfo;
     }
 

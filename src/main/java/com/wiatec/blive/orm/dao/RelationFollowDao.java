@@ -1,7 +1,5 @@
 package com.wiatec.blive.orm.dao;
 
-import com.wiatec.blive.orm.pojo.RelationFriendInfo;
-import com.wiatec.blive.orm.pojo.UserInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +9,7 @@ import java.util.List;
  * @author patrick
  */
 @Repository
-public interface RelationFriendDao {
+public interface RelationFollowDao {
 
     int selectOne(@Param("userId") int userId, @Param("friendId")int friendId);
 
