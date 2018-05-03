@@ -87,5 +87,6 @@ dependencies {
     compile 'com.squareup.okio:okio:1.13.0'
     //rx java2
     compile 'io.reactivex.rxjava2:rxjava:2.0.5'
+    compile 'com.google.guava:guava:25.0-jre'
 
 }

@@ -11,7 +11,7 @@ import javax.annotation.Resource;
 /**
  * @author patrick
  */
-@Controller
+@RestController
 @RequestMapping(value = "/coin")
 public class BVisionCoin {
 
@@ -24,7 +24,6 @@ public class BVisionCoin {
      * @return ResultInfo
      */
     @GetMapping("/{userId}")
-    @ResponseBody
     public ResultInfo getCoins(@PathVariable int userId){
         return coinService.getCoins(userId);
     }
@@ -39,7 +38,6 @@ public class BVisionCoin {
      * @return ResultInfo
      */
     @PutMapping("/consume/{userId}/{targetUserId}/{numbers}")
-    @ResponseBody
     public ResultInfo consumeCoin(@PathVariable int userId, @PathVariable int targetUserId,
                                   @PathVariable int numbers, String platform, String description){
         return coinService.consumeCoin(userId, targetUserId, numbers, platform, description);
@@ -54,14 +52,12 @@ public class BVisionCoin {
      * @return ResultInfo
      */
     @PutMapping("/iap/verify/{userId}")
-    @ResponseBody
     public ResultInfo verify(@PathVariable int userId, String receiptData, String platform, String productIdentifier){
         return coinService.iapVerify(userId, receiptData, platform, productIdentifier);
     }
 
 
     @GetMapping("/bill/{userId}")
-    @ResponseBody
     public ResultInfo<LogCoinInfo> getBill(@PathVariable int userId){
         return coinService.getBills(userId);
     }

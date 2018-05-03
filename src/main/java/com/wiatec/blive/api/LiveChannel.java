@@ -23,7 +23,7 @@ import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
 /**
  * @author patrick
  */
-@Controller
+@RestController
 @RequestMapping(value = "/channel")
 public class LiveChannel {
 
@@ -43,38 +43,32 @@ public class LiveChannel {
     private ChannelService channelService;
 
     @RequestMapping(value = "/")
-    @ResponseBody
     public List<LiveChannelInfo> get(){
         return channelService.selectAllAvailable();
     }
 
 
     @RequestMapping(value = "/living")
-    @ResponseBody
     public List<LiveChannelInfo> getWithUserInfo(){
         return channelService.selectAllAvailableWithUser();
     }
 
     @PostMapping(value = "/create")
-    @ResponseBody
     public ResultInfo create(int userId, String username){
         return channelService.create(userId, username);
     }
 
     @GetMapping(value = "/{userId}")
-    @ResponseBody
     public ResultInfo getChannel(@PathVariable int userId){
         return channelService.selectOneByUserId(userId);
     }
 
     @GetMapping(value = "/search/{key}")
-    @ResponseBody
     public List<LiveChannelInfo> searchByLikeTitle(@PathVariable String key){
         return channelService.searchByLikeTitle(key);
     }
 
     @PutMapping("/update")
-    @ResponseBody
     public ResultInfo<LiveChannelInfo> updateChannelUrl(@RequestBody LiveChannelInfo channelInfo){
         ResultInfo<AuthRegisterUserInfo> resultInfo = authRegisterUserService.selectOneByUserId(channelInfo.getUserId());
         return channelService.updateChannelUrl(resultInfo.getData().getUsername(), channelInfo);
@@ -87,7 +81,6 @@ public class LiveChannel {
      * @return ResultInfo
      */
     @PutMapping("/update/{action}")
-    @ResponseBody
     public ResultInfo updateChannel(@PathVariable int action, @RequestBody LiveChannelInfo channelInfo){
         for (String s: FILTER_KEYWORD) {
             if(channelInfo.getTitle().contains(s)){
@@ -119,13 +112,11 @@ public class LiveChannel {
     }
 
     @PutMapping("/status/{action}/{userId}")
-    @ResponseBody
     public ResultInfo<LiveChannelInfo> updateChannelUnavailable(@PathVariable int action, @PathVariable int userId){
         return channelService.updateChannelStatus(action, userId);
     }
 
     @PostMapping("/upload/{userId}")
-    @ResponseBody
     public ResultInfo<LiveChannelInfo> uploadPreviewImage(@PathVariable int userId,
                                                       @RequestParam MultipartFile file,
                                                       HttpServletRequest request) throws IOException {

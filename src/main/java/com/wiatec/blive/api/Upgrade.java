@@ -5,13 +5,14 @@ import com.wiatec.blive.service.UpgradeService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
 /**
  * @author patrick
  */
-@Controller
+@RestController
 @RequestMapping(value = "/upgrade")
 public class Upgrade {
 
@@ -19,7 +20,6 @@ public class Upgrade {
     private UpgradeService upgradeService;
 
     @RequestMapping(value = "/")
-    @ResponseBody
     public UpgradeInfo get(){
         return upgradeService.selectOne();
     }

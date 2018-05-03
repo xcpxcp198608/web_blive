@@ -15,7 +15,7 @@
     </delete>
 
     <select id="countOne" resultType="java.lang.Integer">
-        SELECT COUNT(*) count FROM bvision_black_list
+        SELECT COUNT(1) count FROM bvision_black_list
         WHERE user_id = #{userId} AND black_id = #{blackId}
     </select>
 

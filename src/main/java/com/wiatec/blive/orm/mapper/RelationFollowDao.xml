@@ -16,7 +16,7 @@
     </select>
 
     <select id="selectOne" resultType="java.lang.Integer">
-        SELECT COUNT(*) count From bvision_relation_follow
+        SELECT COUNT(1) count From bvision_relation_follow
         WHERE user_id = #{userId} AND friend_id = #{friendId}
     </select>
 

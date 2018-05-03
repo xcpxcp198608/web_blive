@@ -28,9 +28,9 @@ public enum EnumResult {
 
 
     /**
-     * access token 超时
+     * access token expires
      */
-    ERROR_ACCESS_TOKEN_TIMEOUT(402, "Access token timeout"),
+    ERROR_ACCESS_TOKEN_TIMEOUT(402, "Access token expires"),
 
     /**
      * 禁止操作该资源，例如权限不够等

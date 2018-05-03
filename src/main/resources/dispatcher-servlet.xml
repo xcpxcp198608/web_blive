@@ -33,6 +33,12 @@
             <mvc:mapping path="/users/**"/>
             <bean class="com.wiatec.blive.interceptor.WebUserInterceptor"/>
         </mvc:interceptor>
+
+        <mvc:interceptor>
+            <mvc:mapping path="/coin/**"/>
+            <mvc:mapping path="/user/update/*"/>
+            <bean class="com.wiatec.blive.interceptor.AccessTokenInterceptor"/>
+        </mvc:interceptor>
     </mvc:interceptors>
 
     <mvc:resources mapping="/Resource/**" location="/Resource/"/>

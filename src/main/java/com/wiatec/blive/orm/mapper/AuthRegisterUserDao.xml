@@ -44,23 +44,23 @@
     </insert>
 
     <select id="countByUsername"  resultType="java.lang.Integer">
-        SELECT COUNT(*) count FROM auth_register_user
+        SELECT COUNT(1) count FROM auth_register_user
         WHERE username = #{username}
     </select>
 
     <select id="countByEmail" resultType="java.lang.Integer">
-        SELECT COUNT(*) count FROM auth_register_user
+        SELECT COUNT(1) count FROM auth_register_user
         WHERE email = #{email}
     </select>
 
     <select id="countByToken" resultType="java.lang.Integer">
-        SELECT COUNT(*) count FROM auth_register_user
+        SELECT COUNT(1) count FROM auth_register_user
         WHERE token = #{token}
     </select>
 
 
     <select id="countByIdAndToken" resultType="java.lang.Integer">
-        SELECT COUNT(*) count FROM auth_register_user
+        SELECT COUNT(1) count FROM auth_register_user
         WHERE id = #{userId} AND token = #{token}
     </select>
 
@@ -81,12 +81,12 @@
     </select>
 
     <select id="countOneByUserNameAndEmail" resultType="java.lang.Integer">
-        SELECT COUNT(*) count FROM auth_register_user
+        SELECT COUNT(1) count FROM auth_register_user
         WHERE username = #{username} AND email = #{email}
     </select>
 
     <select id="countOneByUsernameAndPassowrd" resultType="java.lang.Integer">
-        SELECT COUNT(*) count FROM auth_register_user
+        SELECT COUNT(1) count FROM auth_register_user
         WHERE username = #{username} AND password = #{password}
     </select>
 

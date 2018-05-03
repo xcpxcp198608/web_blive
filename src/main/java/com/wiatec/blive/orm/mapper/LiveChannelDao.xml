@@ -40,7 +40,7 @@
     </select>
 
     <select id="countByUserId" resultType="java.lang.Integer">
-      SELECT COUNT(*) count FROM bvision_channel_live
+      SELECT COUNT(1) count FROM bvision_channel_live
       WHERE userId=#{userId}
     </select>
 
