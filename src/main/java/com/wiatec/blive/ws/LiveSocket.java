@@ -3,9 +3,11 @@ package com.wiatec.blive.ws;
 import com.wiatec.blive.common.utils.ApplicationContextHelper;
 import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
 import com.wiatec.blive.orm.dao.LiveChannelDao;
+import com.wiatec.blive.orm.dao.LiveViewDao;
 import com.wiatec.blive.orm.dao.LogLiveCommentDao;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
+import com.wiatec.blive.orm.pojo.LiveViewInfo;
 import com.wiatec.blive.orm.pojo.LogLiveCommentInfo;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -37,39 +39,53 @@ public class LiveSocket {
     private static final int MSG_TYPE_FULL = 0;
     private static final int MSG_TYPE_GROUP = 1;
 
-    protected static SqlSession sqlSession;
+    private static SqlSession sqlSession;
+
+    private static AuthRegisterUserDao authRegisterUserDao;
+    private static LiveChannelDao liveChannelDao;
+    private static LogLiveCommentDao logLiveCommentDao;
+    private static LiveViewDao liveViewDao;
 
     static {
         sqlSession = (SqlSession) ApplicationContextHelper.getApplicationContext().getBean("sqlSessionTemplate");
+        liveViewDao = sqlSession.getMapper(LiveViewDao.class);
+        authRegisterUserDao = sqlSession.getMapper(AuthRegisterUserDao.class);
+        liveChannelDao = sqlSession.getMapper(LiveChannelDao.class);
+        logLiveCommentDao = sqlSession.getMapper(LogLiveCommentDao.class);
     }
 
-    private AuthRegisterUserDao authRegisterUserDao;
-    private LiveChannelDao liveChannelDao;
-    private LogLiveCommentDao logLiveCommentDao;
-    public static Map<Integer, LiveSocket> clientMap = new ConcurrentHashMap<>();
+
+    static Map<Integer, LiveSocket> clientMap = new ConcurrentHashMap<>();
     private Session session;
     private int groupId;
     private int userId;
     private String username = "guest";
+    private LiveViewInfo liveViewInfo = new LiveViewInfo();
+
+    private boolean insertSuccess = false;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("groupId")int groupId, @PathParam("userId")int userId) {
         this.session = session;
         this.userId = userId;
         this.groupId = groupId;
-        authRegisterUserDao = sqlSession.getMapper(AuthRegisterUserDao.class);
-        liveChannelDao = sqlSession.getMapper(LiveChannelDao.class);
-        logLiveCommentDao = sqlSession.getMapper(LogLiveCommentDao.class);
+
         AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);
         if(userInfo != null){
             username = userInfo.getUsername();
         }
+
         clientMap.put(userId, this);
         logger.debug("ws -> new client connected, group id: " + groupId +
                 ", user id: " + userId + ", total client is: {}", getOnlineCount());
         logger.debug("ws -> new client connected, group id: " + groupId +
                 ", user id: " + userId + ", this group client is: {}", getCountByGroupId(groupId));
         sendMessage("blive group count:" + getCountByGroupId(groupId));
+
+        //记录观看开始
+        liveViewInfo.setPlayerId(groupId);
+        liveViewInfo.setViewerId(userId);
+        insertSuccess = liveViewDao.insertOne(liveViewInfo) == 1;
     }
 
     /**
@@ -120,6 +136,11 @@ public class LiveSocket {
         clientMap.remove(userId);
         liveChannelDao.updateUnavailableByUserId(userId);
         logger.debug("ws -> client " + userId +" disconnect, current client is: {}", getOnlineCount());
+
+        //记录观看结束
+        if(insertSuccess) {
+            liveViewDao.updateOne(liveViewInfo.getId());
+        }
     }
 
     @OnError

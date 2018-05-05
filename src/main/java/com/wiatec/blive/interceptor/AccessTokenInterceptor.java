@@ -1,5 +1,6 @@
 package com.wiatec.blive.interceptor;
 
+import com.wiatec.blive.common.cache.LocalCache;
 import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.common.security.AccessToken;
@@ -23,7 +24,7 @@ public class AccessTokenInterceptor implements HandlerInterceptor {
     private static final String AUTH = "Authorization";
     private static final String TID = "TID";
     private static final String ID = "ID";
-    private static final int EXPIRES = 10;
+    private static final int EXPIRES = 20000;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -44,20 +45,23 @@ public class AccessTokenInterceptor implements HandlerInterceptor {
         if(!AccessToken.decrypt(token, uuid, value, time)){
             throw new XException(EnumResult.ERROR_ACCESS_TOKEN);
         }
+
+        String s = LocalCache.get(UUID + uuid);
+        if(!TextUtil.isEmpty(s)){
+            throw new XException(EnumResult.ERROR_ACCESS_TOKEN);
+        }
+        LocalCache.set(UUID + uuid, uuid);
+
         long t;
         try {
             t = Long.parseLong(time);
         }catch (Exception e){
             throw new XException(EnumResult.ERROR_ACCESS_TOKEN);
         }
-        if((System.currentTimeMillis() / 1000 - t) > EXPIRES){
+        if((System.currentTimeMillis() - t) > EXPIRES){
             throw new XException(EnumResult.ERROR_ACCESS_TOKEN_TIMEOUT);
         }
-//        String s = LocalCache.get(UUID + uuid);
-//        if(!TextUtil.isEmpty(s)){
-//            throw new XException(EnumResult.ERROR_ACCESS_TOKEN);
-//        }
-//        LocalCache.set(UUID + uuid, uuid);
+
         return true;
     }
 

@@ -22,7 +22,7 @@
         bvision_channel_live.playUrl, bvision_channel_live.preview, bvision_channel_live.category,
         bvision_channel_live.type, bvision_channel_live.price, bvision_channel_live.link,
         bvision_channel_live.startTime, bvision_channel_live.create_time, bvision_channel_live.modify_time,
-        auth_register_user.username username, auth_register_user.icon userIcon
+        auth_register_user.username username, auth_register_user.icon userIcon, auth_register_user.level level
         FROM bvision_channel_live, auth_register_user
         WHERE bvision_channel_live.userId = auth_register_user.id AND bvision_channel_live.available = 1
         ORDER BY bvision_channel_live.startTime DESC

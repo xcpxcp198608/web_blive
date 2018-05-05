@@ -85,4 +85,4 @@
     </div>
 
 </rapid:override>
-<%@ include file="base_manager.jsp"%>
+<%@ include file="base_ws.jsp"%>

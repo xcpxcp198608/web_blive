@@ -20,7 +20,7 @@ public class AccessToken {
     public static String encrypt(String value){
         String uuid = UUID.randomUUID().toString();
         System.out.println(uuid);
-        String time = System.currentTimeMillis() / 1000 + "";
+        String time = System.currentTimeMillis() + "";
         System.out.println(time);
         return DigestUtils.md5Hex(value + uuid + time + SALT);
     }
@@ -36,6 +36,14 @@ public class AccessToken {
 
         System.out.println(decrypt("e34dc94b20e06717fe2ff69e508118fd", "A491C896-6597-4368-8DF0-D1BD5F277F6D",
                 "patrick", "1523122123"));
+
+        String s = DigestUtils.md5Hex(41 + "2FDF3926-AA95-4A1A-9DA5-2AA0EB71572C" + "1525398495000" + SALT);
+        System.out.println(s);
+
+        boolean b = decrypt("d1559e59cc7f91af766b09282d30ba13",
+                "2FDF3926-AA95-4A1A-9DA5-2AA0EB71572C",
+                "41", "1525397941000");
+        System.out.println(b);
     }
 
 

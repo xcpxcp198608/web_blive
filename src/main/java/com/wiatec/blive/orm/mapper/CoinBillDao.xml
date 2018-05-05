@@ -1,0 +1,52 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiatec.blive.orm.dao.CoinBillDao">
+
+    <insert id="insertOne">
+      INSERT IGNORE INTO bvision_coin_bill (user_id, relation_id, type, category, coins, amount,
+                                            platform, transaction_id, description, comment,
+                                            modify_time)
+      VALUES (#{userId}, #{relationId}, #{type}, #{category}, #{coins}, #{amount}, #{platform},
+          #{transactionId}, #{description}, #{comment}, now())
+    </insert>
+
+    <sql id="select">
+        SELECT id, user_id, relation_id, type, category, coins, amount, platform, transaction_id,
+            description, comment, create_time, modify_time
+        FROM bvision_coin_bill
+    </sql>
+
+    <select id="selectOne" resultType="com.wiatec.blive.orm.pojo.CoinBillInfo">
+      <include refid="select"/>
+      WHERE id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultType="com.wiatec.blive.orm.pojo.CoinBillInfo">
+        <include refid="select"/>
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByTypeAndUserId" resultType="com.wiatec.blive.orm.pojo.CoinBillInfo">
+        <include refid="select"/>
+        WHERE user_id = #{userId} AND type = #{type}
+        ORDER BY create_time DESC
+    </select>
+
+
+    <select id="selectMonthBillByUserId" resultType="com.wiatec.blive.orm.pojo.CoinBillInfo">
+      SELECT type, coins FROM bvision_coin_bill
+      WHERE create_time between #{start} and #{end}
+        AND user_id = #{userId}
+    </select>
+
+    <select id="selectDaysBillByUserId" resultType="com.wiatec.blive.dto.CoinBillDaysInfo">
+      SELECT DAYOFMONTH(create_time) day, type, coins
+      FROM bvision_coin_bill
+      WHERE create_time between #{start} and #{end}
+        AND user_id = #{userId}
+      ORDER BY day
+    </select>
+
+</mapper>

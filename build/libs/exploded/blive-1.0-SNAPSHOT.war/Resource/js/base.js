@@ -4,6 +4,32 @@ addEventListener('load', function () {
     }
 }, false);
 
+var baseUrl = 'https://' + location.host;
+
+function getCurrentYearAndMonth() {
+    var date = new Date();
+    var year = date.getFullYear();
+    var month = date.getMonth()+1;
+    return year + '-' + month
+}
+
+function getCurrentYear() {
+    var date = new Date();
+    var year = date.getFullYear();
+    return year
+}
+
+function getCurrentMonth() {
+    var date = new Date();
+    var month = date.getMonth()+1;
+    return month
+}
+
+function getDaysOfCurrentMonth(year, month) {
+    var d = new Date(year, month, 0);
+    return d.getDate();
+}
+
 function showErrorMessage() {
     $('#progress_div').css('display', 'none');
     $('#status_div').css('display','block');

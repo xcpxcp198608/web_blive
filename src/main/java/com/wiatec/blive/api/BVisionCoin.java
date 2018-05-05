@@ -1,9 +1,7 @@
 package com.wiatec.blive.api;
 
 import com.wiatec.blive.common.result.ResultInfo;
-import com.wiatec.blive.orm.pojo.LogCoinInfo;
 import com.wiatec.blive.service.CoinService;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -32,15 +30,16 @@ public class BVisionCoin {
      * user consume coins
      * @param userId userId
      * @param targetUserId targetUserId
-     * @param numbers numbers
+     * @param coins consume coins
      * @param platform platform
      * @param description description
      * @return ResultInfo
      */
-    @PutMapping("/consume/{userId}/{targetUserId}/{numbers}")
+    @PutMapping("/consume/{userId}/{targetUserId}/{category}/{coins}")
     public ResultInfo consumeCoin(@PathVariable int userId, @PathVariable int targetUserId,
-                                  @PathVariable int numbers, String platform, String description){
-        return coinService.consumeCoin(userId, targetUserId, numbers, platform, description);
+                                  @PathVariable int category, @PathVariable int coins,
+                                  String platform, String description, String comment){
+        return coinService.consumeCoin(userId, targetUserId, category, coins, platform, description, comment);
     }
 
     /**
@@ -58,7 +57,9 @@ public class BVisionCoin {
 
 
     @GetMapping("/bill/{userId}")
-    public ResultInfo<LogCoinInfo> getBill(@PathVariable int userId){
+    public ResultInfo getBill(@PathVariable int userId){
         return coinService.getBills(userId);
     }
+
+
 }

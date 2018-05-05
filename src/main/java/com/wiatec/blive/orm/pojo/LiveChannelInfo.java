@@ -9,10 +9,10 @@ import java.util.Date;
  */
 public class LiveChannelInfo extends BaseInfo {
 
-    private int id;
     private int userId;
     private String username;
     private String userIcon;
+    private int level;
     private String title;
     private String message;
     /**
@@ -48,15 +48,6 @@ public class LiveChannelInfo extends BaseInfo {
         this.userId = userId;
     }
 
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getUserId() {
         return userId;
@@ -194,13 +185,21 @@ public class LiveChannelInfo extends BaseInfo {
         this.link = link;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
     @Override
     public String toString() {
         return "LiveChannelInfo{" +
-                "id=" + id +
-                ", userId=" + userId +
+                "userId=" + userId +
                 ", username='" + username + '\'' +
                 ", userIcon='" + userIcon + '\'' +
+                ", level=" + level +
                 ", title='" + title + '\'' +
                 ", message='" + message + '\'' +
                 ", rating=" + rating +

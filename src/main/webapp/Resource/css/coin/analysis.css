@@ -1,0 +1,14 @@
+#currentDate {
+    font-size: 15px;
+}
+
+#chart_month {
+    width: 100%;
+    height: 200px;
+}
+
+
+#chart_days {
+    width: 100%;
+    height: 750px;
+}

@@ -6,11 +6,15 @@ import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.common.utils.TextUtil;
+import com.wiatec.blive.dto.CoinBillChartDaysInfo;
+import com.wiatec.blive.dto.CoinBillDaysInfo;
+import com.wiatec.blive.dto.CoinBillChartMonthlyInfo;
+import com.wiatec.blive.dto.YearMonthInfo;
+import com.wiatec.blive.orm.dao.CoinBillDao;
 import com.wiatec.blive.orm.dao.CoinDao;
 import com.wiatec.blive.orm.dao.CoinIAPDao;
-import com.wiatec.blive.orm.dao.LogCoinDao;
+import com.wiatec.blive.orm.pojo.CoinBillInfo;
 import com.wiatec.blive.orm.pojo.CoinIAPInfo;
-import com.wiatec.blive.orm.pojo.LogCoinInfo;
 import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +47,7 @@ public class CoinService {
     @Resource
     private CoinIAPDao coinIAPDao;
     @Resource
-    private LogCoinDao logCoinDao;
+    private CoinBillDao coinBillDao;
 
     /**
      * get all coins number by user id
@@ -61,50 +66,54 @@ public class CoinService {
      * user consume coins
      * @param userId consume coins user id
      * @param targetUserId get coins user id
-     * @param numbers coin numbers
+     * @param consumeCoins coin numbers
      * @return ResultInfo
      */
     @Transactional(rollbackFor = Exception.class)
-    public ResultInfo consumeCoin(int userId, int targetUserId, int numbers, String platform,
-                                  String description){
-        int coins = coinDao.countCoins(userId);
-        if(coins < numbers){
+    public ResultInfo consumeCoin(int userId, int targetUserId, int category, int consumeCoins,
+                                  String platform, String description, String comment){
+        int userCoins = coinDao.countCoins(userId);
+        if(userCoins < consumeCoins){
             throw new XException("Coins not enough");
         }
-        if(coinDao.updateOne(userId, CONSUME_ACTION_SUB, numbers) != 1){
+        if(coinDao.updateOne(userId, CONSUME_ACTION_SUB, consumeCoins) != 1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
 
         if(coinDao.countOne(targetUserId) == 1) {
-            if (coinDao.updateOne(targetUserId, CONSUME_ACTION_PLUS, numbers) != 1) {
+            if (coinDao.updateOne(targetUserId, CONSUME_ACTION_PLUS, consumeCoins) != 1) {
                 throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
             }
         }else{
-            if (coinDao.insertOne(targetUserId, numbers) != 1) {
+            if (coinDao.insertOne(targetUserId, consumeCoins) != 1) {
                 throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
             }
         }
-        //log user consume info
-        LogCoinInfo logCoinInfo = new LogCoinInfo();
-        logCoinInfo.setUserId(userId);
-        logCoinInfo.setAction(CONSUME_ACTION_SUB);
-        logCoinInfo.setCoin(numbers);
-        logCoinInfo.setPlatform(platform);
-        logCoinInfo.setDescription(description);
-        logCoinInfo.setRemark("targetUserId" + targetUserId);
-        logger.info(logCoinInfo.toString());
-        logCoinDao.insertOne(logCoinInfo);
+        //bill user consume info
+        CoinBillInfo coinBillInfo = new CoinBillInfo();
+        coinBillInfo.setUserId(userId);
+        coinBillInfo.setRelationId(targetUserId);
+        coinBillInfo.setType(CoinBillInfo.TYPE_CONSUME);
+        coinBillInfo.setCategory(category);
+        coinBillInfo.setCoins(consumeCoins);
+        coinBillInfo.setPlatform(platform);
+        coinBillInfo.setDescription(description);
+        coinBillInfo.setComment(comment);
+        logger.info(coinBillInfo.toString());
+        coinBillDao.insertOne(coinBillInfo);
 
-        //log user add coin info
-        LogCoinInfo logCoinInfo1 = new LogCoinInfo();
-        logCoinInfo1.setUserId(targetUserId);
-        logCoinInfo1.setAction(CONSUME_ACTION_PLUS);
-        logCoinInfo1.setCoin(numbers);
-        logCoinInfo1.setPlatform(platform);
-        logCoinInfo1.setDescription(description);
-        logCoinInfo1.setRemark("consumeUserId" + userId);
-        logger.info(logCoinInfo.toString());
-        logCoinDao.insertOne(logCoinInfo1);
+        //bill user add coin info
+        CoinBillInfo coinBillInfo1 = new CoinBillInfo();
+        coinBillInfo1.setUserId(targetUserId);
+        coinBillInfo1.setRelationId(userId);
+        coinBillInfo1.setType(CoinBillInfo.TYPE_INCOME);
+        coinBillInfo1.setCategory(category);
+        coinBillInfo1.setCoins(consumeCoins);
+        coinBillInfo1.setPlatform(platform);
+        coinBillInfo1.setDescription(description);
+        coinBillInfo1.setComment(comment);
+        logger.info(coinBillInfo1.toString());
+        coinBillDao.insertOne(coinBillInfo1);
         return ResultMaster.success();
     }
 
@@ -164,17 +173,22 @@ public class CoinService {
                 coinDao.insertOne(userId, coinIAPInfo.getNumber());
             }
 
-            //log iap info
-            LogCoinInfo logCoinInfo = new LogCoinInfo();
-            logCoinInfo.setUserId(userId);
-            logCoinInfo.setAction(CONSUME_ACTION_PLUS);
-            logCoinInfo.setCoin(coinIAPInfo.getNumber());
-            logCoinInfo.setAmount(coinIAPInfo.getAmount());
-            logCoinInfo.setPlatform(platform);
-            logCoinInfo.setTransactionId(transactionId);
-            logCoinInfo.setDescription("IAP purchase: " + coinIAPInfo.getName());
-            logCoinInfo.setRemark(result);
-            logCoinDao.insertOne(logCoinInfo);
+
+            //bill user add coin info
+            CoinBillInfo coinBillInfo = new CoinBillInfo();
+            coinBillInfo.setUserId(userId);
+            coinBillInfo.setRelationId(0);
+            coinBillInfo.setType(CoinBillInfo.TYPE_CHARGE);
+            coinBillInfo.setCategory(CoinBillInfo.CATEGORY_CHARGE_IAP);
+            coinBillInfo.setCoins(coinIAPInfo.getNumber());
+            coinBillInfo.setAmount(coinIAPInfo.getAmount());
+            coinBillInfo.setPlatform(platform);
+            coinBillInfo.setTransactionId(transactionId);
+            coinBillInfo.setDescription("charge by apple store: " + coinIAPInfo.getNumber());
+            coinBillInfo.setComment(receiptData);
+            logger.info(coinBillInfo.toString());
+            coinBillDao.insertOne(coinBillInfo);
+
         } catch (IOException e) {
             throw new XException("Apple server response error");
         }
@@ -219,17 +233,22 @@ public class CoinService {
                 coinDao.insertOne(userId, coinIAPInfo.getNumber());
             }
 
-            //log iap info
-            LogCoinInfo logCoinInfo = new LogCoinInfo();
-            logCoinInfo.setUserId(userId);
-            logCoinInfo.setAction(CONSUME_ACTION_PLUS);
-            logCoinInfo.setCoin(coinIAPInfo.getNumber());
-            logCoinInfo.setAmount(coinIAPInfo.getAmount());
-            logCoinInfo.setPlatform(platform);
-            logCoinInfo.setTransactionId(transactionId);
-            logCoinInfo.setDescription("IAP purchase: " + coinIAPInfo.getName());
-            logCoinInfo.setRemark(result);
-            logCoinDao.insertOne(logCoinInfo);
+
+            //bill user add coin info
+            CoinBillInfo coinBillInfo = new CoinBillInfo();
+            coinBillInfo.setUserId(userId);
+            coinBillInfo.setRelationId(0);
+            coinBillInfo.setType(CoinBillInfo.TYPE_CHARGE);
+            coinBillInfo.setCategory(CoinBillInfo.CATEGORY_CHARGE_IAP);
+            coinBillInfo.setCoins(coinIAPInfo.getNumber());
+            coinBillInfo.setAmount(coinIAPInfo.getAmount());
+            coinBillInfo.setPlatform(platform);
+            coinBillInfo.setTransactionId(transactionId);
+            coinBillInfo.setDescription("charge by sandbox apple store: " + coinIAPInfo.getNumber());
+            coinBillInfo.setComment(receiptData);
+            logger.info(coinBillInfo.toString());
+            coinBillDao.insertOne(coinBillInfo);
+
         } catch (IOException e) {
             throw new XException("Apple server response error");
         }
@@ -237,12 +256,49 @@ public class CoinService {
     }
 
 
-    public ResultInfo<LogCoinInfo> getBills(int userId){
-        List<LogCoinInfo> logCoinInfoList = logCoinDao.selectByUserId(userId);
-        if(logCoinInfoList == null || logCoinInfoList.size() <= 0){
+    public ResultInfo getBills(int userId){
+        List<CoinBillInfo> coinBillInfoList = coinBillDao.selectByUserId(userId);
+        if(coinBillInfoList == null || coinBillInfoList.size() <= 0){
             throw new XException(EnumResult.ERROR_NO_FOUND);
         }
-        return ResultMaster.success(logCoinInfoList);
+        return ResultMaster.success(coinBillInfoList);
+    }
+
+
+
+
+
+
+    public ResultInfo<CoinBillChartMonthlyInfo> chartMonth(int userId, int year, int month){
+        YearMonthInfo yearMonthInfo = new YearMonthInfo(year, month);
+        List<CoinBillInfo> coinBillInfoList = coinBillDao.selectMonthBillByUserId(userId,
+                yearMonthInfo.getStart(),
+                yearMonthInfo.getEnd());
+        CoinBillChartMonthlyInfo coinBillChartMonthlyInfo = new CoinBillChartMonthlyInfo();
+        int incomeCoins = 0;
+        int consumeCoins = 0;
+        int chargeCoins = 0;
+        for (CoinBillInfo coinBillInfo: coinBillInfoList) {
+            if(coinBillInfo.getType() == CoinBillInfo.TYPE_CHARGE){
+                chargeCoins += coinBillInfo.getCoins();
+            }else if(coinBillInfo.getType() == CoinBillInfo.TYPE_INCOME){
+                incomeCoins += coinBillInfo.getCoins();
+            }else if(coinBillInfo.getType() == CoinBillInfo.TYPE_CONSUME){
+                consumeCoins += coinBillInfo.getCoins();
+            }
+        }
+        coinBillChartMonthlyInfo.setChargeCoins(chargeCoins);
+        coinBillChartMonthlyInfo.setConsumeCoins(consumeCoins);
+        coinBillChartMonthlyInfo.setIncomeCoins(incomeCoins);
+        return ResultMaster.success(coinBillChartMonthlyInfo);
+    }
+
+    public ResultInfo<CoinBillDaysInfo> chartDays(int userId, int year, int month){
+        YearMonthInfo yearMonthInfo = new YearMonthInfo(year, month);
+        List<CoinBillDaysInfo> coinBillDaysInfoList = coinBillDao.selectDaysBillByUserId(userId,
+                yearMonthInfo.getStart(),
+                yearMonthInfo.getEnd());
+        return ResultMaster.success(coinBillDaysInfoList);
     }
 
 }

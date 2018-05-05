@@ -9,7 +9,7 @@ public class CoinIAPInfo extends BaseInfo {
     private String name;
     private String identifier;
     private int number;
-    private Float amount;
+    private Double amount;
 
     public String getName() {
         return name;
@@ -35,11 +35,11 @@ public class CoinIAPInfo extends BaseInfo {
         this.number = number;
     }
 
-    public Float getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
-    public void setAmount(Float amount) {
+    public void setAmount(Double amount) {
         this.amount = amount;
     }
 
