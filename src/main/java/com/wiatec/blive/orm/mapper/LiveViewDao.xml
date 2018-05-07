@@ -12,8 +12,42 @@
         UPDATE IGNORE bvision_live_view SET modify_time = now() WHERE id = #{id}
     </update>
 
-    <select id="selectBy2Id" resultType="com.wiatec.blive.orm.pojo.LiveViewInfo">
-        SELECT * FROM bvision_live_view WHERE player_id = #{playerId} AND viewer_id = #{viewerId}
+    <select id="selectByPlayerId" resultType="com.wiatec.blive.orm.pojo.LiveViewInfo">
+        SELECT * FROM bvision_live_view WHERE player_id = #{playerId}
+    </select>
+
+
+    <select id="countViews" resultType="java.lang.Integer">
+      SELECT COUNT(1) FROM bvision_live_view WHERE player_id = #{playerId} AND viewer_id > 0
+    </select>
+
+    <select id="countViewersByPlayerId" resultType="java.lang.Integer">
+      SELECT COUNT(DISTINCT viewer_id) FROM bvision_live_view WHERE player_id = #{playerId} AND viewer_id > 0
+    </select>
+
+    <select id="selectViewByPlayerId" resultType="com.wiatec.blive.dto.LiveViewersInfo">
+      SELECT viewer_id userId, auth_register_user.username username, COUNT(viewer_id) count,
+          SUM(TIMESTAMPDIFF(SECOND, bvision_live_view.create_time, bvision_live_view.modify_time)) seconds
+      FROM bvision_live_view, auth_register_user
+      WHERE viewer_id = auth_register_user.id
+          AND player_id = #{playerId}
+            AND viewer_id > 0
+      GROUP BY viewer_id, username
+      ORDER BY count DESC
+    </select>
+
+    <select id="selectDaysDistributionByPlayerId" resultType="com.wiatec.blive.dto.LiveDaysDistributionInfo">
+      SELECT date (bvision_live_view.create_time) day, COUNT(1) count
+      FROM bvision_live_view
+      WHERE player_id = #{playerId}
+        GROUP BY day
+    </select>
+
+    <select id="selectTimeDistributionByPlayerId" resultType="com.wiatec.blive.dto.LiveTimeDistributionInfo">
+      SELECT HOUR(bvision_live_view.create_time) hour, COUNT(1) count
+      FROM bvision_live_view
+      WHERE player_id = #{playerId}
+        GROUP BY hour
     </select>
 
 </mapper>

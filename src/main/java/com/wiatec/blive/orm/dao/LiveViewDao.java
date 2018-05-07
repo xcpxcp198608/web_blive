@@ -1,5 +1,8 @@
 package com.wiatec.blive.orm.dao;
 
+import com.wiatec.blive.dto.LiveDaysDistributionInfo;
+import com.wiatec.blive.dto.LiveTimeDistributionInfo;
+import com.wiatec.blive.dto.LiveViewersInfo;
 import com.wiatec.blive.orm.pojo.LiveViewInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -17,6 +20,18 @@ public interface LiveViewDao {
 
     int updateOne(@Param("id") long id);
 
-    List<LiveViewInfo> selectBy2Id(@Param("playerId") int playerId, @Param("viewerId") int viewerId);
+    List<LiveViewInfo> selectByPlayerId(int playerId);
+
+    int countViews(int playerId);
+
+    int countViewersByPlayerId(int playerId);
+
+
+
+    List<LiveViewersInfo> selectViewByPlayerId(int playerId);
+
+    List<LiveDaysDistributionInfo> selectDaysDistributionByPlayerId(int playerId);
+
+    List<LiveTimeDistributionInfo> selectTimeDistributionByPlayerId(int playerId);
 
 }

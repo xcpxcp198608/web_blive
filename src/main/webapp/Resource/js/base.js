@@ -30,6 +30,17 @@ function getDaysOfCurrentMonth(year, month) {
     return d.getDate();
 }
 
+function dateDiff(sDate2) {
+    var sDate1=new Date();
+    var aDate, oDate1, oDate2, iDays;
+    aDate = sDate1.split("-");
+    oDate1 = new Date(aDate[1] + '-' + aDate[2] + '-' + aDate[0]);
+    aDate = sDate2.split("-");
+    oDate2 = new Date(aDate[1] + '-' + aDate[2] + '-' + aDate[0]);
+    iDays = parseInt((oDate1 - oDate2) / 1000 / 60 / 60 / 24);
+    return iDays;
+}
+
 function showErrorMessage() {
     $('#progress_div').css('display', 'none');
     $('#status_div').css('display','block');

@@ -1,19 +1,26 @@
 package com.wiatec.blive.service;
 
+import com.google.common.base.Splitter;
 import com.wiatec.blive.common.jpush.PushMaster;
 import com.wiatec.blive.common.jpush.PushPayloadBuilder;
 import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
+import com.wiatec.blive.common.utils.TimeUtil;
+import com.wiatec.blive.dto.LiveDaysDistributionInfo;
+import com.wiatec.blive.dto.LiveTimeDistributionInfo;
+import com.wiatec.blive.dto.LiveViewersInfo;
 import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
 import com.wiatec.blive.orm.dao.LiveChannelDao;
+import com.wiatec.blive.orm.dao.LiveViewDao;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.rtmp.RtmpInfo;
 import com.wiatec.blive.rtmp.RtmpMaster;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -26,6 +33,8 @@ public class ChannelService {
 
     @Resource
     private LiveChannelDao liveChannelDao;
+    @Resource
+    private LiveViewDao liveViewDao;
     @Resource
     private AuthRegisterUserDao authRegisterUserDao;
 
@@ -205,5 +214,45 @@ public class ChannelService {
     public ResultInfo<LiveChannelInfo> updatePreview(LiveChannelInfo channelInfo){
         liveChannelDao.updatePreviewByUserId(channelInfo);
         return ResultMaster.success(liveChannelDao.selectOneByUserId(channelInfo.getUserId()));
+    }
+
+
+
+
+
+
+    public String liveViewAnalysis(int userId, Model model){
+        int views = liveViewDao.countViews(userId);
+        model.addAttribute("views", views);
+        int viewers = liveViewDao.countViewersByPlayerId(userId);
+        model.addAttribute("viewers", viewers);
+
+        List<LiveViewersInfo> liveViewersInfoList = liveViewDao.selectViewByPlayerId(userId);
+        liveViewersInfoList.forEach(item -> item.setDuration(TimeUtil.getMediaTime(item.getSeconds())));
+        model.addAttribute("liveViewersInfoList", liveViewersInfoList);
+        return "channel/analysis";
+    }
+
+    public ResultInfo getLiveChannelViewDaysDistribution(int userId){
+        List<LiveDaysDistributionInfo> liveDaysDistributionInfoList = liveViewDao.selectDaysDistributionByPlayerId(userId);
+        liveDaysDistributionInfoList.forEach(item -> {
+            item.setDay(item.getDay().replaceAll("\\-", "/"));
+            List<String> strings = Splitter.on("/").splitToList(item.getDay());
+            StringBuilder stringBuilder = new StringBuilder();
+            strings.forEach(i -> {
+                int x = Integer.parseInt(i);
+                stringBuilder.append(x);
+                stringBuilder.append("/");
+            });
+            String r = stringBuilder.toString();
+            r = r.substring(0, r.length() - 1);
+            item.setDay(r);
+        });
+        return ResultMaster.success(liveDaysDistributionInfoList);
+    }
+
+    public ResultInfo getLiveChannelViewTimeDistribution(int userId){
+        List<LiveTimeDistributionInfo> liveTimeDistributionInfos = liveViewDao.selectTimeDistributionByPlayerId(userId);
+        return ResultMaster.success(liveTimeDistributionInfos);
     }
 }
