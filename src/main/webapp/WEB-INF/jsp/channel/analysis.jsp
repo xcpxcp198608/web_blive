@@ -74,7 +74,7 @@
         <div id="list_views" style="background-color: #151617">
             <table class="table table-sm table-hover table-dark" id="tbAllDevices" style="margin-top: 5px; font-size: 12px">
                 <thead>
-                <tr>
+                <tr class="text-center">
                     <th>#</th>
                     <th>Username</th>
                     <th>Views</th>
@@ -83,7 +83,7 @@
                 </thead>
                 <tbody>
                     <c:forEach items="${liveViewersInfoList}" var="liveViewersInfo" varStatus="status">
-                        <tr>
+                        <tr class="text-center">
                             <td>${status.index + 1}</td>
                             <td>${liveViewersInfo.username}</td>
                             <td>${liveViewersInfo.count}</td>

@@ -38,6 +38,7 @@ public class AuthRegisterUserService extends BaseService {
     @Resource
     private LogUserOperationDao logUserOperationDao;
 
+
     /**
      * user sign up
      * @param request   HttpServletRequest
@@ -46,6 +47,9 @@ public class AuthRegisterUserService extends BaseService {
      */
     @Transactional(rollbackFor = Exception.class)
     public ResultInfo<AuthRegisterUserInfo> signUp(HttpServletRequest request, AuthRegisterUserInfo userInfo){
+        if(userInfo.getUsername().toLowerCase().contains("james")){
+            throw new XException(EnumResult.ERROR_USERNAME_EXISTS);
+        }
         if(authRegisterUserDao.countByUsername(userInfo.getUsername()) == COUNT_1){
             throw new XException(EnumResult.ERROR_USERNAME_EXISTS);
         }

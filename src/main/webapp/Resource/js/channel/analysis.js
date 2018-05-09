@@ -27,7 +27,7 @@ var analysis = {
 
                     var date = [];
                     var data = [];
-                    var base = + new Date("2018-05-01 00:00:00");
+                    var base = + new Date(2018,4,1);
                     var oneDay = 24 * 3600 * 1000;
                     var x = Math.abs(parseInt((base - new Date()) / 86400000));
 
@@ -80,11 +80,12 @@ var analysis = {
                         type: 'value',
                         boundaryGap: [0, '100%']
                     },
-                    dataZoom: [{
-                        type: 'inside',
-                        start: 0,
-                        end: 100
-                    },
+                    dataZoom: [
+                        // {
+                        //     type: 'inside',
+                        //     start: 0,
+                        //     end: 100
+                        // },
                         {
                             start: 0,
                             end: 100,
@@ -154,15 +155,15 @@ var analysis = {
 
 
                     chartHour.setOption(getHoursOption(xData, yData));
-                    var zoomSize = 6;
-                    chartHour.on('click', function (params) {
-                        console.log(xData[Math.max(params.dataIndex - zoomSize / 2, 0)]);
-                        chartHour.dispatchAction({
-                            type: 'dataZoom',
-                            startValue: xData[Math.max(params.dataIndex - zoomSize / 2, 0)],
-                            endValue: xData[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
-                        });
-                    });
+                    // var zoomSize = 6;
+                    // chartHour.on('click', function (params) {
+                    //     console.log(xData[Math.max(params.dataIndex - zoomSize / 2, 0)]);
+                    //     chartHour.dispatchAction({
+                    //         type: 'dataZoom',
+                    //         startValue: xData[Math.max(params.dataIndex - zoomSize / 2, 0)],
+                    //         endValue: xData[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
+                    //     });
+                    // });
                 }
             });
 
@@ -210,11 +211,11 @@ var analysis = {
                             }
                         }
                     },
-                    dataZoom: [
-                        {
-                            type: 'inside'
-                        }
-                    ],
+                    // dataZoom: [
+                    //     {
+                    //         type: 'inside'
+                    //     }
+                    // ],
                     series: [
                         { // For shadow
                             type: 'bar',

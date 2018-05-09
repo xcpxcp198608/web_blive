@@ -1,10 +1,9 @@
 package com.wiatec.blive.ws;
 
+import com.wiatec.blive.common.result.EnumResult;
+import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.common.utils.ApplicationContextHelper;
-import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
-import com.wiatec.blive.orm.dao.LiveChannelDao;
-import com.wiatec.blive.orm.dao.LiveViewDao;
-import com.wiatec.blive.orm.dao.LogLiveCommentDao;
+import com.wiatec.blive.orm.dao.*;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.orm.pojo.LiveViewInfo;
@@ -18,6 +17,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,19 +39,22 @@ public class LiveSocket {
     private static final int MSG_TYPE_FULL = 0;
     private static final int MSG_TYPE_GROUP = 1;
 
-    private static SqlSession sqlSession;
-
     private static AuthRegisterUserDao authRegisterUserDao;
     private static LiveChannelDao liveChannelDao;
     private static LogLiveCommentDao logLiveCommentDao;
     private static LiveViewDao liveViewDao;
+    private static LdIllegalWordDao ldIllegalWordDao;
+
+    private static List<String> illegalWords;
 
     static {
-        sqlSession = (SqlSession) ApplicationContextHelper.getApplicationContext().getBean("sqlSessionTemplate");
+        SqlSession sqlSession = (SqlSession) ApplicationContextHelper.getApplicationContext().getBean("sqlSessionTemplate");
         liveViewDao = sqlSession.getMapper(LiveViewDao.class);
         authRegisterUserDao = sqlSession.getMapper(AuthRegisterUserDao.class);
         liveChannelDao = sqlSession.getMapper(LiveChannelDao.class);
         logLiveCommentDao = sqlSession.getMapper(LogLiveCommentDao.class);
+        ldIllegalWordDao = sqlSession.getMapper(LdIllegalWordDao.class);
+        illegalWords = ldIllegalWordDao.selectAll();
     }
 
 
@@ -83,9 +86,11 @@ public class LiveSocket {
         sendMessage("blive group count:" + getCountByGroupId(groupId));
 
         //记录观看开始
-        liveViewInfo.setPlayerId(groupId);
-        liveViewInfo.setViewerId(userId);
-        insertSuccess = liveViewDao.insertOne(liveViewInfo) == 1;
+        if(groupId != userId) {
+            liveViewInfo.setPlayerId(groupId);
+            liveViewInfo.setViewerId(userId);
+            insertSuccess = liveViewDao.insertOne(liveViewInfo) == 1;
+        }
     }
 
     /**
@@ -107,9 +112,13 @@ public class LiveSocket {
         logger.debug("ws -> type: {}", type);
         logger.debug("ws -> group: {}", group);
         logger.debug("ws -> comment: {}", comment);
-        for(String key: KEYS){
-            comment = comment.replace(key, "**");
+
+        if(illegalWords != null && illegalWords.size() >0){
+            for(String key: illegalWords){
+                comment = comment.replace(key, "**");
+            }
         }
+
         if(type == MSG_TYPE_FULL){
             for(Map.Entry<Integer, LiveSocket> entry: clientMap.entrySet()){
                 entry.getValue().sendMessage(comment);
@@ -133,12 +142,20 @@ public class LiveSocket {
 
     @OnClose
     public void onClose(Session session, CloseReason reason) {
+        if(groupId == userId){
+            for(Map.Entry<Integer, LiveSocket> entry: clientMap.entrySet()) {
+                LiveSocket liveSocket = entry.getValue();
+                if (liveSocket.getGroupId() == groupId) {
+                    liveSocket.sendMessage("blive live finished");
+                }
+            }
+        }
         clientMap.remove(userId);
         liveChannelDao.updateUnavailableByUserId(userId);
         logger.debug("ws -> client " + userId +" disconnect, current client is: {}", getOnlineCount());
 
         //记录观看结束
-        if(insertSuccess) {
+        if(groupId != userId && insertSuccess) {
             liveViewDao.updateOne(liveViewInfo.getId());
         }
     }

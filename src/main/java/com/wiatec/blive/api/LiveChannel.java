@@ -1,8 +1,10 @@
 package com.wiatec.blive.api;
 
+import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
+import com.wiatec.blive.orm.dao.LdIllegalWordDao;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.service.AuthRegisterUserService;
@@ -41,6 +43,8 @@ public class LiveChannel {
     private AuthRegisterUserService authRegisterUserService;
     @Resource
     private ChannelService channelService;
+    @Resource
+    private LdIllegalWordDao ldIllegalWordDao;
 
     @RequestMapping(value = "/")
     public List<LiveChannelInfo> get(){
@@ -82,14 +86,26 @@ public class LiveChannel {
      */
     @PutMapping("/update/{action}")
     public ResultInfo updateChannel(@PathVariable int action, @RequestBody LiveChannelInfo channelInfo){
-        for (String s: FILTER_KEYWORD) {
-            if(channelInfo.getTitle().contains(s)){
-                throw new XException("title contains not allow word");
-            }
-            if(channelInfo.getMessage().contains(s)){
-                throw new XException("content contains not allow word");
+        List<String> words = ldIllegalWordDao.selectAll();
+        if(words != null && words.size() > 0){
+            for (String s: words) {
+                if(channelInfo.getTitle().contains(s)){
+                    throw new XException("title contains illegal word");
+                }
+                if(channelInfo.getMessage().contains(s)){
+                    throw new XException("content contains illegal word");
+                }
             }
         }
+
+//        for (String s: FILTER_KEYWORD) {
+//            if(channelInfo.getTitle().contains(s)){
+//                throw new XException("title contains not allow word");
+//            }
+//            if(channelInfo.getMessage().contains(s)){
+//                throw new XException("content contains not allow word");
+//            }
+//        }
         if(action == 0) {
             return channelService.updateChannelAllSetting(channelInfo);
         }
