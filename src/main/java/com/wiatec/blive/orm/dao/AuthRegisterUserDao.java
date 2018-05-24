@@ -3,6 +3,7 @@ package com.wiatec.blive.orm.dao;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,4 +40,9 @@ public interface AuthRegisterUserDao {
     int updatePasswordByUserId(@Param("userId") int userId, @Param("password") String password);
     int updateGender(@Param("userId") int userId, @Param("gender") int gender);
     int updateProfile(@Param("userId") int userId, @Param("profile") String profile);
+    int updateLevelByUserId(@Param("userId") int userId, @Param("level") int level,
+                            @Param("expiresDate") Date expiresDate);
+
+
+    int updateRCTokenById(@Param("userId") int userId, @Param("rcToken") String rcToken);
 }

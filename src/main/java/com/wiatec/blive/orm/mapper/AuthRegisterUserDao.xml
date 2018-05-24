@@ -7,7 +7,7 @@
         SELECT id, username, email, phone, first_name, last_name, level, email_status,
             mac, country, region, city, time_zone, token, active_time, expires_time,
             last_online_time, create_time, modify_time, status, device_model, rom_version,
-            ui_version, icon, gender, bvision, btv, profile
+            ui_version, icon, gender, bvision, btv, profile, rc_token
         FROM auth_register_user
     </sql>
 
@@ -139,6 +139,18 @@
     <update id="updateProfile">
         UPDATE IGNORE auth_register_user
         SET profile = #{profile}, modify_time = now()
+        WHERE id = #{userId}
+    </update>
+
+    <update id="updateLevelByUserId">
+        UPDATE IGNORE auth_register_user
+        SET level = #{level}, expires_time = #{expiresDate}, modify_time = now()
+        WHERE id = #{userId}
+    </update>
+
+    <update id="updateRCTokenById">
+        UPDATE IGNORE auth_register_user
+        SET rc_token = #{rcToken}, modify_time = now()
         WHERE id = #{userId}
     </update>
 

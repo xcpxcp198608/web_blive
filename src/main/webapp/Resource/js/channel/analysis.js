@@ -61,7 +61,7 @@ var analysis = {
                     },
                     title: {
                         left: 'center',
-                        text: 'Views of per day',
+                        text: 'Views per day',
                         textStyle: {
                             align: 'middle',
                             color: '#f1dbb6'
@@ -171,7 +171,7 @@ var analysis = {
             function getHoursOption(xData, yData){
                 return {
                     title: {
-                        text: 'Time distribution',
+                        text: 'Viewers volume and timestamp',
                         subtext: '',
                         textStyle: {
                             align: 'middle',

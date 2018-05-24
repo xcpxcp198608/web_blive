@@ -1,6 +1,7 @@
 package com.wiatec.blive.service;
 
 import com.google.common.base.Splitter;
+import com.wiatec.blive.apns.APNsMaster;
 import com.wiatec.blive.common.jpush.PushMaster;
 import com.wiatec.blive.common.jpush.PushPayloadBuilder;
 import com.wiatec.blive.common.result.EnumResult;
@@ -14,10 +15,12 @@ import com.wiatec.blive.dto.LiveViewersInfo;
 import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
 import com.wiatec.blive.orm.dao.LiveChannelDao;
 import com.wiatec.blive.orm.dao.LiveViewDao;
+import com.wiatec.blive.orm.dao.RelationFollowDao;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.rtmp.RtmpInfo;
 import com.wiatec.blive.rtmp.RtmpMaster;
+import com.wiatec.blive.txcloud.LiveChannelMaster;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -37,6 +40,8 @@ public class ChannelService {
     private LiveViewDao liveViewDao;
     @Resource
     private AuthRegisterUserDao authRegisterUserDao;
+    @Resource
+    private RelationFollowDao relationFollowDao;
 
     /**
      * select channels that in living
@@ -195,13 +200,25 @@ public class ChannelService {
      * @return ResultInfo
      */
     public ResultInfo<LiveChannelInfo> updateChannelStatus(int action, int userId){
-        AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);
-        LiveChannelInfo channelInfo = liveChannelDao.selectOneByUserId(userId);
+        LiveChannelInfo channelInfo;
         if(action == 1){
-            liveChannelDao.updateAvailableByUserId(userId);
-            PushMaster.push(PushPayloadBuilder.buildForIos(userInfo.getUsername() + " start live: " + channelInfo.getTitle()));
+            LiveChannelInfo liveChannelInfo = LiveChannelMaster.create(userId);
+            if(liveChannelInfo == null){
+                throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+            }
+            if(liveChannelDao.updateAvailableAndUrlByUserId(liveChannelInfo) != 1){
+                throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+            }
+            channelInfo = liveChannelDao.selectOneByUserId(userId);
+            if(channelInfo == null){
+                throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+            }
+            List<Integer> integerList = relationFollowDao.selectFollowersIdByUserId(userId);
+            APNsMaster.batchSend(userId, integerList, APNsMaster.ACTION_LIVE_START, channelInfo.getTitle());
+            //PushMaster.push(PushPayloadBuilder.buildForIos(userInfo.getUsername() + " start live: " + channelInfo.getTitle()));
         }else {
             liveChannelDao.updateUnavailableByUserId(userId);
+            channelInfo = new LiveChannelInfo();
         }
         return ResultMaster.success(channelInfo);
     }

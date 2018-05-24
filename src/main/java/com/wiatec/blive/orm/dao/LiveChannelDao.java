@@ -25,6 +25,7 @@ public interface LiveChannelDao {
     int updateLinkByUserId(LiveChannelInfo channelInfo);
     int updateAllSettingByUserId(LiveChannelInfo channelInfo);
     int updateAvailableByUserId(int userId);
+    int updateAvailableAndUrlByUserId(LiveChannelInfo channelInfo);
     int updateUnavailableByUserId(int userId);
     int updatePreviewByUserId(LiveChannelInfo channelInfo);
 }

@@ -100,6 +100,13 @@
         WHERE userId=#{userId}
     </update>
 
+    <update id="updateAvailableAndUrlByUserId">
+        UPDATE IGNORE bvision_channel_live
+        SET available = 1, startTime = now(), modify_time = now(), url = #{url},
+            playUrl = #{playUrl}, rtmp_url = #{rtmpUrl}, rtmp_key = #{rtmpKey}
+        WHERE userId=#{userId}
+    </update>
+
     <update id="updateUnavailableByUserId">
         UPDATE bvision_channel_live
         SET available = 0, startTime = now(), modify_time = now()

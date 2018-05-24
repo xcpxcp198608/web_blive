@@ -89,4 +89,12 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.0.5'
     compile 'com.google.guava:guava:25.0-jre'
 
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
+
+
+    // https://mvnrepository.com/artifact/com.notnoop.apns/apns
+    compile group: 'com.notnoop.apns', name: 'apns', version: '1.0.0.Beta6'
+
+
 }

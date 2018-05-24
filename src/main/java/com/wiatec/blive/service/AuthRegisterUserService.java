@@ -13,6 +13,7 @@ import com.wiatec.blive.orm.dao.*;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.orm.pojo.LogUserOperationInfo;
+import com.wiatec.blive.rongc.RCManager;
 import com.wiatec.blive.rtmp.RtmpInfo;
 import com.wiatec.blive.rtmp.RtmpMaster;
 import org.springframework.stereotype.Service;
@@ -120,7 +121,21 @@ public class AuthRegisterUserService extends BaseService {
         String token = TokenUtil.create64(userInfo.getUsername());
         userInfo.setToken(token);
         authRegisterUserDao.updateSignInInfoByUsername(userInfo);
+
         AuthRegisterUserInfo userInfo1 = authRegisterUserDao.selectOneByUsername(userInfo.getUsername());
+
+        if(TextUtil.isEmpty(userInfo1.getRcToken())){
+            if(userInfo1.getIcon() == null){
+                userInfo1.setIcon("sf");
+            }
+            String rcToken = RCManager.getToken(userInfo1.getId(), userInfo1.getUsername(), userInfo1.getIcon());
+            authRegisterUserDao.updateRCTokenById(userInfo1.getId(), rcToken);
+        }
+
+        userInfo1 = authRegisterUserDao.selectOneByUsername(userInfo.getUsername());
+        if(userInfo1 == null){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
         logUserOperationDao.insertOne(userInfo1.getId(), LogUserOperationInfo.TYPE_SELECT, "sign in");
         return ResultMaster.success(userInfo1);
     }
@@ -243,8 +258,18 @@ public class AuthRegisterUserService extends BaseService {
         if(authRegisterUserDao.updateIconByUserId(icon, userId) != COUNT_1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
+        AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);
+        if(userInfo == null){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        String rcToken = RCManager.getToken(userInfo.getId(), userInfo.getUsername(), userInfo.getIcon());
+        authRegisterUserDao.updateRCTokenById(userInfo.getId(), rcToken);
+        userInfo = authRegisterUserDao.selectOneById(userId);
+        if(userInfo == null){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
         logUserOperationDao.insertOne(userId, LogUserOperationInfo.TYPE_UPDATE, "update icon");
-        return ResultMaster.success(authRegisterUserDao.selectOneById(userId));
+        return ResultMaster.success(userInfo);
     }
 
     /**

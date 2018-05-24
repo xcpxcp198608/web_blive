@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * @author patrick
@@ -58,6 +59,13 @@ public class TimeUtil {
         calendar.add(Calendar.MONTH, expires);
         date = calendar.getTime();
         return getStrTime(date.getTime());
+    }
+
+    public static Date getExpiresTime(Date startDate, int month){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
+        calendar.add(Calendar.MONTH, month);
+        return calendar.getTime();
     }
 
     public static String getExpiresDate(String activateTime, int expires){
@@ -128,9 +136,118 @@ public class TimeUtil {
         return ""+ hour + ":"+ m +":"+ x;
     }
 
-    public static void main (String [] args){
-        System.out.println(getMediaTime(21665));
+    /**
+     * 获取当前时间的字符串格式
+     * @return yyyy-MM-dd HH:mm:ss
+     */
+    public static String toStr(){
+        return toStr(new Date(System.currentTimeMillis()));
     }
+
+    /**
+     * 获取指定unix毫秒数对应的时间字符串
+     * @param milliseconds  milliseconds
+     * @return yyyy-MM-dd HH:mm:ss
+     */
+    public static String toStr(long milliseconds){
+        return toStr(new Date(milliseconds));
+    }
+
+    /**
+     * 获取指定date对应的时间字符串
+     * @param date date
+     * @return milliseconds
+     */
+    public static String toStr(Date date){
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(date);
+    }
+
+    /**
+     * 判断指定日期是否已过期
+     * @param expiresDate expiresDate
+     * @return boolean
+     */
+    public static boolean isExpires(Date expiresDate){
+        return expiresDate.before(new Date());
+    }
+
+    /**
+     * 获取从现在起指定month后的结束date
+     * @param days days
+     * @return end date
+     */
+    public static Date getExpiresByDays(int days){
+        return getExpiresByDays(new Date(), days);
+    }
+
+    /**
+     * 获取指定起始date在指定month后的结束date
+     * @param date start date
+     * @param days days
+     * @return end date
+     */
+    public static Date getExpiresByDays(Date date, int days){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_YEAR, days);
+        return calendar.getTime();
+    }
+
+    /**
+     * 获取从现在起指定month后的结束date
+     * @param month month
+     * @return end date
+     */
+    public static Date getExpires(int month){
+        return getExpires(new Date(), month);
+    }
+
+    /**
+     * 获取指定起始date在指定month后的结束date
+     * @param date start date
+     * @param month month
+     * @return end date
+     */
+    public static Date getExpires(Date date, int month){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MONTH, month);
+        return calendar.getTime();
+    }
+
+    /**
+     * 获取字符串格式时间对应的unix时间戳
+     * @param date 字符串时间 yyyy-MM-dd or yyyy-MM-dd HH:mm:ss
+     * @return unix时间戳
+     */
+    public static long toUnix(String date){
+        if(TextUtil.isEmpty(date)){
+            return 0;
+        }
+        date = date.trim();
+        try {
+            Date d;
+            if(date.length() == 10){
+                d = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(date);
+            }else{
+                d = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).parse(date);
+            }
+            return toUnix(d);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /**
+     * 获取指定date对应的unix时间戳
+     * @param date date
+     * @return unix时间戳
+     */
+    public static long toUnix(Date date){
+        return date.getTime();
+    }
+
+
 
 
 }

@@ -29,11 +29,15 @@ public class EmailMaster {
 //	String userName = "ld_reg@foxmail.com";
 //	String password ="xbfixpknxoeqdbbe";
 
-		String sendAddress = "bactivation@legacy.direct";
-		String userName = "bactivation@legacy.direct";
-		String password ="Ihatespam123#";
+//		String sendAddress = "bactivation@legacy.direct";
+//		String userName = "bactivation@legacy.direct";
+//		String password ="Wangwang123#";
 
-		String emailSubject = "WELCOME TO LD";
+		String sendAddress = "activation@bvisionnetwork.com";
+		String userName = "activation@bvisionnetwork.com";
+		String password ="Legacy123#";
+
+		String emailSubject = "WELCOME TO BVISION";
 		Properties properties;
 		Session session;
 		MimeMessage message;
@@ -101,7 +105,7 @@ public class EmailMaster {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("Dear "+userName+":<br/>");
 		stringBuilder.append("<br/>");
-		stringBuilder.append("Legacy Direct"+"<br/>");
+		stringBuilder.append("BVISION"+"<br/>");
 		stringBuilder.append("<a href='" + basePath + "/user/activate/"+token+"'>" +
 				"ACTIVATE MY ACCOUNT</a>"+"<br/><br/>");
 		this.emailContent = stringBuilder.toString();
@@ -111,7 +115,7 @@ public class EmailMaster {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("Dear "+userName+":<br/>");
 		stringBuilder.append("<br/>");
-		stringBuilder.append("Legacy Direct"+"<br/>");
+		stringBuilder.append("BVISION"+"<br/>");
 		stringBuilder.append("You have requested to reset your password.  " +
 				"Please click the link below to finalize the process."+"<br/><br/>");
 		stringBuilder.append("<a href='" + basePath + "/user/go/"+token+"'>" +

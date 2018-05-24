@@ -6,13 +6,16 @@ import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.common.utils.TextUtil;
+import com.wiatec.blive.common.utils.TimeUtil;
 import com.wiatec.blive.dto.CoinBillChartDaysInfo;
 import com.wiatec.blive.dto.CoinBillDaysInfo;
 import com.wiatec.blive.dto.CoinBillChartMonthlyInfo;
 import com.wiatec.blive.dto.YearMonthInfo;
+import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
 import com.wiatec.blive.orm.dao.CoinBillDao;
 import com.wiatec.blive.orm.dao.CoinDao;
 import com.wiatec.blive.orm.dao.CoinIAPDao;
+import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.CoinBillInfo;
 import com.wiatec.blive.orm.pojo.CoinIAPInfo;
 import okhttp3.Response;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,12 +46,16 @@ public class CoinService {
     private final int CONSUME_ACTION_SUB = 0;
     private final int CONSUME_ACTION_PLUS = 1;
 
+    private final int PRICE_PRO_MONTH = 688;
+
     @Resource
     private CoinDao coinDao;
     @Resource
     private CoinIAPDao coinIAPDao;
     @Resource
     private CoinBillDao coinBillDao;
+    @Resource
+    private AuthRegisterUserDao authRegisterUserDao;
 
     /**
      * get all coins number by user id
@@ -72,14 +80,16 @@ public class CoinService {
     @Transactional(rollbackFor = Exception.class)
     public ResultInfo consumeCoin(int userId, int targetUserId, int category, int consumeCoins,
                                   String platform, String description, String comment){
+        //检查消费者账户金额是否足够
         int userCoins = coinDao.countCoins(userId);
         if(userCoins < consumeCoins){
             throw new XException("Coins not enough");
         }
+        // 从消费者账户扣除金额
         if(coinDao.updateOne(userId, CONSUME_ACTION_SUB, consumeCoins) != 1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
-
+        // 将金额增加到收入者的账户
         if(coinDao.countOne(targetUserId) == 1) {
             if (coinDao.updateOne(targetUserId, CONSUME_ACTION_PLUS, consumeCoins) != 1) {
                 throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
@@ -89,6 +99,24 @@ public class CoinService {
                 throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
             }
         }
+        // 购买pro时修改用户等级到6
+        if(category == CoinBillInfo.CATEGORY_CONSUME_PRO){
+            int month = consumeCoins / PRICE_PRO_MONTH;
+            AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);
+            if(userInfo == null){
+                throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+            }
+            Date expiresDate = userInfo.getExpiresTime();
+            if(expiresDate.after(new Date())){
+                expiresDate = TimeUtil.getExpiresTime(expiresDate, month);
+            }else{
+                expiresDate = TimeUtil.getExpiresTime(new Date(), month);
+            }
+            if(authRegisterUserDao.updateLevelByUserId(userId, 6, expiresDate) != 1){
+                throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+            }
+        }
+
         //bill user consume info
         CoinBillInfo coinBillInfo = new CoinBillInfo();
         coinBillInfo.setUserId(userId);
@@ -107,13 +135,20 @@ public class CoinService {
         coinBillInfo1.setUserId(targetUserId);
         coinBillInfo1.setRelationId(userId);
         coinBillInfo1.setType(CoinBillInfo.TYPE_INCOME);
-        coinBillInfo1.setCategory(category);
+        if(category == CoinBillInfo.CATEGORY_CONSUME_PRO){
+            coinBillInfo1.setCategory(CoinBillInfo.CATEGORY_INCOME_PRO);
+        }else if(category == CoinBillInfo.CATEGORY_CONSUME_VIEW){
+            coinBillInfo1.setCategory(CoinBillInfo.CATEGORY_INCOME_VIEW);
+        }else if(category == CoinBillInfo.CATEGORY_CONSUME_GIFT){
+            coinBillInfo1.setCategory(CoinBillInfo.CATEGORY_INCOME_GIFT);
+        }
         coinBillInfo1.setCoins(consumeCoins);
         coinBillInfo1.setPlatform(platform);
         coinBillInfo1.setDescription(description);
         coinBillInfo1.setComment(comment);
         logger.info(coinBillInfo1.toString());
         coinBillDao.insertOne(coinBillInfo1);
+
         return ResultMaster.success();
     }
 

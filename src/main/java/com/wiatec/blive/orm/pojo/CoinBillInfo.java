@@ -12,10 +12,14 @@ public class CoinBillInfo extends BaseInfo {
 
     public static final int CATEGORY_CHARGE_IAP = 31;
 
-    public static final int CATEGORY_INCOME_LIVE = 21;
+    public static final int CATEGORY_INCOME_PRO = 20;
+    public static final int CATEGORY_INCOME_VIEW = 21;
+    public static final int CATEGORY_INCOME_GIFT = 22;
 
+
+    public static final int CATEGORY_CONSUME_PRO = 10;
     public static final int CATEGORY_CONSUME_VIEW = 11;
-    public static final int CATEGORY_CONSUME_PRO = 12;
+    public static final int CATEGORY_CONSUME_GIFT = 12;
 
     private int userId;
     private int relationId;

@@ -41,6 +41,7 @@ public class AuthRegisterUserInfo extends BaseInfo {
     private String icon;
     private int gender;
     private String profile;
+    private String rcToken;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date activeTime;
@@ -286,6 +287,14 @@ public class AuthRegisterUserInfo extends BaseInfo {
         this.profile = profile;
     }
 
+    public String getRcToken() {
+        return rcToken;
+    }
+
+    public void setRcToken(String rcToken) {
+        this.rcToken = rcToken;
+    }
+
     @Override
     public String toString() {
         return "AuthRegisterUserInfo{" +
@@ -312,15 +321,13 @@ public class AuthRegisterUserInfo extends BaseInfo {
                 ", icon='" + icon + '\'' +
                 ", gender=" + gender +
                 ", profile='" + profile + '\'' +
+                ", rcToken='" + rcToken + '\'' +
                 ", activeTime=" + activeTime +
                 ", expiresTime=" + expiresTime +
                 ", lastOnLineTime=" + lastOnLineTime +
                 ", experience=" + experience +
                 ", online=" + online +
                 ", channelActive=" + channelActive +
-                ", id=" + id +
-                ", createTime=" + createTime +
-                ", modifyTime=" + modifyTime +
                 '}';
     }
 }

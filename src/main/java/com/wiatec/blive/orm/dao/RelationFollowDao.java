@@ -17,4 +17,8 @@ public interface RelationFollowDao {
     int deleteOne(@Param("userId") int userId, @Param("friendId")int friendId);
     List<Integer> selectFriendsIdByUserId(int userId);
     List<Integer> selectUserIdByFriendsId(int userId);
+
+
+
+    List<Integer> selectFollowersIdByUserId(int userId);
 }
