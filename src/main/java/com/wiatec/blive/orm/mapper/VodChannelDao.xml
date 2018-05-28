@@ -1,0 +1,127 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiatec.blive.orm.dao.VodChannelDao">
+
+    <sql id="select">
+        SELECT id, user_id, available, rating, price, title, message, stream_id,
+            video_id, duration, play_url, file_id, file_format, file_size, preview,
+            link, category, type, start_time, end_time, create_time, modify_time
+        FROM bvision_channel_vod
+    </sql>
+
+    <select id="selectAllAvailableWithUserInfo" resultType="com.wiatec.blive.orm.pojo.VodChannelInfo">
+        SELECT bvision_channel_vod.id, bvision_channel_vod.user_id, bvision_channel_vod.available,
+            bvision_channel_vod.rating, bvision_channel_vod.price, bvision_channel_vod.title,
+            bvision_channel_vod.message, bvision_channel_vod.stream_id,
+            bvision_channel_vod.video_id, bvision_channel_vod.duration,
+            bvision_channel_vod.play_url, bvision_channel_vod.file_id,
+            bvision_channel_vod.file_format, bvision_channel_vod.file_size,
+            bvision_channel_vod.preview, bvision_channel_vod.category,
+            bvision_channel_vod.type, bvision_channel_vod.link,
+            bvision_channel_vod.start_time, bvision_channel_vod.end_time,
+            bvision_channel_vod.create_time, bvision_channel_vod.modify_time,
+        auth_register_user.username username, auth_register_user.icon userIcon, auth_register_user.level level
+        FROM bvision_channel_vod, auth_register_user
+        WHERE bvision_channel_vod.user_id = auth_register_user.id AND bvision_channel_vod.available = 1
+        ORDER BY bvision_channel_vod.create_time DESC
+    </select>
+    
+    <select id="selectByUserId" resultType="com.wiatec.blive.orm.pojo.VodChannelInfo">
+      <include refid="select"/>
+        WHERE user_id = #{userId}
+        ORDER BY bvision_channel_vod.create_time DESC
+    </select>
+
+    <select id="selectByUserAndVideoId" resultType="com.wiatec.blive.orm.pojo.VodChannelInfo">
+      <include refid="select"/>
+        WHERE user_id = #{userId} AND video_id = #{videoId}
+    </select>
+
+    <select id="selectOneByVideoId" resultType="com.wiatec.blive.orm.pojo.VodChannelInfo">
+      <include refid="select"/>
+        WHERE video_id = #{videoId}
+    </select>
+
+
+    <select id="countByVideoId" resultType="java.lang.Integer">
+      SELECT COUNT(1) count FROM bvision_channel_vod
+      WHERE video_id = #{videoId}
+    </select>
+
+    <select id="countByFileId" resultType="java.lang.Integer">
+      SELECT COUNT(1) count FROM bvision_channel_vod
+      WHERE file_id = #{fileId}
+    </select>
+
+    <update id="insertChannel">
+        INSERT IGNORE INTO bvision_channel_vod
+        (user_id, title, stream_id, video_id, duration, play_url, file_id, file_format, file_size,
+         preview, start_time, end_time, create_time, modify_time)
+        VALUES (#{userId}, #{title}, #{streamId}, #{videoId}, #{duration}, #{playUrl},
+               #{fileId}, #{fileFormat}, #{fileSize}, #{preview}, #{startTime}, #{endTime},
+                now(), now())
+    </update>
+
+    <update id="updateTitleAndMessageByVideoId">
+        UPDATE IGNORE bvision_channel_vod
+        SET title=#{title}, message=#{message}, modify_time = now()
+        WHERE video_id = #{videoId}
+    </update>
+
+    <update id="updateTitleByVideoId">
+        UPDATE IGNORE bvision_channel_vod
+        SET title=#{title}, modify_time = now()
+        WHERE video_id = #{videoId}
+    </update>
+
+    <update id="updateMessageByVideoId">
+        UPDATE IGNORE bvision_channel_vod
+        SET message=#{message}, modify_time = now()
+        WHERE video_id = #{videoId}
+    </update>
+
+    <update id="updatePriceByVideoId">
+        UPDATE IGNORE bvision_channel_vod
+        SET price=#{price}, modify_time = now()
+        WHERE video_id = #{videoId}
+    </update>
+
+    <update id="updateLinkByVideoId">
+        UPDATE IGNORE bvision_channel_vod
+        SET link=#{link}, modify_time = now()
+        WHERE video_id = #{videoId}
+    </update>
+
+    <update id="updateAllSettingByVideoId">
+        UPDATE IGNORE bvision_channel_vod
+        SET title=#{title}, message=#{message}, link=#{link}, price=#{price}, rating = #{rating},
+            modify_time = now()
+        WHERE video_id = #{videoId}
+    </update>
+
+    <update id="updateAvailableByVideoId">
+        UPDATE IGNORE bvision_channel_vod
+        SET available = 1, modify_time = now()
+        WHERE video_id = #{videoId}
+    </update>
+
+    <update id="updateUnavailableByVideoId">
+        UPDATE IGNORE bvision_channel_vod
+        SET available = 0, modify_time = now()
+        WHERE video_id = #{videoId}
+    </update>
+
+    <update id="updatePreviewByVideoId" parameterType="com.wiatec.blive.orm.pojo.LiveChannelInfo">
+        UPDATE IGNORE bvision_channel_vod
+        SET preview = #{preview}, modify_time = now()
+        WHERE video_id = #{videoId}
+    </update>
+
+    <update id="updatePreviewByFileId" parameterType="com.wiatec.blive.orm.pojo.LiveChannelInfo">
+        UPDATE IGNORE bvision_channel_vod
+        SET preview = #{preview}, modify_time = now()
+        WHERE file_id = #{fileId}
+    </update>
+
+</mapper>

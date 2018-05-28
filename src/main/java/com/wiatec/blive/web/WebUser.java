@@ -3,7 +3,7 @@ package com.wiatec.blive.web;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
-import com.wiatec.blive.service.ChannelService;
+import com.wiatec.blive.service.LiveChannelService;
 import com.wiatec.blive.service.WebUserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +22,7 @@ public class WebUser {
     @Resource
     private WebUserService webUserService;
     @Resource
-    private ChannelService channelService;
+    private LiveChannelService liveChannelService;
 
     @PostMapping(value = "/signin")
     @ResponseBody
@@ -34,7 +34,7 @@ public class WebUser {
     public String details(HttpServletRequest request, Model model){
         AuthRegisterUserInfo userInfo = webUserService.getUserInfo(request);
         model.addAttribute("userInfo", userInfo);
-        LiveChannelInfo channelInfo = channelService.selectOneByUserId(userInfo.getId()).getData();
+        LiveChannelInfo channelInfo = liveChannelService.selectOneByUserId(userInfo.getId()).getData();
         model.addAttribute("channelInfo", channelInfo);
         return "webuser/home";
     }

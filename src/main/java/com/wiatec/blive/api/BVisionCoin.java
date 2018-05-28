@@ -39,7 +39,10 @@ public class BVisionCoin {
     public ResultInfo consumeCoin(@PathVariable int userId, @PathVariable int targetUserId,
                                   @PathVariable int category, @PathVariable int coins,
                                   String platform, String description, String comment){
-        return coinService.consumeCoin(userId, targetUserId, category, coins, platform, description, comment);
+        int level = 6;
+        int month = 1;
+        return coinService.consumeCoin(userId, targetUserId, category, coins, level, month,
+                platform, description, comment);
     }
 
     /**

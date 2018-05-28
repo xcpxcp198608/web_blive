@@ -1,13 +1,15 @@
 package com.wiatec.blive.service;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.google.common.base.Splitter;
 import com.wiatec.blive.apns.APNsMaster;
-import com.wiatec.blive.common.jpush.PushMaster;
-import com.wiatec.blive.common.jpush.PushPayloadBuilder;
 import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
+import com.wiatec.blive.common.utils.AESUtil;
+import com.wiatec.blive.common.utils.TextUtil;
 import com.wiatec.blive.common.utils.TimeUtil;
 import com.wiatec.blive.dto.LiveDaysDistributionInfo;
 import com.wiatec.blive.dto.LiveTimeDistributionInfo;
@@ -16,10 +18,7 @@ import com.wiatec.blive.orm.dao.AuthRegisterUserDao;
 import com.wiatec.blive.orm.dao.LiveChannelDao;
 import com.wiatec.blive.orm.dao.LiveViewDao;
 import com.wiatec.blive.orm.dao.RelationFollowDao;
-import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
-import com.wiatec.blive.rtmp.RtmpInfo;
-import com.wiatec.blive.rtmp.RtmpMaster;
 import com.wiatec.blive.txcloud.LiveChannelMaster;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +31,7 @@ import java.util.List;
  * @author patrick
  */
 @Service
-public class ChannelService {
+public class LiveChannelService {
 
     @Resource
     private LiveChannelDao liveChannelDao;
@@ -52,24 +51,24 @@ public class ChannelService {
     }
 
 
-    public List<LiveChannelInfo> selectAllAvailableWithUser(){
-        return liveChannelDao.selectAllAvailableWithUserInfo();
+    public ResultInfo<PageInfo<LiveChannelInfo>> selectAllAvailableWithUser(int pageNum, int pageSize){
+        PageHelper.startPage(pageNum, pageSize);
+        List<LiveChannelInfo> channelInfoList = liveChannelDao.selectAllAvailableWithUserInfo();
+        if(channelInfoList == null || channelInfoList.size() <= 0){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        for(LiveChannelInfo liveChannelInfo: channelInfoList){
+            liveChannelInfo.setPlayUrl(AESUtil.encrypt(liveChannelInfo.getPlayUrl(), AESUtil.KEY));
+        }
+        PageInfo<LiveChannelInfo> pageInfo = new PageInfo<>(channelInfoList);
+        return ResultMaster.success(pageInfo);
     }
 
 
     @Transactional(rollbackFor = Exception.class)
     public ResultInfo<LiveChannelInfo> create(int userId, String username){
-        RtmpInfo rtmpInfo = new RtmpMaster().getRtmpInfo(username);
-        if(rtmpInfo == null){
-            throw new XException("rtmp server error");
-        }
-        LiveChannelInfo channelInfo = new LiveChannelInfo();
+        LiveChannelInfo channelInfo = LiveChannelMaster.create(userId);
         channelInfo.setTitle(username);
-        channelInfo.setUserId(userId);
-        channelInfo.setUrl(rtmpInfo.getPush_full_url());
-        channelInfo.setRtmpUrl(rtmpInfo.getPush_url());
-        channelInfo.setRtmpKey(rtmpInfo.getPush_key());
-        channelInfo.setPlayUrl(rtmpInfo.getPlay_url());
         if(liveChannelDao.insertChannel(channelInfo) != 1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
@@ -94,8 +93,9 @@ public class ChannelService {
         LiveChannelInfo channelInfo = liveChannelDao.selectOneByUserId(userId);
         if(channelInfo == null){
             String username = authRegisterUserDao.selectOneById(userId).getUsername();
-            return create(userId, username);
+            channelInfo =  create(userId, username).getData();
         }
+        channelInfo.setPlayUrl(AESUtil.encrypt(channelInfo.getPlayUrl(), AESUtil.KEY));
         return ResultMaster.success(channelInfo);
     }
 
@@ -185,12 +185,47 @@ public class ChannelService {
      * @param channelInfo ChannelInfo
      * @return ResultInfo
      */
+    @Transactional(rollbackFor = Exception.class)
     public ResultInfo<LiveChannelInfo> updateChannelAllSetting(LiveChannelInfo channelInfo){
         if(liveChannelDao.countByUserId(channelInfo.getUserId()) != 1){
             throw new XException("user channel does not exists");
         }
-        liveChannelDao.updateAllSettingByUserId(channelInfo);
-        return ResultMaster.success(liveChannelDao.selectOneByUserId(channelInfo.getUserId()));
+        if(liveChannelDao.updateAllSettingByUserId(channelInfo) != 1){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        LiveChannelInfo info = liveChannelDao.selectOneByUserId(channelInfo.getUserId());
+        if(info == null){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        if(TextUtil.isEmpty(info.getUrl())){
+            return updateChannelUrl(channelInfo);
+        }
+        String hexTime = info.getUrl().substring(info.getUrl().length() - 8);
+        try {
+            long time = Long.valueOf(hexTime, 16);
+            // 如果防盗链验证日期减除当前时间小于一天，更换url
+            if(time - System.currentTimeMillis() / 1000 < 86400){
+                return updateChannelUrl(channelInfo);
+            }
+        }catch (Exception e){
+            return updateChannelUrl(channelInfo);
+        }
+        return ResultMaster.success(info);
+    }
+
+    private ResultInfo<LiveChannelInfo> updateChannelUrl(LiveChannelInfo channelInfo){
+        LiveChannelInfo liveChannelInfo = LiveChannelMaster.create(channelInfo.getUserId());
+        if(liveChannelInfo == null){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        if(liveChannelDao.updateChannel(liveChannelInfo) != 1){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        LiveChannelInfo info = liveChannelDao.selectOneByUserId(channelInfo.getUserId());
+        if(info == null){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        return ResultMaster.success(info);
     }
 
     /**
@@ -199,28 +234,20 @@ public class ChannelService {
      * @param userId user id
      * @return ResultInfo
      */
-    public ResultInfo<LiveChannelInfo> updateChannelStatus(int action, int userId){
+    public ResultInfo updateChannelStatus(int action, int userId){
         LiveChannelInfo channelInfo;
         if(action == 1){
-            LiveChannelInfo liveChannelInfo = LiveChannelMaster.create(userId);
-            if(liveChannelInfo == null){
-                throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
-            }
-            if(liveChannelDao.updateAvailableAndUrlByUserId(liveChannelInfo) != 1){
-                throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
-            }
+            liveChannelDao.updateAvailableByUserId(userId);
             channelInfo = liveChannelDao.selectOneByUserId(userId);
-            if(channelInfo == null){
-                throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+            if(channelInfo != null) {
+                List<Integer> integerList = relationFollowDao.selectFollowersIdByUserId(userId);
+                APNsMaster.batchSend(userId, integerList, APNsMaster.ACTION_LIVE_START, channelInfo.getTitle());
+                //PushMaster.push(PushPayloadBuilder.buildForIos(userInfo.getUsername() + " start live: " + channelInfo.getTitle()));
             }
-            List<Integer> integerList = relationFollowDao.selectFollowersIdByUserId(userId);
-            APNsMaster.batchSend(userId, integerList, APNsMaster.ACTION_LIVE_START, channelInfo.getTitle());
-            //PushMaster.push(PushPayloadBuilder.buildForIos(userInfo.getUsername() + " start live: " + channelInfo.getTitle()));
         }else {
             liveChannelDao.updateUnavailableByUserId(userId);
-            channelInfo = new LiveChannelInfo();
         }
-        return ResultMaster.success(channelInfo);
+        return ResultMaster.success();
     }
 
     /**

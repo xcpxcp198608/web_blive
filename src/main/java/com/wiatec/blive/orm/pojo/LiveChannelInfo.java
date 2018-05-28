@@ -1,12 +1,14 @@
 package com.wiatec.blive.orm.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Date;
 
 /**
  * @author patrick
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LiveChannelInfo extends BaseInfo {
 
     private int userId;
@@ -19,6 +21,8 @@ public class LiveChannelInfo extends BaseInfo {
      * 内容分级：0->G, 1->PG, 2->pg-13, 3->R, 4->NC-17
      */
     private int rating;
+
+    private String streamId;
     private String url;
     private String rtmpUrl;
     private String rtmpKey;
@@ -95,6 +99,14 @@ public class LiveChannelInfo extends BaseInfo {
 
     public void setRating(int rating) {
         this.rating = rating;
+    }
+
+    public String getStreamId() {
+        return streamId;
+    }
+
+    public void setStreamId(String streamId) {
+        this.streamId = streamId;
     }
 
     public String getUrl() {
@@ -203,6 +215,7 @@ public class LiveChannelInfo extends BaseInfo {
                 ", title='" + title + '\'' +
                 ", message='" + message + '\'' +
                 ", rating=" + rating +
+                ", streamId='" + streamId + '\'' +
                 ", url='" + url + '\'' +
                 ", rtmpUrl='" + rtmpUrl + '\'' +
                 ", rtmpKey='" + rtmpKey + '\'' +

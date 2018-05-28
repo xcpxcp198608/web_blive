@@ -1,6 +1,6 @@
 package com.wiatec.blive.api;
 
-import com.wiatec.blive.common.result.EnumResult;
+import com.github.pagehelper.PageInfo;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
@@ -8,9 +8,8 @@ import com.wiatec.blive.orm.dao.LdIllegalWordDao;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.service.AuthRegisterUserService;
-import com.wiatec.blive.service.ChannelService;
+import com.wiatec.blive.service.LiveChannelService;
 import org.apache.commons.io.FileUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,40 +41,41 @@ public class LiveChannel {
     @Resource
     private AuthRegisterUserService authRegisterUserService;
     @Resource
-    private ChannelService channelService;
+    private LiveChannelService liveChannelService;
     @Resource
     private LdIllegalWordDao ldIllegalWordDao;
 
     @RequestMapping(value = "/")
     public List<LiveChannelInfo> get(){
-        return channelService.selectAllAvailable();
+        return liveChannelService.selectAllAvailable();
     }
 
 
     @RequestMapping(value = "/living")
-    public List<LiveChannelInfo> getWithUserInfo(){
-        return channelService.selectAllAvailableWithUser();
+    public ResultInfo<PageInfo<LiveChannelInfo>> getWithUserInfo(@RequestParam(required = false, defaultValue = "1") int pageNum,
+                                                                 @RequestParam(required = false, defaultValue = "50") int pageSize){
+        return liveChannelService.selectAllAvailableWithUser(pageNum, pageSize);
     }
 
     @PostMapping(value = "/create")
     public ResultInfo create(int userId, String username){
-        return channelService.create(userId, username);
+        return liveChannelService.create(userId, username);
     }
 
     @GetMapping(value = "/{userId}")
-    public ResultInfo getChannel(@PathVariable int userId){
-        return channelService.selectOneByUserId(userId);
+    public ResultInfo getLiveChannel(@PathVariable int userId){
+        return liveChannelService.selectOneByUserId(userId);
     }
 
     @GetMapping(value = "/search/{key}")
     public List<LiveChannelInfo> searchByLikeTitle(@PathVariable String key){
-        return channelService.searchByLikeTitle(key);
+        return liveChannelService.searchByLikeTitle(key);
     }
 
     @PutMapping("/update")
     public ResultInfo<LiveChannelInfo> updateChannelUrl(@RequestBody LiveChannelInfo channelInfo){
         ResultInfo<AuthRegisterUserInfo> resultInfo = authRegisterUserService.selectOneByUserId(channelInfo.getUserId());
-        return channelService.updateChannelUrl(resultInfo.getData().getUsername(), channelInfo);
+        return liveChannelService.updateChannelUrl(resultInfo.getData().getUsername(), channelInfo);
     }
 
     /**
@@ -107,41 +107,41 @@ public class LiveChannel {
 //            }
 //        }
         if(action == 0) {
-            return channelService.updateChannelAllSetting(channelInfo);
+            return liveChannelService.updateChannelAllSetting(channelInfo);
         }
         if(action == 1){
-            return channelService.updateChannelTitleAndMessage(channelInfo);
+            return liveChannelService.updateChannelTitleAndMessage(channelInfo);
         }
         if(action == 2){
-            return channelService.updateChannelTitle(channelInfo);
+            return liveChannelService.updateChannelTitle(channelInfo);
         }
         if(action == 3){
-            return channelService.updateChannelMessage(channelInfo);
+            return liveChannelService.updateChannelMessage(channelInfo);
         }
         if(action == 4){
-            return channelService.updateChannelPrice(channelInfo);
+            return liveChannelService.updateChannelPrice(channelInfo);
         }
         if(action == 5){
-            return channelService.updateChannelLink(channelInfo);
+            return liveChannelService.updateChannelLink(channelInfo);
         }
         return ResultMaster.error(1001, "update failure");
     }
 
     @PutMapping("/status/{action}/{userId}")
-    public ResultInfo<LiveChannelInfo> updateChannelUnavailable(@PathVariable int action, @PathVariable int userId){
-        return channelService.updateChannelStatus(action, userId);
+    public ResultInfo updateChannelUnavailable(@PathVariable int action, @PathVariable int userId){
+        return liveChannelService.updateChannelStatus(action, userId);
     }
 
     @PostMapping("/upload/{userId}")
     public ResultInfo<LiveChannelInfo> uploadPreviewImage(@PathVariable int userId,
                                                       @RequestParam MultipartFile file,
                                                       HttpServletRequest request) throws IOException {
-        if(file.isEmpty()){
+        if (file.isEmpty()) {
             throw new XException("icon error");
         }
         String path = request.getSession().getServletContext().getRealPath("/Resource/channel_preview/");
-        FileUtils.copyInputStreamToFile(file.getInputStream(), new File( path,  file.getOriginalFilename()));
+        FileUtils.copyInputStreamToFile(file.getInputStream(), new File(path, file.getOriginalFilename()));
         String preview = BASE_RESOURCE_URL + "channel_preview/" + file.getOriginalFilename();
-        return channelService.updatePreview(new LiveChannelInfo(preview, userId));
+        return liveChannelService.updatePreview(new LiveChannelInfo(preview, userId));
     }
 }

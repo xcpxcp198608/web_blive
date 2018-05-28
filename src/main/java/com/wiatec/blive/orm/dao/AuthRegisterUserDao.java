@@ -1,5 +1,6 @@
 package com.wiatec.blive.orm.dao;
 
+import com.wiatec.blive.dto.ProDetailInfo;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import org.apache.ibatis.annotations.Param;
 

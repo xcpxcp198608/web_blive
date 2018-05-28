@@ -4,7 +4,7 @@
 <mapper namespace="com.wiatec.blive.orm.dao.LiveChannelDao">
 
     <sql id="select">
-        SELECT id, userId, available, rating, title, message, url, rtmp_url, rtmp_key,
+        SELECT id, userId, available, rating, title, message, stream_id, url, rtmp_url, rtmp_key,
             playUrl, preview, category, type, price, link, startTime, create_time, modify_time
         FROM bvision_channel_live
     </sql>
@@ -18,7 +18,6 @@
     <select id="selectAllAvailableWithUserInfo" resultType="com.wiatec.blive.orm.pojo.LiveChannelInfo">
         SELECT bvision_channel_live.id, bvision_channel_live.userId, bvision_channel_live.available,
         bvision_channel_live.rating, bvision_channel_live.title, bvision_channel_live.message,
-        bvision_channel_live.url, bvision_channel_live.rtmp_url, bvision_channel_live.rtmp_key,
         bvision_channel_live.playUrl, bvision_channel_live.preview, bvision_channel_live.category,
         bvision_channel_live.type, bvision_channel_live.price, bvision_channel_live.link,
         bvision_channel_live.startTime, bvision_channel_live.create_time, bvision_channel_live.modify_time,
@@ -44,15 +43,20 @@
       WHERE userId=#{userId}
     </select>
 
+    <select id="selectUserIdByStreamId" resultType="java.lang.Integer">
+        SELECT userId FROM bvision_channel_live
+        WHERE stream_id = #{streamId}
+    </select>
+
     <update id="insertChannel">
-        INSERT IGNORE INTO bvision_channel_live (title, url, rtmp_url, rtmp_key, playUrl,
+        INSERT IGNORE INTO bvision_channel_live (title, stream_id, url, rtmp_url, rtmp_key, playUrl,
                                                  preview, category, userId, modify_time)
-        VALUES (#{title}, #{url}, #{rtmpUrl}, #{rtmpKey}, #{playUrl}, '1', '1', #{userId}, now())
+        VALUES (#{title}, #{streamId}, #{url}, #{rtmpUrl}, #{rtmpKey}, #{playUrl}, '1', '1', #{userId}, now())
     </update>
 
     <update id="updateChannel">
         UPDATE IGNORE bvision_channel_live
-        SET url = #{url}, rtmp_url = #{rtmpUrl}, rtmp_key = #{rtmpKey}, playUrl = #{playUrl},
+        SET stream_id = #{streamId}, url = #{url}, rtmp_url = #{rtmpUrl}, rtmp_key = #{rtmpKey}, playUrl = #{playUrl},
         modify_time = now()
         WHERE userId=#{userId}
     </update>
@@ -97,13 +101,6 @@
     <update id="updateAvailableByUserId">
         UPDATE bvision_channel_live
         SET available = 1, startTime = now(), modify_time = now()
-        WHERE userId=#{userId}
-    </update>
-
-    <update id="updateAvailableAndUrlByUserId">
-        UPDATE IGNORE bvision_channel_live
-        SET available = 1, startTime = now(), modify_time = now(), url = #{url},
-            playUrl = #{playUrl}, rtmp_url = #{rtmpUrl}, rtmp_key = #{rtmpKey}
         WHERE userId=#{userId}
     </update>
 

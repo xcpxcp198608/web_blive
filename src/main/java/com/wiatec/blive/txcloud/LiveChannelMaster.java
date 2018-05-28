@@ -51,6 +51,7 @@ public class LiveChannelMaster {
                 .append("&")
                 .append(auth)
                 .toString();
+        liveChannelInfo.setStreamId(streamId);
         liveChannelInfo.setUrl(pushUrl);
         liveChannelInfo.setPlayUrl(playUrl);
         liveChannelInfo.setRtmpUrl(rtmpUrl);

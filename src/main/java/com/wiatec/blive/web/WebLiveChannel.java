@@ -1,7 +1,7 @@
 package com.wiatec.blive.web;
 
 import com.wiatec.blive.common.result.ResultInfo;
-import com.wiatec.blive.service.ChannelService;
+import com.wiatec.blive.service.LiveChannelService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +19,7 @@ import javax.annotation.Resource;
 public class WebLiveChannel {
 
     @Resource
-    private ChannelService channelService;
+    private LiveChannelService liveChannelService;
 
     /**
      * the index page of user's channels analysis by user id
@@ -30,7 +30,7 @@ public class WebLiveChannel {
     @GetMapping("/analysis/{userId}")
     public String analysis(@PathVariable int userId, Model model){
         model.addAttribute("userId", userId);
-        return channelService.liveViewAnalysis(userId, model);
+        return liveChannelService.liveViewAnalysis(userId, model);
     }
 
     /**
@@ -41,7 +41,7 @@ public class WebLiveChannel {
     @GetMapping("/chart/days/{userId}")
     @ResponseBody
     public ResultInfo chartDaysDistribution(@PathVariable int userId){
-        return channelService.getLiveChannelViewDaysDistribution(userId);
+        return liveChannelService.getLiveChannelViewDaysDistribution(userId);
     }
 
     /**
@@ -52,7 +52,7 @@ public class WebLiveChannel {
     @GetMapping("/chart/time/{userId}")
     @ResponseBody
     public ResultInfo chartTimeDistribution(@PathVariable int userId){
-        return channelService.getLiveChannelViewTimeDistribution(userId);
+        return liveChannelService.getLiveChannelViewTimeDistribution(userId);
     }
 
 

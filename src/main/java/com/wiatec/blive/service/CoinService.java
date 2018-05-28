@@ -79,7 +79,7 @@ public class CoinService {
      */
     @Transactional(rollbackFor = Exception.class)
     public ResultInfo consumeCoin(int userId, int targetUserId, int category, int consumeCoins,
-                                  String platform, String description, String comment){
+                                  int level, int month, String platform, String description, String comment){
         //检查消费者账户金额是否足够
         int userCoins = coinDao.countCoins(userId);
         if(userCoins < consumeCoins){
@@ -101,7 +101,6 @@ public class CoinService {
         }
         // 购买pro时修改用户等级到6
         if(category == CoinBillInfo.CATEGORY_CONSUME_PRO){
-            int month = consumeCoins / PRICE_PRO_MONTH;
             AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);
             if(userInfo == null){
                 throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
@@ -112,7 +111,7 @@ public class CoinService {
             }else{
                 expiresDate = TimeUtil.getExpiresTime(new Date(), month);
             }
-            if(authRegisterUserDao.updateLevelByUserId(userId, 6, expiresDate) != 1){
+            if(authRegisterUserDao.updateLevelByUserId(userId, level, expiresDate) != 1){
                 throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
             }
         }

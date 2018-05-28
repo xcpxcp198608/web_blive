@@ -37,6 +37,9 @@
         AND auth_register_user.id = bvision_channel_live.userId
         ORDER BY username
     </select>
+    
+    
+    
 
     <insert id="insertOne">
         INSERT IGNORE INTO auth_register_user (username, password, email, phone, token, bvision, btv)

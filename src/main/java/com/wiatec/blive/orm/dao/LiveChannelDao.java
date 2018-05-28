@@ -15,9 +15,13 @@ public interface LiveChannelDao {
     List<LiveChannelInfo> selectAllAvailableWithUserInfo();
     List<LiveChannelInfo> searchByLikeTitle(String title);
     LiveChannelInfo selectOneByUserId(int userId);
+    int selectUserIdByStreamId(String streamId);
+
     int countByUserId(int userId);
     int insertChannel(LiveChannelInfo channelInfo);
     int updateChannel(LiveChannelInfo channelInfo);
+
+
     int updateTitleAndMessageByUserId(LiveChannelInfo channelInfo);
     int updateTitleByUserId(LiveChannelInfo channelInfo);
     int updateMessageByUserId(LiveChannelInfo channelInfo);
@@ -25,7 +29,6 @@ public interface LiveChannelDao {
     int updateLinkByUserId(LiveChannelInfo channelInfo);
     int updateAllSettingByUserId(LiveChannelInfo channelInfo);
     int updateAvailableByUserId(int userId);
-    int updateAvailableAndUrlByUserId(LiveChannelInfo channelInfo);
     int updateUnavailableByUserId(int userId);
     int updatePreviewByUserId(LiveChannelInfo channelInfo);
 }

@@ -1,16 +1,24 @@
 package com.wiatec.blive.common.result;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.List;
 
 /**
  * the result that return to user after user's request
  */
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResultInfo<T> {
 
     private int code;
     private String message;
     private T data;
     private List<T> dataList;
+
+    @JsonIgnore
+    private boolean success;
 
     public int getCode() {
         return code;
@@ -42,6 +50,10 @@ public class ResultInfo<T> {
 
     public void setDataList(List<T> dataList) {
         this.dataList = dataList;
+    }
+
+    public boolean isSuccess() {
+        return this.code == 200;
     }
 
     @Override

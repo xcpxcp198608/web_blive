@@ -82,7 +82,9 @@ public class APNsMaster {
                     .alertBody(content)
                     .actionKey(playerId+"")
                     .build();
-            service.push(deviceTokenInfo.getDeviceToken(), payload);
+            if(!TextUtil.isEmpty(deviceTokenInfo.getDeviceToken())) {
+                service.push(deviceTokenInfo.getDeviceToken(), payload);
+            }
         }
     }
 

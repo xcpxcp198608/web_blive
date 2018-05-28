@@ -16,6 +16,7 @@ import com.wiatec.blive.orm.pojo.LogUserOperationInfo;
 import com.wiatec.blive.rongc.RCManager;
 import com.wiatec.blive.rtmp.RtmpInfo;
 import com.wiatec.blive.rtmp.RtmpMaster;
+import com.wiatec.blive.txcloud.LiveChannelMaster;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,17 +64,9 @@ public class AuthRegisterUserService extends BaseService {
         authRegisterUserDao.insertOne(userInfo);
         AuthRegisterUserInfo userInfo1 = authRegisterUserDao.selectOneByUsername(userInfo.getUsername());
 
-        RtmpInfo rtmpInfo = new RtmpMaster().getRtmpInfo(userInfo1.getUsername());
-        if(rtmpInfo == null){
-            throw new XException("rtmp server error");
-        }
-        LiveChannelInfo channelInfo = new LiveChannelInfo();
+        //create user live channel info
+        LiveChannelInfo channelInfo = LiveChannelMaster.create(userInfo1.getId());
         channelInfo.setTitle(userInfo1.getUsername());
-        channelInfo.setUserId(userInfo1.getId());
-        channelInfo.setUrl(rtmpInfo.getPush_full_url());
-        channelInfo.setRtmpUrl(rtmpInfo.getPush_url());
-        channelInfo.setRtmpKey(rtmpInfo.getPush_key());
-        channelInfo.setPlayUrl(rtmpInfo.getPlay_url());
         if(liveChannelDao.insertChannel(channelInfo) != COUNT_1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }

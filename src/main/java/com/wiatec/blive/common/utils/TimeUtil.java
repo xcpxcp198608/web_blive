@@ -247,6 +247,24 @@ public class TimeUtil {
         return date.getTime();
     }
 
+    /**
+     * 计算2个日期间相差的天数
+     * @param d1
+     * @param d2
+     * @return
+     */
+    public static int diffDays(Date d1, Date d2){
+        long diff = d1.getTime() - d2.getTime();
+        int days = (int) (diff / (24 * 3600 * 1000));
+        if(days == 0){
+            days = 1;
+        }
+        return days;
+    }
+
+    public static void main (String [] args){
+        System.out.println(diffDays(new Date(1520313102000L), new Date()));
+    }
 
 
 
