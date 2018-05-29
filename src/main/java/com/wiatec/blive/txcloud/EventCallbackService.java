@@ -4,6 +4,7 @@ import com.wiatec.blive.common.http.HttpMaster;
 import com.wiatec.blive.common.utils.TextUtil;
 import com.wiatec.blive.orm.dao.LiveChannelDao;
 import com.wiatec.blive.orm.dao.VodChannelDao;
+import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.orm.pojo.VodChannelInfo;
 import okhttp3.Call;
@@ -70,17 +71,17 @@ public class EventCallbackService {
 
     private void vodCreate(int userId, TXEventInfo txEventInfo){
         LiveChannelInfo liveChannelInfo = liveChannelDao.selectOneByUserId(userId);
-        VodChannelInfo vodChannelInfo = VodChannelInfo.createFrom(txEventInfo);
-        vodChannelInfo.setUserId(userId);
-        vodChannelInfo.setRating(liveChannelInfo.getRating());
-        vodChannelInfo.setTitle(liveChannelInfo.getTitle());
-        vodChannelInfo.setMessage(liveChannelInfo.getMessage());
-        vodChannelInfo.setPreview(liveChannelInfo.getPreview());
-        vodChannelInfo.setLink(liveChannelInfo.getLink());
-        vodChannelInfo.setCategory(liveChannelInfo.getCategory());
-        vodChannelInfo.setType(liveChannelInfo.getType());
-        vodChannelDao.insertChannel(vodChannelInfo);
-        requestSnapshot(vodChannelInfo);
+        ChannelInfo channelInfo = ChannelInfo.createFrom(txEventInfo);
+        channelInfo.setUserId(userId);
+        channelInfo.setRating(liveChannelInfo.getRating());
+        channelInfo.setTitle(liveChannelInfo.getTitle());
+        channelInfo.setMessage(liveChannelInfo.getMessage());
+        channelInfo.setPreview(liveChannelInfo.getPreview());
+        channelInfo.setLink(liveChannelInfo.getLink());
+        channelInfo.setCategory(liveChannelInfo.getCategory());
+        channelInfo.setType(liveChannelInfo.getType());
+        vodChannelDao.insertChannel(channelInfo);
+        requestSnapshot(channelInfo);
     }
 
     private void screenshotCreate(int userId, TXEventInfo txEventInfo){
@@ -90,14 +91,14 @@ public class EventCallbackService {
 
     /**
      * 请求tx进行截图
-     * @param vodChannelInfo
+     * @param channelInfo
      */
-    private void requestSnapshot(VodChannelInfo vodChannelInfo){
+    private void requestSnapshot(ChannelInfo channelInfo){
         String nonce = new Random().nextInt(1000)+ "";
         String params = new StringBuilder()
                 .append("Action=CreateSnapshotByTimeOffset").append("&")
                 .append("definition=10").append("&")
-                .append("fileId=").append(vodChannelInfo.getFileId()).append("&")
+                .append("fileId=").append(channelInfo.getFileId()).append("&")
                 .append("Nonce=").append(nonce).append("&")
                 .append("Region=szjr").append("&")
                 .append("SecretId=AKIDcDj5GHhmJpESbZsyOdhZWak2cdUcBTOC").append("&")

@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.dao.LdIllegalWordDao;
+import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.VodChannelInfo;
 import com.wiatec.blive.service.VodChannelService;
 import org.apache.commons.io.FileUtils;
@@ -37,7 +38,7 @@ public class VodChannel {
      * @return ResultInfo
      */
     @RequestMapping(value = "/")
-    public ResultInfo<PageInfo<VodChannelInfo>> getAvailableWithUserInfo(@RequestParam(required = false, defaultValue = "1") int pageNum,
+    public ResultInfo getAvailableWithUserInfo(@RequestParam(required = false, defaultValue = "1") int pageNum,
                                                                          @RequestParam(required = false, defaultValue = "50") int pageSize){
         return vodChannelService.selectAllAvailableWithUser(pageNum, pageSize);
     }
@@ -73,7 +74,7 @@ public class VodChannel {
      * @return ResultInfo
      */
     @PutMapping("/update/{action}")
-    public ResultInfo updateChannel(@PathVariable int action, @RequestBody VodChannelInfo channelInfo){
+    public ResultInfo updateChannel(@PathVariable int action, @RequestBody ChannelInfo channelInfo){
         List<String> words = ldIllegalWordDao.selectAll();
         if(words != null && words.size() > 0){
             for (String s: words) {
@@ -112,8 +113,7 @@ public class VodChannel {
      * @throws IOException IOException
      */
     @PostMapping("/upload/{videoId}")
-    public ResultInfo<VodChannelInfo> uploadPreviewImage(@PathVariable String videoId,
-                                                      @RequestParam MultipartFile file,
+    public ResultInfo uploadPreviewImage(@PathVariable String videoId, @RequestParam MultipartFile file,
                                                       HttpServletRequest request) throws IOException {
         if (file.isEmpty()) {
             throw new XException("icon error");
@@ -121,6 +121,6 @@ public class VodChannel {
         String path = request.getSession().getServletContext().getRealPath("/Resource/channel_preview/");
         FileUtils.copyInputStreamToFile(file.getInputStream(), new File(path, file.getOriginalFilename()));
         String preview = BASE_RESOURCE_URL + "channel_preview/" + file.getOriginalFilename();
-        return vodChannelService.updatePreview(new VodChannelInfo(videoId, preview));
+        return vodChannelService.updatePreview(videoId, preview);
     }
 }

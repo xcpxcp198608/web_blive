@@ -45,13 +45,13 @@ public class LiveChannel {
     @Resource
     private LdIllegalWordDao ldIllegalWordDao;
 
-    @RequestMapping(value = "/")
+    @GetMapping(value = "/")
     public List<LiveChannelInfo> get(){
         return liveChannelService.selectAllAvailable();
     }
 
 
-    @RequestMapping(value = "/living")
+    @GetMapping(value = "/living")
     public ResultInfo<PageInfo<LiveChannelInfo>> getWithUserInfo(@RequestParam(required = false, defaultValue = "1") int pageNum,
                                                                  @RequestParam(required = false, defaultValue = "50") int pageSize){
         return liveChannelService.selectAllAvailableWithUser(pageNum, pageSize);
@@ -72,11 +72,6 @@ public class LiveChannel {
         return liveChannelService.searchByLikeTitle(key);
     }
 
-    @PutMapping("/update")
-    public ResultInfo<LiveChannelInfo> updateChannelUrl(@RequestBody LiveChannelInfo channelInfo){
-        ResultInfo<AuthRegisterUserInfo> resultInfo = authRegisterUserService.selectOneByUserId(channelInfo.getUserId());
-        return liveChannelService.updateChannelUrl(resultInfo.getData().getUsername(), channelInfo);
-    }
 
     /**
      *  update channel setting
@@ -106,31 +101,15 @@ public class LiveChannel {
 //                throw new XException("content contains not allow word");
 //            }
 //        }
-        if(action == 0) {
-            return liveChannelService.updateChannelAllSetting(channelInfo);
-        }
-        if(action == 1){
-            return liveChannelService.updateChannelTitleAndMessage(channelInfo);
-        }
-        if(action == 2){
-            return liveChannelService.updateChannelTitle(channelInfo);
-        }
-        if(action == 3){
-            return liveChannelService.updateChannelMessage(channelInfo);
-        }
-        if(action == 4){
-            return liveChannelService.updateChannelPrice(channelInfo);
-        }
-        if(action == 5){
-            return liveChannelService.updateChannelLink(channelInfo);
-        }
-        return ResultMaster.error(1001, "update failure");
+        return liveChannelService.updateChannel(action, channelInfo);
     }
+
 
     @PutMapping("/status/{action}/{userId}")
     public ResultInfo updateChannelUnavailable(@PathVariable int action, @PathVariable int userId){
         return liveChannelService.updateChannelStatus(action, userId);
     }
+
 
     @PostMapping("/upload/{userId}")
     public ResultInfo<LiveChannelInfo> uploadPreviewImage(@PathVariable int userId,

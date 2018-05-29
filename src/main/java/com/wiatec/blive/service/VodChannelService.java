@@ -2,24 +2,14 @@ package com.wiatec.blive.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Splitter;
-import com.wiatec.blive.apns.APNsMaster;
 import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.common.utils.AESUtil;
-import com.wiatec.blive.common.utils.TimeUtil;
-import com.wiatec.blive.dto.LiveDaysDistributionInfo;
-import com.wiatec.blive.dto.LiveTimeDistributionInfo;
-import com.wiatec.blive.dto.LiveViewersInfo;
 import com.wiatec.blive.orm.dao.*;
-import com.wiatec.blive.orm.pojo.LiveChannelInfo;
-import com.wiatec.blive.orm.pojo.VodChannelInfo;
-import com.wiatec.blive.txcloud.LiveChannelMaster;
+import com.wiatec.blive.orm.pojo.ChannelInfo;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -32,24 +22,25 @@ public class VodChannelService {
 
     @Resource
     private VodChannelDao vodChannelDao;
-    @Resource
-    private LiveViewDao liveViewDao;
-    @Resource
-    private RelationFollowDao relationFollowDao;
 
-    public ResultInfo<PageInfo<VodChannelInfo>> selectAllAvailableWithUser(int pageNum, int pageSize){
+    public ResultInfo<PageInfo<ChannelInfo>> selectAllAvailableWithUser(int pageNum, int pageSize){
         PageHelper.startPage(pageNum, pageSize);
-        List<VodChannelInfo> vodChannelInfoList = vodChannelDao.selectAllAvailableWithUserInfo();
-        if(vodChannelInfoList == null || vodChannelInfoList.size() <= 0){
+        List<ChannelInfo> channelInfoList = getAllAvailableWithUser();
+        PageInfo<ChannelInfo> pageInfo = new PageInfo<>(channelInfoList);
+        return ResultMaster.success(pageInfo);
+    }
+
+    public List<ChannelInfo> getAllAvailableWithUser(){
+        List<ChannelInfo> channelInfoList = vodChannelDao.selectAllAvailableWithUserInfo();
+        if(channelInfoList == null || channelInfoList.size() <= 0){
             throw new XException(EnumResult.ERROR_NO_FOUND);
         }
-        for(VodChannelInfo vodChannelInfo: vodChannelInfoList){
-            if(vodChannelInfo.getPlayUrl() != null) {
-                vodChannelInfo.setPlayUrl(AESUtil.encrypt(vodChannelInfo.getPlayUrl(), AESUtil.KEY));
+        for(ChannelInfo channelInfo: channelInfoList){
+            if(channelInfo.getPlayUrl() != null) {
+                channelInfo.setPlayUrl(AESUtil.encrypt(channelInfo.getPlayUrl(), AESUtil.KEY));
             }
         }
-        PageInfo<VodChannelInfo> pageInfo = new PageInfo<>(vodChannelInfoList);
-        return ResultMaster.success(pageInfo);
+        return channelInfoList;
     }
 
 
@@ -58,33 +49,33 @@ public class VodChannelService {
      * @param userId user id
      * @return ChannelInfo
      */
-    public ResultInfo<VodChannelInfo> selectByUserId(int userId){
-        List<VodChannelInfo> vodChannelInfoList = vodChannelDao.selectByUserId(userId);
-        if(vodChannelInfoList == null || vodChannelInfoList.size() <= 0){
+    public ResultInfo<ChannelInfo> selectByUserId(int userId){
+        List<ChannelInfo> channelInfoList = vodChannelDao.selectByUserId(userId);
+        if(channelInfoList == null || channelInfoList.size() <= 0){
             throw new XException(EnumResult.ERROR_NO_FOUND);
         }
-        for(VodChannelInfo vodChannelInfo: vodChannelInfoList){
-            if(vodChannelInfo.getPlayUrl() != null) {
-                vodChannelInfo.setPlayUrl(AESUtil.encrypt(vodChannelInfo.getPlayUrl(), AESUtil.KEY));
+        for(ChannelInfo channelInfo: channelInfoList){
+            if(channelInfo.getPlayUrl() != null) {
+                channelInfo.setPlayUrl(AESUtil.encrypt(channelInfo.getPlayUrl(), AESUtil.KEY));
             }
         }
-        return ResultMaster.success(vodChannelInfoList);
+        return ResultMaster.success(channelInfoList);
     }
 
 
-    public ResultInfo<VodChannelInfo> selectByUserAndVideoId(int userId, String videoId){
-        VodChannelInfo vodChannelInfo = vodChannelDao.selectByUserAndVideoId(userId, videoId);
-        if(vodChannelInfo == null){
+    public ResultInfo<ChannelInfo> selectByUserAndVideoId(int userId, String videoId){
+        ChannelInfo channelInfo = vodChannelDao.selectByUserAndVideoId(userId, videoId);
+        if(channelInfo == null){
             throw new XException(EnumResult.ERROR_NO_FOUND);
         }
-        if(vodChannelInfo.getPlayUrl() != null) {
-            vodChannelInfo.setPlayUrl(AESUtil.encrypt(vodChannelInfo.getPlayUrl(), AESUtil.KEY));
+        if(channelInfo.getPlayUrl() != null) {
+            channelInfo.setPlayUrl(AESUtil.encrypt(channelInfo.getPlayUrl(), AESUtil.KEY));
         }
-        return ResultMaster.success(vodChannelInfo);
+        return ResultMaster.success(channelInfo);
     }
 
 
-    public ResultInfo<VodChannelInfo> updateChannelSetting(int action, VodChannelInfo channelInfo){
+    public ResultInfo<ChannelInfo> updateChannelSetting(int action, ChannelInfo channelInfo){
         if(vodChannelDao.countByVideoId(channelInfo.getVideoId()) != 1){
             throw new XException("channel does not exists");
         }
@@ -97,16 +88,16 @@ public class VodChannelService {
                 result = vodChannelDao.updateTitleAndMessageByVideoId(channelInfo);
                 break;
             case 2:
-                result = vodChannelDao.updateTitleByVideoId(channelInfo);
+                result = vodChannelDao.updateTitleByVideoId(channelInfo.getVideoId(), channelInfo.getTitle());
                 break;
             case 3:
-                result = vodChannelDao.updateMessageByVideoId(channelInfo);
+                result = vodChannelDao.updateMessageByVideoId(channelInfo.getVideoId(), channelInfo.getMessage());
                 break;
             case 4:
-                result = vodChannelDao.updatePriceByVideoId(channelInfo);
+                result = vodChannelDao.updatePriceByVideoId(channelInfo.getVideoId(), channelInfo.getPrice());
                 break;
             case 5:
-                result = vodChannelDao.updateLinkByVideoId(channelInfo);
+                result = vodChannelDao.updateLinkByVideoId(channelInfo.getVideoId(), channelInfo.getLink());
                 break;
             default:
                 break;
@@ -114,7 +105,7 @@ public class VodChannelService {
         if(result != 1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
-        VodChannelInfo info = vodChannelDao.selectOneByVideoId(channelInfo.getVideoId());
+        ChannelInfo info = vodChannelDao.selectOneByVideoId(channelInfo.getVideoId());
         if(info == null){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
@@ -130,7 +121,7 @@ public class VodChannelService {
      * @return ResultInfo
      */
     public ResultInfo updateChannelStatus(int action, int userId, String videoId){
-        VodChannelInfo channelInfo;
+        ChannelInfo channelInfo;
         if(action == 1){
             vodChannelDao.updateAvailableByVideoId(videoId);
             channelInfo = vodChannelDao.selectOneByVideoId(videoId);
@@ -147,12 +138,17 @@ public class VodChannelService {
 
     /**
      * update channel preview image
-     * @param channelInfo ChannelInfo
      * @return ResultInfo
      */
-    public ResultInfo<VodChannelInfo> updatePreview(VodChannelInfo channelInfo){
-        vodChannelDao.updatePreviewByVideoId(channelInfo);
-        return ResultMaster.success(vodChannelDao.selectOneByVideoId(channelInfo.getVideoId()));
+    public ResultInfo<ChannelInfo> updatePreview(String videoId, String preview){
+        if(vodChannelDao.updatePreviewByVideoId(videoId, preview) != 1){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        ChannelInfo info = vodChannelDao.selectOneByVideoId(videoId);
+        if(info == null){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        return ResultMaster.success(info);
     }
 
 }

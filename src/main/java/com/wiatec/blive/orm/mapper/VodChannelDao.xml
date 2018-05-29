@@ -10,7 +10,7 @@
         FROM bvision_channel_vod
     </sql>
 
-    <select id="selectAllAvailableWithUserInfo" resultType="com.wiatec.blive.orm.pojo.VodChannelInfo">
+    <select id="selectAllAvailableWithUserInfo" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
         SELECT bvision_channel_vod.id, bvision_channel_vod.user_id, bvision_channel_vod.available,
             bvision_channel_vod.rating, bvision_channel_vod.price, bvision_channel_vod.title,
             bvision_channel_vod.message, bvision_channel_vod.stream_id,
@@ -27,18 +27,18 @@
         ORDER BY bvision_channel_vod.create_time DESC
     </select>
     
-    <select id="selectByUserId" resultType="com.wiatec.blive.orm.pojo.VodChannelInfo">
+    <select id="selectByUserId" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
       <include refid="select"/>
         WHERE user_id = #{userId}
         ORDER BY bvision_channel_vod.create_time DESC
     </select>
 
-    <select id="selectByUserAndVideoId" resultType="com.wiatec.blive.orm.pojo.VodChannelInfo">
+    <select id="selectByUserAndVideoId" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
       <include refid="select"/>
         WHERE user_id = #{userId} AND video_id = #{videoId}
     </select>
 
-    <select id="selectOneByVideoId" resultType="com.wiatec.blive.orm.pojo.VodChannelInfo">
+    <select id="selectOneByVideoId" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
       <include refid="select"/>
         WHERE video_id = #{videoId}
     </select>
@@ -112,13 +112,13 @@
         WHERE video_id = #{videoId}
     </update>
 
-    <update id="updatePreviewByVideoId" parameterType="com.wiatec.blive.orm.pojo.LiveChannelInfo">
+    <update id="updatePreviewByVideoId" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
         UPDATE IGNORE bvision_channel_vod
         SET preview = #{preview}, modify_time = now()
         WHERE video_id = #{videoId}
     </update>
 
-    <update id="updatePreviewByFileId" parameterType="com.wiatec.blive.orm.pojo.LiveChannelInfo">
+    <update id="updatePreviewByFileId" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">
         UPDATE IGNORE bvision_channel_vod
         SET preview = #{preview}, modify_time = now()
         WHERE file_id = #{fileId}

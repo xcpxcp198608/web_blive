@@ -22,7 +22,7 @@ public class LiveChannelMaster {
         LiveChannelInfo liveChannelInfo = new LiveChannelInfo();
         liveChannelInfo.setUserId(userId);
         String streamId = BIZID + "_" + MD5Utils.create16(userId+"");
-        long time = TimeUtil.getExpiresByDays(7).getTime() / 1000L;
+        long time = TimeUtil.getExpiresByDays(3).getTime() / 1000L;
         String auth = getSafeUrl(streamId, time);
         String pushUrl = new StringBuilder()
                 .append("rtmp://")

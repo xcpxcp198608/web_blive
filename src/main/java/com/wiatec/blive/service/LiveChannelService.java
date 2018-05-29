@@ -99,119 +99,66 @@ public class LiveChannelService {
         return ResultMaster.success(channelInfo);
     }
 
-    /**
-     * update channel url info
-     * @param channelInfo ChannelInfo
-     * @return ResultInfo
-     */
-    public ResultInfo<LiveChannelInfo> updateChannelUrl(String username, LiveChannelInfo channelInfo){
-        if(liveChannelDao.countByUserId(channelInfo.getUserId()) == 1){
-            liveChannelDao.updateChannel(channelInfo);
-        }else{
-            channelInfo.setTitle(username);
-            liveChannelDao.insertChannel(channelInfo);
-        }
-        return ResultMaster.success(liveChannelDao.selectOneByUserId(channelInfo.getUserId()));
-    }
-
-    /**
-     * update channel title and message
-     * @param channelInfo  ChannelInfo
-     * @return  ResultInfo
-     */
-    public ResultInfo<LiveChannelInfo> updateChannelTitleAndMessage(LiveChannelInfo channelInfo){
-        if(liveChannelDao.countByUserId(channelInfo.getUserId()) != 1){
-            throw new XException("user channel does not exists");
-        }
-        liveChannelDao.updateTitleAndMessageByUserId(channelInfo);
-        return ResultMaster.success(liveChannelDao.selectOneByUserId(channelInfo.getUserId()));
-    }
-
-    /**
-     * update channel title
-     * @param channelInfo ChannelInfo
-     * @return ResultInfo
-     */
-    public ResultInfo<LiveChannelInfo> updateChannelTitle(LiveChannelInfo channelInfo){
-        if(liveChannelDao.countByUserId(channelInfo.getUserId()) != 1){
-            throw new XException("user channel does not exists");
-        }
-        liveChannelDao.updateTitleByUserId(channelInfo);
-        return ResultMaster.success(liveChannelDao.selectOneByUserId(channelInfo.getUserId()));
-    }
-
-    /**
-     * update channel message
-     * @param channelInfo ChannelInfo
-     * @return ResultInfo
-     */
-    public ResultInfo<LiveChannelInfo> updateChannelMessage(LiveChannelInfo channelInfo){
-        if(liveChannelDao.countByUserId(channelInfo.getUserId()) != 1){
-            throw new XException("user channel does not exists");
-        }
-        liveChannelDao.updateMessageByUserId(channelInfo);
-        return ResultMaster.success(liveChannelDao.selectOneByUserId(channelInfo.getUserId()));
-    }
-
-    /**
-     * update channel price
-     * @param channelInfo ChannelInfo
-     * @return ResultInfo
-     */
-    public ResultInfo<LiveChannelInfo> updateChannelPrice(LiveChannelInfo channelInfo){
-        if(liveChannelDao.countByUserId(channelInfo.getUserId()) != 1){
-            throw new XException("user channel does not exists");
-        }
-        liveChannelDao.updatePriceByUserId(channelInfo);
-        return ResultMaster.success(liveChannelDao.selectOneByUserId(channelInfo.getUserId()));
-    }
-
-    /**
-     * update channel link
-     * @param channelInfo ChannelInfo
-     * @return ResultInfo
-     */
-    public ResultInfo<LiveChannelInfo> updateChannelLink(LiveChannelInfo channelInfo){
-        if(liveChannelDao.countByUserId(channelInfo.getUserId()) != 1){
-            throw new XException("user channel does not exists");
-        }
-        liveChannelDao.updateLinkByUserId(channelInfo);
-        return ResultMaster.success(liveChannelDao.selectOneByUserId(channelInfo.getUserId()));
-    }
-
-
-    /**
-     * update channel all setting: title, message, price
-     * @param channelInfo ChannelInfo
-     * @return ResultInfo
-     */
     @Transactional(rollbackFor = Exception.class)
-    public ResultInfo<LiveChannelInfo> updateChannelAllSetting(LiveChannelInfo channelInfo){
+    public ResultInfo<LiveChannelInfo> updateChannel(int action, LiveChannelInfo channelInfo){
         if(liveChannelDao.countByUserId(channelInfo.getUserId()) != 1){
             throw new XException("user channel does not exists");
         }
-        if(liveChannelDao.updateAllSettingByUserId(channelInfo) != 1){
+        int result = 0;
+        switch (action){
+            case 0:
+                result = liveChannelDao.updateAllSettingByUserId(channelInfo);
+                break;
+            case 1:
+                result = liveChannelDao.updateTitleAndMessageByUserId(channelInfo);
+                break;
+            case 2:
+                result = liveChannelDao.updateTitleByUserId(channelInfo);
+                break;
+            case 3:
+                result = liveChannelDao.updateMessageByUserId(channelInfo);
+                break;
+            case 4:
+                result = liveChannelDao.updatePriceByUserId(channelInfo);
+                break;
+            case 5:
+                result = liveChannelDao.updateLinkByUserId(channelInfo);
+                break;
+            default:
+                break;
+        }
+        if(result != 1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
-        LiveChannelInfo info = liveChannelDao.selectOneByUserId(channelInfo.getUserId());
-        if(info == null){
-            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
-        }
-        if(TextUtil.isEmpty(info.getUrl())){
-            return updateChannelUrl(channelInfo);
-        }
-        String hexTime = info.getUrl().substring(info.getUrl().length() - 8);
-        try {
-            long time = Long.valueOf(hexTime, 16);
-            // 如果防盗链验证日期减除当前时间小于一天，更换url
-            if(time - System.currentTimeMillis() / 1000 < 86400){
+        if(action == 0) {
+            LiveChannelInfo info = liveChannelDao.selectOneByUserId(channelInfo.getUserId());
+            if (info == null) {
+                throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+            }
+            if(TextUtil.isEmpty(info.getStreamId()) || !info.getStreamId().startsWith("24467")){
                 return updateChannelUrl(channelInfo);
             }
-        }catch (Exception e){
-            return updateChannelUrl(channelInfo);
+            if (TextUtil.isEmpty(info.getUrl())) {
+                return updateChannelUrl(channelInfo);
+            }
+            String hexTime = info.getUrl().substring(info.getUrl().length() - 8);
+            try {
+                long time = Long.valueOf(hexTime, 16);
+                // 如果防盗链验证日期减除当前时间小于一天，更换url
+                if (time - System.currentTimeMillis() / 1000 < 86400) {
+                    return updateChannelUrl(channelInfo);
+                }
+            } catch (Exception e) {
+                return updateChannelUrl(channelInfo);
+            }
+        }
+        LiveChannelInfo info = liveChannelDao.selectOneByUserId(channelInfo.getUserId());
+        if (info == null) {
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
         return ResultMaster.success(info);
     }
+
 
     private ResultInfo<LiveChannelInfo> updateChannelUrl(LiveChannelInfo channelInfo){
         LiveChannelInfo liveChannelInfo = LiveChannelMaster.create(channelInfo.getUserId());
@@ -227,6 +174,7 @@ public class LiveChannelService {
         }
         return ResultMaster.success(info);
     }
+
 
     /**
      * update channel status
