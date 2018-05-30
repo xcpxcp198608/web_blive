@@ -6,6 +6,7 @@ import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.dao.LdIllegalWordDao;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
+import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.service.AuthRegisterUserService;
 import com.wiatec.blive.service.LiveChannelService;
@@ -39,22 +40,20 @@ public class LiveChannel {
 
 
     @Resource
-    private AuthRegisterUserService authRegisterUserService;
-    @Resource
     private LiveChannelService liveChannelService;
     @Resource
     private LdIllegalWordDao ldIllegalWordDao;
 
     @GetMapping(value = "/")
-    public List<LiveChannelInfo> get(){
-        return liveChannelService.selectAllAvailable();
+    public ResultInfo<PageInfo<ChannelInfo>> getWithUserInfo(@RequestParam(required = false, defaultValue = "1") int pageNum,
+                                                                 @RequestParam(required = false, defaultValue = "50") int pageSize){
+        return liveChannelService.selectAllAvailableWithUser(pageNum, pageSize);
     }
 
 
-    @GetMapping(value = "/living")
-    public ResultInfo<PageInfo<LiveChannelInfo>> getWithUserInfo(@RequestParam(required = false, defaultValue = "1") int pageNum,
-                                                                 @RequestParam(required = false, defaultValue = "50") int pageSize){
-        return liveChannelService.selectAllAvailableWithUser(pageNum, pageSize);
+    @GetMapping(value = "/btv")
+    public ResultInfo<ChannelInfo> getChannelWithUserInfoForBtv(){
+        return liveChannelService.selectAllAvailableForBtv();
     }
 
     @PostMapping(value = "/create")
@@ -68,7 +67,7 @@ public class LiveChannel {
     }
 
     @GetMapping(value = "/search/{key}")
-    public List<LiveChannelInfo> searchByLikeTitle(@PathVariable String key){
+    public List<ChannelInfo> searchByLikeTitle(@PathVariable String key){
         return liveChannelService.searchByLikeTitle(key);
     }
 
@@ -80,7 +79,7 @@ public class LiveChannel {
      * @return ResultInfo
      */
     @PutMapping("/update/{action}")
-    public ResultInfo updateChannel(@PathVariable int action, @RequestBody LiveChannelInfo channelInfo){
+    public ResultInfo updateChannel(@PathVariable int action, @RequestBody ChannelInfo channelInfo){
         List<String> words = ldIllegalWordDao.selectAll();
         if(words != null && words.size() > 0){
             for (String s: words) {
@@ -112,7 +111,7 @@ public class LiveChannel {
 
 
     @PostMapping("/upload/{userId}")
-    public ResultInfo<LiveChannelInfo> uploadPreviewImage(@PathVariable int userId,
+    public ResultInfo<ChannelInfo> uploadPreviewImage(@PathVariable int userId,
                                                       @RequestParam MultipartFile file,
                                                       HttpServletRequest request) throws IOException {
         if (file.isEmpty()) {
@@ -121,6 +120,9 @@ public class LiveChannel {
         String path = request.getSession().getServletContext().getRealPath("/Resource/channel_preview/");
         FileUtils.copyInputStreamToFile(file.getInputStream(), new File(path, file.getOriginalFilename()));
         String preview = BASE_RESOURCE_URL + "channel_preview/" + file.getOriginalFilename();
-        return liveChannelService.updatePreview(new LiveChannelInfo(preview, userId));
+        ChannelInfo channelInfo = new ChannelInfo();
+        channelInfo.setUserId(userId);
+        channelInfo.setPreview(preview);
+        return liveChannelService.updatePreview(channelInfo);
     }
 }

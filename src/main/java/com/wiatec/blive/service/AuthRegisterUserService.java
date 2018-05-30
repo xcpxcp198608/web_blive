@@ -11,6 +11,7 @@ import com.wiatec.blive.common.utils.TokenUtil;
 import com.wiatec.blive.listener.SessionListener;
 import com.wiatec.blive.orm.dao.*;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
+import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.orm.pojo.LogUserOperationInfo;
 import com.wiatec.blive.rongc.RCManager;
@@ -65,7 +66,7 @@ public class AuthRegisterUserService extends BaseService {
         AuthRegisterUserInfo userInfo1 = authRegisterUserDao.selectOneByUsername(userInfo.getUsername());
 
         //create user live channel info
-        LiveChannelInfo channelInfo = LiveChannelMaster.create(userInfo1.getId());
+        ChannelInfo channelInfo = LiveChannelMaster.create(userInfo1.getId());
         channelInfo.setTitle(userInfo1.getUsername());
         if(liveChannelDao.insertChannel(channelInfo) != COUNT_1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);

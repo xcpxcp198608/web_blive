@@ -100,16 +100,22 @@
         WHERE video_id = #{videoId}
     </update>
 
-    <update id="updateAvailableByVideoId">
+    <update id="updateAvailableByVideoIds">
         UPDATE IGNORE bvision_channel_vod
         SET available = 1, modify_time = now()
-        WHERE video_id = #{videoId}
+        WHERE video_id IN 
+        <foreach collection="videoIds" separator="," item="videoId" open="(" close=")">
+            #{videoId}
+        </foreach>
     </update>
 
-    <update id="updateUnavailableByVideoId">
+    <update id="updateUnavailableByVideoIds">
         UPDATE IGNORE bvision_channel_vod
         SET available = 0, modify_time = now()
-        WHERE video_id = #{videoId}
+        WHERE video_id IN
+        <foreach collection="videoIds" separator="," item="videoId" open="(" close=")">
+            #{videoId}
+        </foreach>
     </update>
 
     <update id="updatePreviewByVideoId" parameterType="com.wiatec.blive.orm.pojo.ChannelInfo">

@@ -34,7 +34,7 @@
         <foreach collection="userIds" item="userId" separator="," open="(" close=")">
             #{userId}
         </foreach>
-        AND auth_register_user.id = bvision_channel_live.userId
+        AND auth_register_user.id = bvision_channel_live.user_id
         ORDER BY username
     </select>
     

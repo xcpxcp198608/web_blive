@@ -34,12 +34,13 @@ public class TXKeyMaster {
     public static void main (String [] args){
         String params = new StringBuilder()
                 .append("Action=CreateSnapshotByTimeOffset").append("&")
-                .append("definition=10").append("&")
-                .append("fileId=").append("210046043_c3a6ad996a4a46fa90b6f433ec62fcbd").append("&")
-                .append("Nonce=").append(12321).append("&")
+                .append("Nonce=").append(312312).append("&")
                 .append("Region=szjr").append("&")
                 .append("SecretId=AKIDcDj5GHhmJpESbZsyOdhZWak2cdUcBTOC").append("&")
+                .append("SignatureMethod=HmacSHA256").append("&")
                 .append("Timestamp=").append(System.currentTimeMillis() / 1000).append("&")
+                .append("definition=10").append("&")
+                .append("fileId=").append("210046043_c3a6ad996a4a46fa90b6f433ec62fcbd").append("&")
                 .append("timeOffset=100")
                 .toString();
         System.out.println(TXKeyMaster.getSignatureUrl(params));

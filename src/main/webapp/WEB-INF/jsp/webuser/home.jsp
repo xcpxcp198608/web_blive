@@ -75,10 +75,13 @@
                 if(comment.length <= 0){
                     return
                 }
+                var commentInfo = {"pusherId": ${userInfo.id}, "viewerId": ${userInfo.id},
+                    "viewerUsername": "${userInfo.username}", "scope": 2, "type": 2, "comment": comment};
                 if(webSocket == null){
                     return
                 }
-                webSocket.send('1/${userInfo.id}/' + comment);
+                var commentString = JSON.stringify(commentInfo);
+                webSocket.send(commentString);
                 $('#ipComment').val("");
             });
 
@@ -118,17 +121,17 @@
                 if(comment.length <= 0){
                     return
                 }
-                var reg = /^blive group count:/;
-                if(reg.test(comment)) {
-                    var count = comment.substr(18);
-                    count = parseInt(count)
-                    $('#oCount').html(count - 1);
-                }else{
+                var commentInfo = JSON.parse(comment);
+                if(commentInfo["type"] === 1){
+                    $('#oCount').html(commentInfo["viewers"]);
+                }else if(commentInfo["type"] === 2){
                     var span = document.createElement("span");
-                    span.innerHTML = comment + "<br/>";
+                    span.innerHTML = commentInfo["viewerUsername"] + ": " + commentInfo["comment"] + "<br/>";
                     span.setAttribute('class', 'comment');
                     $('#divComment').append(span);
                     $("#divComment").scrollTop($('#divComment').prop("scrollHeight"));
+                }else if(commentInfo["type"] === 3){
+
                 }
             }
 

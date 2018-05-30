@@ -120,18 +120,20 @@ public class VodChannelService {
      * @param userId user id
      * @return ResultInfo
      */
-    public ResultInfo updateChannelStatus(int action, int userId, String videoId){
-        ChannelInfo channelInfo;
+    public ResultInfo updateChannelStatus(int action, int userId, String[] videoIds){
+        int result = 0;
         if(action == 1){
-            vodChannelDao.updateAvailableByVideoId(videoId);
-            channelInfo = vodChannelDao.selectOneByVideoId(videoId);
+            result = vodChannelDao.updateAvailableByVideoIds(videoIds);
 //            if(channelInfo != null) {
 //                List<Integer> integerList = relationFollowDao.selectFollowersIdByUserId(userId);
 //                APNsMaster.batchSend(userId, integerList, APNsMaster.ACTION_LIVE_START, channelInfo.getTitle());
 //                //PushMaster.push(PushPayloadBuilder.buildForIos(userInfo.getUsername() + " start live: " + channelInfo.getTitle()));
 //            }
         }else {
-            vodChannelDao.updateUnavailableByVideoId(videoId);
+            result = vodChannelDao.updateUnavailableByVideoIds(videoIds);
+        }
+        if(result != videoIds.length){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
         return ResultMaster.success();
     }

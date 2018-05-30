@@ -2,6 +2,7 @@ package com.wiatec.blive.web;
 
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
+import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import com.wiatec.blive.service.LiveChannelService;
 import com.wiatec.blive.service.WebUserService;
@@ -34,7 +35,7 @@ public class WebUser {
     public String details(HttpServletRequest request, Model model){
         AuthRegisterUserInfo userInfo = webUserService.getUserInfo(request);
         model.addAttribute("userInfo", userInfo);
-        LiveChannelInfo channelInfo = liveChannelService.selectOneByUserId(userInfo.getId()).getData();
+        ChannelInfo channelInfo = liveChannelService.selectOneByUserId(userInfo.getId()).getData();
         model.addAttribute("channelInfo", channelInfo);
         return "webuser/home";
     }

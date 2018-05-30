@@ -39,7 +39,7 @@ public class APNsMaster {
             SqlSession sqlSession = (SqlSession) ApplicationContextHelper.getApplicationContext().getBean("sqlSessionTemplate");
             deviceTokenDao = sqlSession.getMapper(DeviceTokenDao.class);
             service = APNS.newService()
-                    .withCert(PATH_LOCAL, "123456")
+                    .withCert(PATH_PRODUCT, "123456")
                     .withSandboxDestination()
                     .build();
         } catch (Exception e) {

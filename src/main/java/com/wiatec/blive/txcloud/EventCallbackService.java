@@ -61,7 +61,7 @@ public class EventCallbackService {
     }
 
     private void streamStop(int userId, TXEventInfo txEventInfo){
-
+        liveChannelDao.updateUnavailableByUserId(userId);
     }
 
     private void streamStart(int userId, TXEventInfo txEventInfo){
@@ -70,7 +70,7 @@ public class EventCallbackService {
 
 
     private void vodCreate(int userId, TXEventInfo txEventInfo){
-        LiveChannelInfo liveChannelInfo = liveChannelDao.selectOneByUserId(userId);
+        ChannelInfo liveChannelInfo = liveChannelDao.selectOneByUserId(userId);
         ChannelInfo channelInfo = ChannelInfo.createFrom(txEventInfo);
         channelInfo.setUserId(userId);
         channelInfo.setRating(liveChannelInfo.getRating());
@@ -81,7 +81,6 @@ public class EventCallbackService {
         channelInfo.setCategory(liveChannelInfo.getCategory());
         channelInfo.setType(liveChannelInfo.getType());
         vodChannelDao.insertChannel(channelInfo);
-        requestSnapshot(channelInfo);
     }
 
     private void screenshotCreate(int userId, TXEventInfo txEventInfo){
@@ -97,12 +96,13 @@ public class EventCallbackService {
         String nonce = new Random().nextInt(1000)+ "";
         String params = new StringBuilder()
                 .append("Action=CreateSnapshotByTimeOffset").append("&")
-                .append("definition=10").append("&")
-                .append("fileId=").append(channelInfo.getFileId()).append("&")
                 .append("Nonce=").append(nonce).append("&")
                 .append("Region=szjr").append("&")
                 .append("SecretId=AKIDcDj5GHhmJpESbZsyOdhZWak2cdUcBTOC").append("&")
+                .append("SignatureMethod=HmacSHA256").append("&")
                 .append("Timestamp=").append(System.currentTimeMillis() / 1000).append("&")
+                .append("definition=10").append("&")
+                .append("fileId=").append(channelInfo.getFileId()).append("&")
                 .append("timeOffset=100")
                 .toString();
         String url = TXKeyMaster.getSignatureUrl(params);

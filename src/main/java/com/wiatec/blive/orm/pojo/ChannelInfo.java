@@ -10,7 +10,7 @@ import java.util.Date;
  * @author patrick
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ChannelInfo extends BaseInfo {
+public class ChannelInfo extends BaseInfo implements Comparable<ChannelInfo> {
 
     private int userId;
     private boolean available;
@@ -301,5 +301,16 @@ public class ChannelInfo extends BaseInfo {
         channelInfo.setEndTime(txEventInfo.getEnd_time());
         channelInfo.setDuration(txEventInfo.getDuration());
         return channelInfo;
+    }
+
+    @Override
+    public int compareTo(ChannelInfo info) {
+        if(info.getLiveTime().before(this.getLiveTime())){
+            return -1;
+        }else if(info.getLiveTime().after(this.getLiveTime())){
+            return 1;
+        }else {
+            return 0;
+        }
     }
 }

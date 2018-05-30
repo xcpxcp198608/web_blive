@@ -1,5 +1,7 @@
 package com.wiatec.blive.ws;
 
+import com.google.gson.Gson;
+import com.wiatec.blive.dto.ChannelCommentInfo;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +21,12 @@ public class SendChannelViewerTask {
         for(Map.Entry<Integer, LiveSocket> entry: clientMap.entrySet()){
             LiveSocket liveSocket = entry.getValue();
             int count = LiveSocket.getCountByGroupId(liveSocket.getGroupId());
-            liveSocket.sendMessage("blive group count:" + count);
+            ChannelCommentInfo channelCommentInfo = new ChannelCommentInfo();
+            channelCommentInfo.setPusherId(liveSocket.getGroupId());
+            channelCommentInfo.setScope(ChannelCommentInfo.SCOPE_GROUP);
+            channelCommentInfo.setType(ChannelCommentInfo.TYPE_LIVE_VIEWERS);
+            channelCommentInfo.setViewers(count);
+            liveSocket.sendMessage(new Gson().toJson(channelCommentInfo));
         }
     }
 }

@@ -1,13 +1,14 @@
 package com.wiatec.blive.ws;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.wiatec.blive.common.result.EnumResult;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.common.utils.ApplicationContextHelper;
+import com.wiatec.blive.common.utils.TextUtil;
+import com.wiatec.blive.dto.ChannelCommentInfo;
 import com.wiatec.blive.orm.dao.*;
-import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
-import com.wiatec.blive.orm.pojo.LiveChannelInfo;
-import com.wiatec.blive.orm.pojo.LiveViewInfo;
-import com.wiatec.blive.orm.pojo.LogLiveCommentInfo;
+import com.wiatec.blive.orm.pojo.*;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +37,6 @@ public class LiveSocket {
             "Motherfuckers", "nigga", "nigger", "shit", "shit ass", "shitass", "son of a bitch",
             "son of a motherless goat", "son of a whore", "twat"};
 
-    private static final int MSG_TYPE_FULL = 0;
-    private static final int MSG_TYPE_GROUP = 1;
 
     private static AuthRegisterUserDao authRegisterUserDao;
     private static LiveChannelDao liveChannelDao;
@@ -67,6 +66,12 @@ public class LiveSocket {
 
     private boolean insertSuccess = false;
 
+    /**
+     * web socket connect
+     * @param session socket session
+     * @param groupId pusher id
+     * @param userId viewer id
+     */
     @OnOpen
     public void onOpen(Session session, @PathParam("groupId")int groupId, @PathParam("userId")int userId) {
         this.session = session;
@@ -83,7 +88,13 @@ public class LiveSocket {
                 ", user id: " + userId + ", total client is: {}", getOnlineCount());
         logger.debug("ws -> new client connected, group id: " + groupId +
                 ", user id: " + userId + ", this group client is: {}", getCountByGroupId(groupId));
-        sendMessage("blive group count:" + getCountByGroupId(groupId));
+
+        ChannelCommentInfo channelCommentInfo = new ChannelCommentInfo();
+        channelCommentInfo.setPusherId(groupId);
+        channelCommentInfo.setScope(ChannelCommentInfo.SCOPE_GROUP);
+        channelCommentInfo.setType(ChannelCommentInfo.TYPE_LIVE_VIEWERS);
+        channelCommentInfo.setViewers(getCountByGroupId(groupId));
+        sendMessage(new Gson().toJson(channelCommentInfo));
 
         //记录观看开始
         if(groupId != userId) {
@@ -93,51 +104,51 @@ public class LiveSocket {
         }
     }
 
-    /**
-     * 3 parts of message body  0/1/i'm patrick/group count
-     * 1: type: 0->全发所有客户端全部收到， 1->发送给属于指定group id的客户端
-     * 2: group id:
-     * 3: comment:
-     * 4: the current view count in group
-     * @param session Session
-     * @param message message
-     * @throws IOException IOException
+
+    /** received message
+     * @param session socket Session
+     * @param message message (json string) -> {@link com.wiatec.blive.dto.ChannelCommentInfo}
      */
     @OnMessage
     public void onMessage(Session session, String message) {
-        String[] msg = message.split("/");
-        int type = Integer.parseInt(msg[0]);
-        int group = Integer.parseInt(msg[1]);
-        String comment = username + ": " + msg[2];
-        logger.debug("ws -> type: {}", type);
-        logger.debug("ws -> group: {}", group);
-        logger.debug("ws -> comment: {}", comment);
-
-        if(illegalWords != null && illegalWords.size() >0){
-            for(String key: illegalWords){
-                comment = comment.replace(key, "**");
+        try {
+            logger.info("wss:"+ message);
+            ChannelCommentInfo commentInfo = new Gson().fromJson(message, new TypeToken<ChannelCommentInfo>(){}.getType());
+            if(commentInfo == null){
+                return;
             }
-        }
-
-        if(type == MSG_TYPE_FULL){
-            for(Map.Entry<Integer, LiveSocket> entry: clientMap.entrySet()){
-                entry.getValue().sendMessage(comment);
-            }
-        }else if(type == MSG_TYPE_GROUP){
-            for(Map.Entry<Integer, LiveSocket> entry: clientMap.entrySet()){
-                LiveSocket liveSocket = entry.getValue();
-                if(liveSocket.getGroupId() == group){
-                    liveSocket.sendMessage(comment);
+            if(!TextUtil.isEmpty(commentInfo.getComment())){
+                if(illegalWords != null && illegalWords.size() >0){
+                    for(String key: illegalWords){
+                        commentInfo.setComment(commentInfo.getComment().replace(key, "**"));
+                    }
                 }
             }
+            commentInfo.setViewerUsername(username);
+            if(commentInfo.getScope() == ChannelCommentInfo.SCOPE_ALL){
+                for(Map.Entry<Integer, LiveSocket> entry: clientMap.entrySet()){
+                    entry.getValue().sendMessage(new Gson().toJson(commentInfo));
+                }
+            }else if(commentInfo.getScope() == ChannelCommentInfo.SCOPE_GROUP){
+                for(Map.Entry<Integer, LiveSocket> entry: clientMap.entrySet()){
+                    LiveSocket liveSocket = entry.getValue();
+                    if(liveSocket.getGroupId() == commentInfo.getPusherId()){
+                        liveSocket.sendMessage(new Gson().toJson(commentInfo));
+                    }
+                }
+            }
+
+            // log comment
+            ChannelInfo channelInfo = liveChannelDao.selectOneByUserId(commentInfo.getPusherId());
+            LogLiveCommentInfo logLiveCommentInfo = new LogLiveCommentInfo();
+            logLiveCommentInfo.setChannelId(channelInfo.getId());
+            logLiveCommentInfo.setGroupId(commentInfo.getPusherId());
+            logLiveCommentInfo.setWatchUserId(userId);
+            logLiveCommentInfo.setComment(message);
+            logLiveCommentDao.insertOne(logLiveCommentInfo);
+        }catch (Exception e){
+            logger.error("ws error", e);
         }
-        LiveChannelInfo channelInfo = liveChannelDao.selectOneByUserId(group);
-        LogLiveCommentInfo logLiveCommentInfo = new LogLiveCommentInfo();
-        logLiveCommentInfo.setChannelId(channelInfo.getId());
-        logLiveCommentInfo.setGroupId(group);
-        logLiveCommentInfo.setWatchUserId(userId);
-        logLiveCommentInfo.setComment(msg[2]);
-        logLiveCommentDao.insertOne(logLiveCommentInfo);
     }
 
     @OnClose
@@ -146,9 +157,14 @@ public class LiveSocket {
             for(Map.Entry<Integer, LiveSocket> entry: clientMap.entrySet()) {
                 LiveSocket liveSocket = entry.getValue();
                 if (liveSocket.getGroupId() == groupId) {
-                    liveSocket.sendMessage("blive live finished");
+                    ChannelCommentInfo channelCommentInfo = new ChannelCommentInfo();
+                    channelCommentInfo.setPusherId(groupId);
+                    channelCommentInfo.setScope(ChannelCommentInfo.SCOPE_GROUP);
+                    channelCommentInfo.setType(ChannelCommentInfo.TYPE_LIVE_END);
+                    liveSocket.sendMessage(new Gson().toJson(channelCommentInfo));
                 }
             }
+            liveChannelDao.updateUnavailableByUserId(userId);
         }
         clientMap.remove(userId);
         liveChannelDao.updateUnavailableByUserId(userId);

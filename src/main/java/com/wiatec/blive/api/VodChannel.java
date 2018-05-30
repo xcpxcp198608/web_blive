@@ -94,13 +94,12 @@ public class VodChannel {
      * update channel status by user id and video id
      * @param action action
      * @param userId user id
-     * @param videoId video id
      * @return ResultInfo
      */
-    @PutMapping("/status/{action}/{userId}/{videoId}")
+    @PutMapping("/status/{action}/{userId}")
     public ResultInfo updateChannelUnavailable(@PathVariable int action, @PathVariable int userId,
-                                               @PathVariable String videoId){
-        return vodChannelService.updateChannelStatus(action, userId, videoId);
+                                               String[] videoIds){
+        return vodChannelService.updateChannelStatus(action, userId, videoIds);
     }
 
 

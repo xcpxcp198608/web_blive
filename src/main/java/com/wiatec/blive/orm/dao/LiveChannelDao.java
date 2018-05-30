@@ -1,5 +1,6 @@
 package com.wiatec.blive.orm.dao;
 
+import com.wiatec.blive.orm.pojo.ChannelInfo;
 import com.wiatec.blive.orm.pojo.LiveChannelInfo;
 import org.springframework.stereotype.Repository;
 
@@ -11,24 +12,24 @@ import java.util.List;
 @Repository
 public interface LiveChannelDao {
 
-    List<LiveChannelInfo> selectAllAvailable();
-    List<LiveChannelInfo> selectAllAvailableWithUserInfo();
-    List<LiveChannelInfo> searchByLikeTitle(String title);
-    LiveChannelInfo selectOneByUserId(int userId);
+    List<ChannelInfo> selectAllAvailable();
+    List<ChannelInfo> selectAllAvailableWithUserInfo();
+    List<ChannelInfo> searchByLikeTitle(String title);
+    ChannelInfo selectOneByUserId(int userId);
     int selectUserIdByStreamId(String streamId);
 
     int countByUserId(int userId);
-    int insertChannel(LiveChannelInfo channelInfo);
-    int updateChannel(LiveChannelInfo channelInfo);
+    int insertChannel(ChannelInfo channelInfo);
+    int updateChannel(ChannelInfo channelInfo);
 
 
-    int updateTitleAndMessageByUserId(LiveChannelInfo channelInfo);
-    int updateTitleByUserId(LiveChannelInfo channelInfo);
-    int updateMessageByUserId(LiveChannelInfo channelInfo);
-    int updatePriceByUserId(LiveChannelInfo channelInfo);
-    int updateLinkByUserId(LiveChannelInfo channelInfo);
-    int updateAllSettingByUserId(LiveChannelInfo channelInfo);
+    int updateTitleAndMessageByUserId(ChannelInfo channelInfo);
+    int updateTitleByUserId(ChannelInfo channelInfo);
+    int updateMessageByUserId(ChannelInfo channelInfo);
+    int updatePriceByUserId(ChannelInfo channelInfo);
+    int updateLinkByUserId(ChannelInfo channelInfo);
+    int updateAllSettingByUserId(ChannelInfo channelInfo);
     int updateAvailableByUserId(int userId);
     int updateUnavailableByUserId(int userId);
-    int updatePreviewByUserId(LiveChannelInfo channelInfo);
+    int updatePreviewByUserId(ChannelInfo channelInfo);
 }

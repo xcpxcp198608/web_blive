@@ -2,7 +2,7 @@ package com.wiatec.blive.txcloud;
 
 import com.wiatec.blive.common.security.MD5Utils;
 import com.wiatec.blive.common.utils.TimeUtil;
-import com.wiatec.blive.orm.pojo.LiveChannelInfo;
+import com.wiatec.blive.orm.pojo.ChannelInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +18,9 @@ public class LiveChannelMaster {
 
 
 
-    public static LiveChannelInfo create(int userId){
-        LiveChannelInfo liveChannelInfo = new LiveChannelInfo();
-        liveChannelInfo.setUserId(userId);
+    public static ChannelInfo create(int userId){
+        ChannelInfo channelInfo = new ChannelInfo();
+        channelInfo.setUserId(userId);
         String streamId = BIZID + "_" + MD5Utils.create16(userId+"");
         long time = TimeUtil.getExpiresByDays(3).getTime() / 1000L;
         String auth = getSafeUrl(streamId, time);
@@ -51,12 +51,12 @@ public class LiveChannelMaster {
                 .append("&")
                 .append(auth)
                 .toString();
-        liveChannelInfo.setStreamId(streamId);
-        liveChannelInfo.setUrl(pushUrl);
-        liveChannelInfo.setPlayUrl(playUrl);
-        liveChannelInfo.setRtmpUrl(rtmpUrl);
-        liveChannelInfo.setRtmpKey(rtmpKey);
-        return liveChannelInfo;
+        channelInfo.setStreamId(streamId);
+        channelInfo.setPushUrl(pushUrl);
+        channelInfo.setPlayUrl(playUrl);
+        channelInfo.setRtmpUrl(rtmpUrl);
+        channelInfo.setRtmpKey(rtmpKey);
+        return channelInfo;
     }
 
 

@@ -29,8 +29,10 @@ public interface VodChannelDao {
     int updatePriceByVideoId(@Param("videoId") String videoId, @Param("price") Float price);
     int updateLinkByVideoId(@Param("videoId") String videoId, @Param("link") String link);
     int updateAllSettingByVideoId(ChannelInfo channelInfo);
-    int updateAvailableByVideoId(String videoId);
-    int updateUnavailableByVideoId(String videoId);
+
+    int updateAvailableByVideoIds(@Param("videoIds") String [] videoIds);
+    int updateUnavailableByVideoIds(@Param("videoIds") String []videoId);
+
     int updatePreviewByVideoId(@Param("videoId") String videoId, @Param("preview") String preview);
     int updatePreviewByFileId(@Param("fileId") String fileId, @Param("preview") String preview);
 }

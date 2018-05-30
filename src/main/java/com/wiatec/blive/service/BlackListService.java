@@ -77,9 +77,6 @@ public class BlackListService {
 
 
     public ResultInfo checkBlack(int userId, int targetUserId){
-        if(userId == targetUserId){
-            throw new XException("");
-        }
         if(blackListDao.countOne(userId, targetUserId) == 1){
             throw new XException(555, "Please contact the broadcaster for additional information");
         }
