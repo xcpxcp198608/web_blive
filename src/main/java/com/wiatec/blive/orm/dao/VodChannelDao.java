@@ -19,6 +19,7 @@ public interface VodChannelDao {
     ChannelInfo selectByUserAndVideoId(@Param("userId") int userId, @Param("videoId") String videoId);
 
     ChannelInfo selectOneByVideoId(String videoId);
+    ChannelInfo selectOneByChannelId(int channelId);
     int countByVideoId(String videoId);
     int countByFileId(String fileId);
     int insertChannel(ChannelInfo channelInfo);
@@ -26,7 +27,7 @@ public interface VodChannelDao {
     int updateTitleAndMessageByVideoId(ChannelInfo channelInfo);
     int updateTitleByVideoId(@Param("videoId") String videoId, @Param("title") String title);
     int updateMessageByVideoId(@Param("videoId") String videoId, @Param("message") String message);
-    int updatePriceByVideoId(@Param("videoId") String videoId, @Param("price") Float price);
+    int updatePriceByVideoId(@Param("videoId") String videoId, @Param("price") int price);
     int updateLinkByVideoId(@Param("videoId") String videoId, @Param("link") String link);
     int updateAllSettingByVideoId(ChannelInfo channelInfo);
 
@@ -35,4 +36,6 @@ public interface VodChannelDao {
 
     int updatePreviewByVideoId(@Param("videoId") String videoId, @Param("preview") String preview);
     int updatePreviewByFileId(@Param("fileId") String fileId, @Param("preview") String preview);
+
+    int deleteChannel(@Param("userId") int userId, @Param("videoId") String videoId);
 }

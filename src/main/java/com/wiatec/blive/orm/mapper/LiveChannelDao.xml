@@ -38,6 +38,11 @@
         WHERE user_id = #{userId}
     </select>
 
+    <select id="selectOneByChannelId" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
+       <include refid="select"/>
+        WHERE id = #{channelId}
+    </select>
+
     <select id="countByUserId" resultType="java.lang.Integer">
       SELECT COUNT(1) count FROM bvision_channel_live
       WHERE user_id=#{userId}

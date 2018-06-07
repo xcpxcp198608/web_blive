@@ -16,15 +16,16 @@ import com.wiatec.blive.dto.LiveTimeDistributionInfo;
 import com.wiatec.blive.dto.LiveViewersInfo;
 import com.wiatec.blive.orm.dao.*;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
-import com.wiatec.blive.orm.pojo.LiveChannelInfo;
+import com.wiatec.blive.orm.pojo.ChannelPurchaseInfo;
+import com.wiatec.blive.orm.pojo.CoinBillInfo;
 import com.wiatec.blive.txcloud.LiveChannelMaster;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,6 +37,8 @@ public class LiveChannelService {
     @Resource
     private LiveChannelDao liveChannelDao;
     @Resource
+    private LivePurchaseDao livePurchaseDao;
+    @Resource
     private VodChannelDao vodChannelDao;
     @Resource
     private LiveViewDao liveViewDao;
@@ -43,6 +46,8 @@ public class LiveChannelService {
     private AuthRegisterUserDao authRegisterUserDao;
     @Resource
     private RelationFollowDao relationFollowDao;
+    @Resource
+    private CoinService coinService;
 
 
     public ResultInfo<PageInfo<ChannelInfo>> selectAllAvailableWithUser(int pageNum, int pageSize){
@@ -235,6 +240,85 @@ public class LiveChannelService {
     public ResultInfo<ChannelInfo> updatePreview(ChannelInfo channelInfo){
         liveChannelDao.updatePreviewByUserId(channelInfo);
         return ResultMaster.success(liveChannelDao.selectOneByUserId(channelInfo.getUserId()));
+    }
+
+    /**
+     * verify that viewer have permission on channel
+     * @param channelId channel id
+     * @param viewerId viewer id
+     * @return ResultInfo
+     */
+    public ResultInfo checkViewPermission(int channelId, int viewerId){
+        ChannelPurchaseInfo purchaseInfo = livePurchaseDao.selectOne(channelId, viewerId);
+        if(purchaseInfo == null){
+            throw new XException("no permission");
+        }
+        if(purchaseInfo.getExpiresTime().before(new Date())){
+            throw new XException("permission expires");
+        }
+        return ResultMaster.success(purchaseInfo);
+    }
+
+    /**
+     * viewer purchase view permission on channel
+     * @param channelId channel id
+     * @param viewerId viewer id
+     * @param duration permission duration
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ResultInfo purchasePermission(int channelId, int viewerId, int duration, int coins,
+                                         String platform){
+        ChannelPurchaseInfo purchaseInfo = livePurchaseDao.selectOne(channelId, viewerId);
+        ChannelInfo channelInfo = liveChannelDao.selectOneByChannelId(channelId);
+        if(channelInfo == null){
+            throw new XException("channel not exists");
+        }
+        ResultInfo resultInfo = coinService.consumeCoin(viewerId, channelInfo.getUserId(),
+                CoinBillInfo.CATEGORY_CONSUME_VIEW, coins, platform);
+        if(!resultInfo.isSuccess()){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        Date expiresTime = getPermissionExpiresTime(duration, purchaseInfo);
+        int result;
+        if(purchaseInfo == null){
+            result =livePurchaseDao.insertOne(channelId, viewerId, expiresTime);
+        }else{
+            result =livePurchaseDao.updateOne(channelId, viewerId, expiresTime);
+        }
+        if(result != 1){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        return ResultMaster.success();
+    }
+
+    public Date getPermissionExpiresTime(int duration, ChannelPurchaseInfo purchaseInfo ){
+        Date expires;
+        Date startDate;
+        if(purchaseInfo == null || purchaseInfo.getExpiresTime().before(new Date())){
+            startDate = new Date();
+        }else{
+            startDate = purchaseInfo.getExpiresTime();
+        }
+        switch (duration){
+            case 1:
+                expires = TimeUtil.getExpiresByDays(startDate, 1);
+                break;
+            case 21:
+                expires = TimeUtil.getExpires(startDate, 1);
+                break;
+            case 23:
+                expires = TimeUtil.getExpires(startDate, 3);
+                break;
+            case 26:
+                expires = TimeUtil.getExpires(startDate, 6);
+                break;
+            case 212:
+                expires = TimeUtil.getExpires(startDate, 12);
+                break;
+            default:
+                expires = new Date();
+        }
+        return expires;
     }
 
 

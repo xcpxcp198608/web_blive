@@ -16,6 +16,7 @@ public interface LiveChannelDao {
     List<ChannelInfo> selectAllAvailableWithUserInfo();
     List<ChannelInfo> searchByLikeTitle(String title);
     ChannelInfo selectOneByUserId(int userId);
+    ChannelInfo selectOneByChannelId(int channelId);
     int selectUserIdByStreamId(String streamId);
 
     int countByUserId(int userId);

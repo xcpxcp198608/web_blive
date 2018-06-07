@@ -7,7 +7,6 @@ import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.common.utils.TextUtil;
 import com.wiatec.blive.common.utils.TimeUtil;
-import com.wiatec.blive.dto.CoinBillChartDaysInfo;
 import com.wiatec.blive.dto.CoinBillDaysInfo;
 import com.wiatec.blive.dto.CoinBillChartMonthlyInfo;
 import com.wiatec.blive.dto.YearMonthInfo;
@@ -28,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +37,7 @@ import java.util.List;
 public class CoinService {
 
     private final Logger logger = LoggerFactory.getLogger(CoinService.class);
+    public static final float COIN_OFF = 0.8F;
 
     private final String VERIFY_RECEIPT_URL_PRODUCT = "https://buy.itunes.apple.com/verifyReceipt";
     private final String VERIFY_RECEIPT_URL_SANDBOX = "https://sandbox.itunes.apple.com/verifyReceipt";
@@ -79,7 +78,8 @@ public class CoinService {
      */
     @Transactional(rollbackFor = Exception.class)
     public ResultInfo consumeCoin(int userId, int targetUserId, int category, int consumeCoins,
-                                  int level, int month, String platform, String description, String comment){
+                                  String platform){
+
         //检查消费者账户金额是否足够
         int userCoins = coinDao.countCoins(userId);
         if(userCoins < consumeCoins){
@@ -90,32 +90,29 @@ public class CoinService {
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
         // 将金额增加到收入者的账户
+        int producerCoins = consumeCoins;
+        if(category != CoinBillInfo.CATEGORY_CONSUME_PRO){
+            producerCoins = (int) (consumeCoins * COIN_OFF);
+        }
         if(coinDao.countOne(targetUserId) == 1) {
-            if (coinDao.updateOne(targetUserId, CONSUME_ACTION_PLUS, consumeCoins) != 1) {
+            if (coinDao.updateOne(targetUserId, CONSUME_ACTION_PLUS, producerCoins) != 1) {
                 throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
             }
         }else{
-            if (coinDao.insertOne(targetUserId, consumeCoins) != 1) {
+            if (coinDao.insertOne(targetUserId, producerCoins) != 1) {
                 throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
             }
         }
-        // 购买pro时修改用户等级到6
-        if(category == CoinBillInfo.CATEGORY_CONSUME_PRO){
-            AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);
-            if(userInfo == null){
-                throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
-            }
-            Date expiresDate = userInfo.getExpiresTime();
-            if(expiresDate.after(new Date())){
-                expiresDate = TimeUtil.getExpiresTime(expiresDate, month);
-            }else{
-                expiresDate = TimeUtil.getExpiresTime(new Date(), month);
-            }
-            if(authRegisterUserDao.updateLevelByUserId(userId, level, expiresDate) != 1){
+        // 将系统分成增加到系统账户
+        int systemCoins = consumeCoins - producerCoins;
+        if(systemCoins > 0){
+            if (coinDao.updateOne(0, CONSUME_ACTION_PLUS, systemCoins) != 1) {
                 throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
             }
         }
 
+        AuthRegisterUserInfo consumerInfo = authRegisterUserDao.selectOneById(userId);
+        AuthRegisterUserInfo producerInfo = authRegisterUserDao.selectOneById(targetUserId);
         //bill user consume info
         CoinBillInfo coinBillInfo = new CoinBillInfo();
         coinBillInfo.setUserId(userId);
@@ -124,30 +121,53 @@ public class CoinService {
         coinBillInfo.setCategory(category);
         coinBillInfo.setCoins(consumeCoins);
         coinBillInfo.setPlatform(platform);
-        coinBillInfo.setDescription(description);
-        coinBillInfo.setComment(comment);
+        coinBillInfo.setDescription(CoinBillInfo.getConsumeDescription(producerInfo, consumeCoins, category, ""));
+        coinBillInfo.setComment("");
         logger.info(coinBillInfo.toString());
         coinBillDao.insertOne(coinBillInfo);
 
-        //bill user add coin info
+        // bill user add coin info
         CoinBillInfo coinBillInfo1 = new CoinBillInfo();
         coinBillInfo1.setUserId(targetUserId);
         coinBillInfo1.setRelationId(userId);
         coinBillInfo1.setType(CoinBillInfo.TYPE_INCOME);
         if(category == CoinBillInfo.CATEGORY_CONSUME_PRO){
             coinBillInfo1.setCategory(CoinBillInfo.CATEGORY_INCOME_PRO);
+            coinBillInfo1.setCoins(consumeCoins);
         }else if(category == CoinBillInfo.CATEGORY_CONSUME_VIEW){
             coinBillInfo1.setCategory(CoinBillInfo.CATEGORY_INCOME_VIEW);
+            coinBillInfo1.setCoins(producerCoins);
         }else if(category == CoinBillInfo.CATEGORY_CONSUME_GIFT){
             coinBillInfo1.setCategory(CoinBillInfo.CATEGORY_INCOME_GIFT);
+            coinBillInfo1.setCoins(producerCoins);
         }
-        coinBillInfo1.setCoins(consumeCoins);
         coinBillInfo1.setPlatform(platform);
-        coinBillInfo1.setDescription(description);
-        coinBillInfo1.setComment(comment);
+        coinBillInfo1.setDescription(CoinBillInfo.getProducerDescription(consumerInfo, producerCoins, category, ""));
+        coinBillInfo1.setComment("");
         logger.info(coinBillInfo1.toString());
         coinBillDao.insertOne(coinBillInfo1);
 
+        //  bill system coin info
+        if(systemCoins > 0){
+            CoinBillInfo coinBillInfo2 = new CoinBillInfo();
+            coinBillInfo2.setUserId(0);
+            coinBillInfo2.setRelationId(userId);
+            coinBillInfo2.setType(CoinBillInfo.TYPE_INCOME);
+            if(category == CoinBillInfo.CATEGORY_CONSUME_PRO){
+                coinBillInfo2.setCategory(CoinBillInfo.CATEGORY_INCOME_PRO);
+            }else if(category == CoinBillInfo.CATEGORY_CONSUME_VIEW){
+                coinBillInfo2.setCategory(CoinBillInfo.CATEGORY_INCOME_VIEW);
+            }else if(category == CoinBillInfo.CATEGORY_CONSUME_GIFT){
+                coinBillInfo2.setCategory(CoinBillInfo.CATEGORY_INCOME_GIFT);
+            }
+            coinBillInfo2.setCoins(systemCoins);
+            coinBillInfo2.setPlatform(platform);
+            coinBillInfo2.setDescription(CoinBillInfo.getSystemDescription(consumerInfo, producerInfo,
+                    producerCoins, category, ""));
+            coinBillInfo2.setComment("");
+            logger.info(coinBillInfo2.toString());
+            coinBillDao.insertOne(coinBillInfo2);
+        }
         return ResultMaster.success();
     }
 

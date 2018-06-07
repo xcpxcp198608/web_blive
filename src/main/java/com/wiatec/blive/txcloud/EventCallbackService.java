@@ -61,11 +61,11 @@ public class EventCallbackService {
     }
 
     private void streamStop(int userId, TXEventInfo txEventInfo){
-        liveChannelDao.updateUnavailableByUserId(userId);
+//        liveChannelDao.updateUnavailableByUserId(userId);
     }
 
     private void streamStart(int userId, TXEventInfo txEventInfo){
-
+//        liveChannelDao.updateAvailableByUserId(userId);
     }
 
 

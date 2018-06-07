@@ -21,7 +21,7 @@ public class ChannelInfo extends BaseInfo implements Comparable<ChannelInfo> {
      * 内容分级：0->G, 1->PG, 2->pg-13, 3->R, 4->NC-17
      */
     private int rating;
-    private float price;
+    private int price;
     private String title;
     private String message;
     /**
@@ -96,11 +96,11 @@ public class ChannelInfo extends BaseInfo implements Comparable<ChannelInfo> {
         this.rating = rating;
     }
 
-    public float getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 

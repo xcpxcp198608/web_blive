@@ -34,13 +34,15 @@
     </select>
 
     <select id="selectByUserAndVideoId" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
-      <include refid="select"/>
-        WHERE user_id = #{userId} AND video_id = #{videoId}
+      <include refid="select"/> WHERE user_id = #{userId} AND video_id = #{videoId}
     </select>
 
     <select id="selectOneByVideoId" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
-      <include refid="select"/>
-        WHERE video_id = #{videoId}
+      <include refid="select"/> WHERE video_id = #{videoId}
+    </select>
+
+    <select id="selectOneByChannelId" resultType="com.wiatec.blive.orm.pojo.ChannelInfo">
+      <include refid="select"/> WHERE id = #{channelId}
     </select>
 
 
@@ -129,5 +131,9 @@
         SET preview = #{preview}, modify_time = now()
         WHERE file_id = #{fileId}
     </update>
+
+    <delete id="deleteChannel">
+        DELETE IGNORE FROM bvision_channel_vod WHERE user_id = #{userId} AND video_id = #{videoId}
+    </delete>
 
 </mapper>

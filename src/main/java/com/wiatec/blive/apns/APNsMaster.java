@@ -2,6 +2,7 @@ package com.wiatec.blive.apns;
 
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsService;
+import com.wiatec.blive.Constant;
 import com.wiatec.blive.common.utils.ApplicationContextHelper;
 import com.wiatec.blive.common.utils.TextUtil;
 import com.wiatec.blive.orm.dao.DeviceTokenDao;
@@ -28,8 +29,6 @@ public class APNsMaster {
     public static final String ACTION_TRENDING = "ACTION_TRENDING";
     public static final String ACTION_NEW_FRIEND_REQUEST = "ACTION_NEW_FRIEND_REQUEST";
 
-    private static final String PATH_LOCAL = "/Users/xuchengpeng/IdeaProjects/blive/src/main/resources/aps_development.com.legacy.bvision.p12";
-    private static final String PATH_PRODUCT = "D:/blive/web/WEB-INF/classes/aps_development.com.legacy.bvision.p12";
 
     private static ApnsService service;
     private static DeviceTokenDao deviceTokenDao;
@@ -39,7 +38,7 @@ public class APNsMaster {
             SqlSession sqlSession = (SqlSession) ApplicationContextHelper.getApplicationContext().getBean("sqlSessionTemplate");
             deviceTokenDao = sqlSession.getMapper(DeviceTokenDao.class);
             service = APNS.newService()
-                    .withCert(PATH_PRODUCT, "123456")
+                    .withCert(Constant.apn.DEV_SERVER_P12, "123456")
                     .withSandboxDestination()
                     .build();
         } catch (Exception e) {

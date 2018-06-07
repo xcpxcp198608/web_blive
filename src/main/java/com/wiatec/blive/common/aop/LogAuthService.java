@@ -30,7 +30,9 @@ public class LogAuthService {
         logger.debug("= class= {}", joinPoint.getSignature().getDeclaringTypeName());
         logger.debug("= method= {}", joinPoint.getSignature().getName());
         for(Object o: joinPoint.getArgs()){
-            logger.debug("= args= {}", o.toString());
+            if(o != null) {
+                logger.debug("= args= {}", o.toString());
+            }
         }
         logger.debug("= ");
         logger.debug("===============================================================================================");

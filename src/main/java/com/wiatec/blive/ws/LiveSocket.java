@@ -63,6 +63,7 @@ public class LiveSocket {
     private int userId;
     private String username = "guest";
     private LiveViewInfo liveViewInfo = new LiveViewInfo();
+    private AuthRegisterUserInfo userInfo;
 
     private boolean insertSuccess = false;
 
@@ -78,7 +79,7 @@ public class LiveSocket {
         this.userId = userId;
         this.groupId = groupId;
 
-        AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);
+        userInfo = authRegisterUserDao.selectOneById(userId);
         if(userInfo != null){
             username = userInfo.getUsername();
         }
@@ -124,7 +125,10 @@ public class LiveSocket {
                     }
                 }
             }
-            commentInfo.setViewerUsername(username);
+            if(userInfo != null) {
+                commentInfo.setViewerUsername(userInfo.getUsername());
+                commentInfo.setViewerIcon(userInfo.getIcon());
+            }
             if(commentInfo.getScope() == ChannelCommentInfo.SCOPE_ALL){
                 for(Map.Entry<Integer, LiveSocket> entry: clientMap.entrySet()){
                     entry.getValue().sendMessage(new Gson().toJson(commentInfo));

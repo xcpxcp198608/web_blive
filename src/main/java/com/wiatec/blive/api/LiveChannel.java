@@ -1,14 +1,11 @@
 package com.wiatec.blive.api;
 
 import com.github.pagehelper.PageInfo;
+import com.wiatec.blive.Constant;
 import com.wiatec.blive.common.result.ResultInfo;
-import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.dao.LdIllegalWordDao;
-import com.wiatec.blive.orm.pojo.AuthRegisterUserInfo;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
-import com.wiatec.blive.orm.pojo.LiveChannelInfo;
-import com.wiatec.blive.service.AuthRegisterUserService;
 import com.wiatec.blive.service.LiveChannelService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
 
 /**
  * @author patrick
@@ -28,16 +24,6 @@ import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
 @RestController
 @RequestMapping(value = "/channel")
 public class LiveChannel {
-
-    private final String[] FILTER_KEYWORD = {"CEO", "CTO", "COO", "fuck", "shit", "dick", "pussy",
-            "mother fucker", "president", "Vice President", "FUCK", "SHIT", "DICK",
-            "PUSSY", "MOTHER FUCKER", "FUCKER", "PRESIDENT", "President", "arse", "ass", "asshole",
-            "bastard", "bitch", "bollocks", "child-fucker", "Christ on a bike", "Christ on a cracker",
-            "cunt", "fuck", "Fuck", "FUCK", "fucking", "Fucking", "FUCKING", "fucker", "Fucker",
-            "FUCKER", "Fuckers", "FUCKERS", "fuckers", "goddamn", "godsdamn", "holy shit",
-            "motherfucker", "Motherfuckers", "nigga", "nigger", "shit", "shit ass", "shitass",
-            "son of a bitch", "son of a motherless goat", "son of a whore", "twat"};
-
 
     @Resource
     private LiveChannelService liveChannelService;
@@ -91,15 +77,6 @@ public class LiveChannel {
                 }
             }
         }
-
-//        for (String s: FILTER_KEYWORD) {
-//            if(channelInfo.getTitle().contains(s)){
-//                throw new XException("title contains not allow word");
-//            }
-//            if(channelInfo.getMessage().contains(s)){
-//                throw new XException("content contains not allow word");
-//            }
-//        }
         return liveChannelService.updateChannel(action, channelInfo);
     }
 
@@ -118,11 +95,24 @@ public class LiveChannel {
             throw new XException("icon error");
         }
         String path = request.getSession().getServletContext().getRealPath("/Resource/channel_preview/");
-        FileUtils.copyInputStreamToFile(file.getInputStream(), new File(path, file.getOriginalFilename()));
-        String preview = BASE_RESOURCE_URL + "channel_preview/" + file.getOriginalFilename();
+        File localFile = new File(path, file.getOriginalFilename());
+        FileUtils.copyInputStreamToFile(file.getInputStream(), localFile);
+        String preview = Constant.url.BASE_RESOURCE + "channel_preview/" + file.getOriginalFilename();
         ChannelInfo channelInfo = new ChannelInfo();
         channelInfo.setUserId(userId);
         channelInfo.setPreview(preview);
         return liveChannelService.updatePreview(channelInfo);
+    }
+
+    @GetMapping("/verify/{channelId}/{viewerId}")
+    public ResultInfo verifyViewPermission(@PathVariable int channelId, @PathVariable int viewerId){
+        return liveChannelService.checkViewPermission(channelId, viewerId);
+    }
+
+    @PostMapping("/purchase/{channelId}/{viewerId}/{duration}/{coins}")
+    public ResultInfo purchasePermission(@PathVariable int channelId, @PathVariable int viewerId,
+                                         @PathVariable int duration, @PathVariable int coins,
+                                         String platform){
+        return liveChannelService.purchasePermission(channelId, viewerId, duration, coins, platform);
     }
 }

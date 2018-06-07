@@ -1,13 +1,13 @@
 package com.wiatec.blive.api;
 
-import com.github.pagehelper.PageInfo;
+import com.wiatec.blive.Constant;
 import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.orm.dao.LdIllegalWordDao;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
-import com.wiatec.blive.orm.pojo.VodChannelInfo;
 import com.wiatec.blive.service.VodChannelService;
 import org.apache.commons.io.FileUtils;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static com.wiatec.blive.instance.Constant.BASE_RESOURCE_URL;
 
 /**
  * @author patrick
@@ -96,9 +95,9 @@ public class VodChannel {
      * @param userId user id
      * @return ResultInfo
      */
-    @PutMapping("/status/{action}/{userId}")
+    @PostMapping("/status/{action}/{userId}")
     public ResultInfo updateChannelUnavailable(@PathVariable int action, @PathVariable int userId,
-                                               String[] videoIds){
+                                               @RequestParam("videoIds") String[] videoIds){
         return vodChannelService.updateChannelStatus(action, userId, videoIds);
     }
 
@@ -119,7 +118,24 @@ public class VodChannel {
         }
         String path = request.getSession().getServletContext().getRealPath("/Resource/channel_preview/");
         FileUtils.copyInputStreamToFile(file.getInputStream(), new File(path, file.getOriginalFilename()));
-        String preview = BASE_RESOURCE_URL + "channel_preview/" + file.getOriginalFilename();
+        String preview = Constant.url.BASE_RESOURCE + "channel_preview/" + file.getOriginalFilename();
         return vodChannelService.updatePreview(videoId, preview);
+    }
+
+    @DeleteMapping("/{userId}/{videoId}")
+    public ResultInfo deleteVodChannel(@PathVariable int userId, @PathVariable String videoId){
+        return vodChannelService.deleteVodChannel(userId, videoId);
+    }
+
+    @GetMapping("/verify/{channelId}/{viewerId}")
+    public ResultInfo verifyViewPermission(@PathVariable int channelId, @PathVariable int viewerId){
+        return vodChannelService.checkViewPermission(channelId, viewerId);
+    }
+
+    @PostMapping("/purchase/{channelId}/{viewerId}/{duration}/{coins}")
+    public ResultInfo purchasePermission(@PathVariable int channelId, @PathVariable int viewerId,
+                                         @PathVariable int duration, @PathVariable int coins,
+                                         String platform){
+        return vodChannelService.purchasePermission(channelId, viewerId, duration, coins, platform);
     }
 }

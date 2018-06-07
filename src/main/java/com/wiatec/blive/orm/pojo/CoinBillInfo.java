@@ -130,4 +130,92 @@ public class CoinBillInfo extends BaseInfo {
                 ", modifyTime=" + modifyTime +
                 '}';
     }
+
+
+    public static String getConsumeDescription(AuthRegisterUserInfo producerInfo, int coins,
+                                               int category, String comment){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("consume ")
+                .append(coins)
+                .append(" coins to");
+        switch (category){
+            case CATEGORY_CONSUME_PRO:
+                stringBuilder.append(" purchase PRO ").append(comment);
+                break;
+            case CATEGORY_CONSUME_VIEW:
+                stringBuilder.append(" purchase ")
+                        .append(producerInfo.getUsername())
+                        .append("'s channel ")
+                        .append(comment);
+                break;
+            case CATEGORY_CONSUME_GIFT:
+                stringBuilder.append(" send gift to")
+                        .append(producerInfo.getUsername())
+                        .append(comment);
+                break;
+            default:
+                 break;
+        }
+        return stringBuilder.toString();
+    }
+
+
+    public static String getProducerDescription( AuthRegisterUserInfo consumerInfo, int coins,
+                                                 int category, String comment){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("get ")
+                .append(coins)
+                .append(" coins from ");
+        switch (category){
+            case CATEGORY_CONSUME_PRO:
+                stringBuilder.append(consumerInfo.getUsername())
+                        .append(" purchase PRO ")
+                        .append(comment);
+                break;
+            case CATEGORY_CONSUME_VIEW:
+                stringBuilder.append(consumerInfo.getUsername())
+                        .append(" purchase channel view ")
+                        .append(comment);
+                break;
+            case CATEGORY_CONSUME_GIFT:
+                stringBuilder.append(consumerInfo.getUsername())
+                        .append(" send gift ")
+                        .append(comment);
+                break;
+            default:
+                break;
+        }
+        return stringBuilder.toString();
+    }
+
+    public static String getSystemDescription( AuthRegisterUserInfo consumerInfo, AuthRegisterUserInfo producerInfo,
+                                               int coins, int category, String comment){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("get ")
+                .append(coins)
+                .append(" coins from ");
+        switch (category){
+            case CATEGORY_CONSUME_PRO:
+                stringBuilder.append(consumerInfo.getUsername())
+                        .append(" purchase PRO ")
+                        .append(comment);
+                break;
+            case CATEGORY_CONSUME_VIEW:
+                stringBuilder.append(consumerInfo.getUsername())
+                        .append(" purchase ")
+                        .append(producerInfo.getUsername())
+                        .append("'s channel ")
+                        .append(comment);
+                break;
+            case CATEGORY_CONSUME_GIFT:
+                stringBuilder.append(consumerInfo.getUsername())
+                        .append(" send gift to ")
+                        .append(producerInfo.getUsername())
+                        .append(comment);
+                break;
+            default:
+                break;
+        }
+        return stringBuilder.toString();
+    }
 }

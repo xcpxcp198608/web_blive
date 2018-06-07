@@ -90,11 +90,22 @@ public class ProService {
         }else{
             amount = proInfo.getPrice() - offCoins;
         }
-        ResultInfo resultInfo = coinService.consumeCoin(userId, 0, CoinBillInfo.CATEGORY_CONSUME_PRO,
-                amount, proInfo.getLevel(), proInfo.getMonths(), platform,
-                "purchase pro " + proInfo.getMonths() + " months, consume " + amount + " coins",
-                "use voucher, id: " + voucherId);
+        ResultInfo resultInfo = coinService.consumeCoin(userId, 0,
+                CoinBillInfo.CATEGORY_CONSUME_PRO, amount, platform);
         if(!resultInfo.isSuccess()){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        AuthRegisterUserInfo userInfo = authRegisterUserDao.selectOneById(userId);
+        if(userInfo == null){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        Date expiresDate = userInfo.getExpiresTime();
+        if(expiresDate.after(new Date())){
+            expiresDate = TimeUtil.getExpiresTime(expiresDate, proInfo.getMonths());
+        }else{
+            expiresDate = TimeUtil.getExpiresTime(new Date(), proInfo.getMonths());
+        }
+        if(authRegisterUserDao.updateLevelByUserId(userId, proInfo.getLevel(), expiresDate) != 1){
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
         return getProDetails(userId);

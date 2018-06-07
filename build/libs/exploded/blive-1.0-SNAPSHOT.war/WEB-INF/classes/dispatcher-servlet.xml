@@ -39,6 +39,8 @@
             <!--<mvc:mapping path="/coins/analysis/**"/>-->
             <mvc:mapping path="/user/update/*"/>
             <mvc:mapping path="/pro/**"/>
+            <mvc:mapping path="/channel/purchase/**"/>
+            <mvc:mapping path="/vod/purchase/**"/>
             <bean class="com.wiatec.blive.interceptor.AccessTokenInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>

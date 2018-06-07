@@ -32,17 +32,13 @@ public class BVisionCoin {
      * @param targetUserId targetUserId
      * @param coins consume coins
      * @param platform platform
-     * @param description description
      * @return ResultInfo
      */
     @PutMapping("/consume/{userId}/{targetUserId}/{category}/{coins}")
     public ResultInfo consumeCoin(@PathVariable int userId, @PathVariable int targetUserId,
                                   @PathVariable int category, @PathVariable int coins,
-                                  String platform, String description, String comment){
-        int level = 6;
-        int month = 1;
-        return coinService.consumeCoin(userId, targetUserId, category, coins, level, month,
-                platform, description, comment);
+                                  String platform){
+        return coinService.consumeCoin(userId, targetUserId, category, coins, platform);
     }
 
     /**

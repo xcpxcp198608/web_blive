@@ -18,7 +18,7 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{32} - %msg%n</pattern>
         </encoder>
         <rollingPolicy  class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>D:/blive/logs/log_%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>D:/blive/logs/log_%d{yyyy-MM-dd HH}.log</FileNamePattern>
             <append>true</append>
             <maxFileSize>1024MB</maxFileSize>
             <maxHistory>60</maxHistory>
@@ -34,7 +34,7 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{32} - %msg%n</pattern>
         </encoder>
         <rollingPolicy  class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>D:/blive/logs/error_%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>D:/blive/logs/error_%d{yyyy-MM-dd HH}.log</FileNamePattern>
             <append>true</append>
             <maxFileSize>1024MB</maxFileSize>
             <maxHistory>60</maxHistory>

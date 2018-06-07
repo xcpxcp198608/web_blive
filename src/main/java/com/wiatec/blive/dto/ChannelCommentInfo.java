@@ -15,6 +15,7 @@ public class ChannelCommentInfo {
     private int pusherId;
     private int viewerId;
     private String viewerUsername;
+    private String viewerIcon;
     /**
      *  1 all， 2 in group
      */
@@ -100,12 +101,21 @@ public class ChannelCommentInfo {
         this.createTime = createTime;
     }
 
+    public String getViewerIcon() {
+        return viewerIcon;
+    }
+
+    public void setViewerIcon(String viewerIcon) {
+        this.viewerIcon = viewerIcon;
+    }
+
     @Override
     public String toString() {
         return "ChannelCommentInfo{" +
                 "pusherId=" + pusherId +
                 ", viewerId=" + viewerId +
                 ", viewerUsername='" + viewerUsername + '\'' +
+                ", viewerIcon='" + viewerIcon + '\'' +
                 ", scope=" + scope +
                 ", type=" + type +
                 ", viewers=" + viewers +

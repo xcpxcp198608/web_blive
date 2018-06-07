@@ -7,11 +7,16 @@ import com.wiatec.blive.common.result.ResultInfo;
 import com.wiatec.blive.common.result.ResultMaster;
 import com.wiatec.blive.common.result.XException;
 import com.wiatec.blive.common.utils.AESUtil;
+import com.wiatec.blive.common.utils.TimeUtil;
 import com.wiatec.blive.orm.dao.*;
 import com.wiatec.blive.orm.pojo.ChannelInfo;
+import com.wiatec.blive.orm.pojo.ChannelPurchaseInfo;
+import com.wiatec.blive.orm.pojo.CoinBillInfo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,6 +27,12 @@ public class VodChannelService {
 
     @Resource
     private VodChannelDao vodChannelDao;
+    @Resource
+    private VodPurchaseDao vodPurchaseDao;
+    @Resource
+    private LiveChannelService liveChannelService;
+    @Resource
+    private CoinService coinService;
 
     public ResultInfo<PageInfo<ChannelInfo>> selectAllAvailableWithUser(int pageNum, int pageSize){
         PageHelper.startPage(pageNum, pageSize);
@@ -151,6 +162,68 @@ public class VodChannelService {
             throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
         }
         return ResultMaster.success(info);
+    }
+
+    /**
+     * 删除vod频道
+     * @param userId user id
+     * @param videoId video id
+     */
+    public ResultInfo deleteVodChannel(int userId, String videoId){
+        if(vodChannelDao.deleteChannel(userId, videoId) != 1){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        return ResultMaster.success();
+    }
+
+
+    /**
+     * verify that viewer have permission on channel
+     * @param channelId channel id
+     * @param viewerId viewer id
+     * @return ResultInfo
+     */
+    public ResultInfo checkViewPermission(int channelId, int viewerId){
+        ChannelPurchaseInfo purchaseInfo = vodPurchaseDao.selectOne(channelId, viewerId);
+        if(purchaseInfo == null){
+            throw new XException("no permission");
+        }
+        if(purchaseInfo.getExpiresTime().before(new Date())){
+            throw new XException("permission expires");
+        }
+        return ResultMaster.success(purchaseInfo);
+    }
+
+    /**
+     * viewer purchase view permission on channel
+     * @param channelId channel id
+     * @param viewerId viewer id
+     * @param duration permission duration
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ResultInfo purchasePermission(int channelId, int viewerId, int duration, int coins,
+                                         String platform){
+        ChannelPurchaseInfo purchaseInfo = vodPurchaseDao.selectOne(channelId, viewerId);
+        ChannelInfo channelInfo = vodChannelDao.selectOneByChannelId(channelId);
+        if(channelInfo == null){
+            throw new XException("channel not exists ");
+        }
+        ResultInfo resultInfo = coinService.consumeCoin(viewerId, channelInfo.getUserId(),
+                CoinBillInfo.CATEGORY_CONSUME_VIEW, coins, platform);
+        if(!resultInfo.isSuccess()){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        Date expiresTime = liveChannelService.getPermissionExpiresTime(duration, purchaseInfo);
+        int result;
+        if(purchaseInfo == null){
+            result =vodPurchaseDao.insertOne(channelId, viewerId, expiresTime);
+        }else{
+            result =vodPurchaseDao.updateOne(channelId, viewerId, expiresTime);
+        }
+        if(result != 1){
+            throw new XException(EnumResult.ERROR_INTERNAL_SERVER_SQL);
+        }
+        return ResultMaster.success();
     }
 
 }
